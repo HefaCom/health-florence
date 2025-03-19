@@ -40,7 +40,7 @@ export const DesktopSidebar = () => {
   ];
 
   return (
-    <div className="w-64 border-r bg-card/50 hidden md:flex flex-col h-[calc(100vh-138px)]">
+    <div className="w-64 border-r bg-card/50 hidden md:flex flex-col h-100vh">
       <div className="p-4 flex items-center">
         <FloLogo className="w-10 h-10 mr-2" />
         <span className="font-bold text-xl neon-text">
