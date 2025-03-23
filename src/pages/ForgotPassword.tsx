@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -28,18 +29,12 @@ const ForgotPassword = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden flex flex-col">
-      {/* Background Image */}
-      <div className="absolute inset-0 -z-10">
-        <img 
-          src="/lovable-uploads/d66d44af-2963-485a-af75-173d1dc55766.png" 
-          alt="Landscape background" 
-          className="w-full h-full object-cover"
-        />
-      </div>
+      {/* Animated Background */}
+      <AnimatedBackground />
       
       {/* Container */}
       <div className="flex flex-col items-center justify-center flex-1 px-4 py-12">
-        <div className="w-full max-w-md bg-card/95 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden">
+        <div className="w-full max-w-md bg-card/80 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-border/20">
           <div className="p-8">
             <div className="flex justify-between items-center mb-6">
               <Button 

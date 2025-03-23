@@ -112,13 +112,20 @@ export default {
 				'float': {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-10px)' }
+				},
+				'blob': {
+					'0%': { transform: 'translate(0px, 0px) scale(1)' },
+					'33%': { transform: 'translate(30px, -30px) scale(1.1)' },
+					'66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+					'100%': { transform: 'translate(0px, 0px) scale(1)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse-glow': 'pulse-glow 3s infinite ease-in-out',
-				'float': 'float 5s infinite ease-in-out'
+				'float': 'float 5s infinite ease-in-out',
+				'blob': 'blob 10s infinite ease-in-out'
 			},
 			boxShadow: {
 				'neon-blue': '0 0 5px #1e90ff, 0 0 10px rgba(30, 144, 255, 0.5)',
@@ -130,6 +137,8 @@ export default {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'blue-silver-gradient': 'linear-gradient(225deg, #1e90ff 0%, #e0e0e0 100%)',
 				'dark-blue-gradient': 'linear-gradient(135deg, #0c2d6b 0%, #1A1F2C 100%)',
+				'grid-white': 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\' width=\'32\' height=\'32\' fill=\'none\' stroke=\'rgb(255 255 255 / 0.05)\'%3e%3cpath d=\'M0 .5H31.5V32\'/%3e%3c/svg%3e")',
+        'grid-black': 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\' width=\'32\' height=\'32\' fill=\'none\' stroke=\'rgb(0 0 0 / 0.05)\'%3e%3cpath d=\'M0 .5H31.5V32\'/%3e%3c/svg%3e")',
 			}
 		}
 	},
