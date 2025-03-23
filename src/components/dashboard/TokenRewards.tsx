@@ -29,7 +29,7 @@ export function TokenRewards({ balance, className }: TokenRewardsProps) {
         <div className="mb-2">
           <div className="text-sm text-blue-200">Current Balance</div>
           <div className="text-3xl font-bold text-white">
-            {formatBalance(balance)} <span className="text-sm font-normal">HAI</span>
+            {formatBalance(balance)} <span className="text-sm font-normal">HAIC</span>
           </div>
         </div>
         

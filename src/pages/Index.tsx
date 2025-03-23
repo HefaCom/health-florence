@@ -62,7 +62,7 @@ const Index = () => {
           <div className="md:col-span-2">
             <div className="mb-6">
               <h1 className="text-3xl font-bold">
-                Welcome to Florence<span className="text-primary">.</span>
+                Welcome to Nurse Help Me<span className="text-primary">.</span>
               </h1>
               <p className="text-muted-foreground">
                 Your personal health assistant and medical connector
@@ -114,9 +114,7 @@ const Index = () => {
           </div>
           
           <div className="md:col-span-1 space-y-6">
-            <TokenRewards balance={250.75} />
-            
-            <Card className="p-4 rounded-florence text-center card-glow">
+            Card className="p-4 rounded-florence text-center card-glow">
               <div className="mb-3 flex justify-center">
                 <FloLogo className="w-24 h-24" />
               </div>
@@ -128,6 +126,9 @@ const Index = () => {
                 <ChatInterface />
               </div>
             </Card>
+            <TokenRewards balance={250.75} />
+            
+            
           </div>
         </div>
       </div>
