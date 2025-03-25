@@ -22,7 +22,7 @@ export function TokenRewards({ balance, className }: TokenRewardsProps) {
     <Card className={cn("rounded-florence overflow-hidden card-glow", className)}>
       <div className="p-6 bg-gradient-to-br from-healthAI-navy to-healthAI-darkBlue">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="font-semibold text-white">Health AI Tokens</h3>
+          <h3 className="font-semibold text-white">Health AI Coin</h3>
           <HealthAICoin className="w-12 h-12" />
         </div>
         
