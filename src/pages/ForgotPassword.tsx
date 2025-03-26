@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FloLogo } from "@/components/FloLogo";
@@ -7,21 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { AnimatedBackground } from "@/components/AnimatedBackground";
+
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     toast.success("Password reset instructions sent to your email");
     setIsSubmitting(false);
     setSubmitted(true);
@@ -29,12 +28,18 @@ const ForgotPassword = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden flex flex-col">
-      {/* Animated Background */}
-      <AnimatedBackground />
-      
+      {/* Background Image */}
+      <div className="absolute inset-0 -z-10">
+        <img 
+          src="/bg.jpg" 
+          alt="Landscape background" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+
       {/* Container */}
       <div className="flex flex-col items-center justify-center flex-1 px-4 py-12">
-        <div className="w-full max-w-md bg-card/80 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-border/20">
+        <div className="w-full max-w-md bg-card/95 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden">
           <div className="p-8">
             <div className="flex justify-between items-center mb-6">
               <Button 
@@ -48,15 +53,15 @@ const ForgotPassword = () => {
               <FloLogo className="w-16 h-16" />
               <div className="w-10"></div> {/* Empty div for flex spacing */}
             </div>
-            
+
             <h1 className="text-2xl font-bold text-center">Forgot Password</h1>
-            
+
             {!submitted ? (
               <>
                 <p className="text-center text-muted-foreground mt-2 mb-6">
                   Enter your email address and we'll send you instructions to reset your password.
                 </p>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <Input
@@ -68,7 +73,7 @@ const ForgotPassword = () => {
                       className="rounded-full h-12"
                     />
                   </div>
-                  
+
                   <Button 
                     type="submit" 
                     className="w-full rounded-full h-12" 
@@ -99,7 +104,7 @@ const ForgotPassword = () => {
                 </Button>
               </div>
             )}
-            
+
             <div className="mt-6 text-center text-sm">
               <Link to="/login" className="font-medium text-primary hover:underline">
                 Back to login
@@ -107,7 +112,7 @@ const ForgotPassword = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Theme toggle */}
         <div className="absolute top-4 right-4">
           <ThemeToggle />
