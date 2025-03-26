@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FloLogo } from "@/components/FloLogo";
@@ -8,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Mail } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useTheme } from "@/components/ThemeProvider";
-import { AnimatedBackground } from "@/components/AnimatedBackground";
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,16 +17,16 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
-  
+
   // Get the redirect path from location state or default to home
   const from = (location.state as any)?.from?.pathname || "/";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     const success = await login(email, password);
-    
+
     if (success) {
       // Redirect to the appropriate dashboard based on credentials
       if (email === "admin@florence.com") {
@@ -36,7 +35,7 @@ const Login = () => {
         navigate(from);
       }
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -54,19 +53,25 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden flex flex-col">
-      {/* Animated Background */}
-      <AnimatedBackground />
-      
+      {/* Background Image */}
+      <div className="absolute inset-0 -z-10">
+        <img 
+          src="/bg.jpg" 
+          alt="Landscape background" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+
       {/* Login Container */}
       <div className="flex flex-col items-center justify-center flex-1 px-4 py-12">
-        <div className="w-full max-w-md bg-card/80 backdrop-blur-lg shadow-2xl rounded-3xl overflow-hidden border border-border/20">
+        <div className="w-full max-w-md bg-card/95 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden">
           <div className="p-8">
             <div className="flex justify-center mb-4">
               <FloLogo className="w-24 h-24" />
             </div>
-            
+
             <h1 className="text-3xl font-bold text-center mb-2">Nurse Help Me</h1>
-            
+
             <form onSubmit={handleLogin} className="space-y-4 mt-8">
               <div className="space-y-2">
                 <Input
@@ -78,7 +83,7 @@ const Login = () => {
                   className="rounded-full h-12"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Input
                   type="password"
@@ -89,7 +94,7 @@ const Login = () => {
                   className="rounded-full h-12"
                 />
               </div>
-              
+
               <Button 
                 type="submit" 
                 className="w-full rounded-full h-12" 
@@ -100,7 +105,7 @@ const Login = () => {
                 ) : null}
                 Log In
               </Button>
-              
+
               <div className="text-center">
                 <Link 
                   to="/forgot-password" 
@@ -110,7 +115,7 @@ const Login = () => {
                 </Link>
               </div>
             </form>
-            
+
             <div className="mt-6 text-center">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -120,13 +125,13 @@ const Login = () => {
                   <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                 </div>
               </div>
-              
+
               <div className="mt-6 flex flex-col space-y-3">
                 <Button variant="outline" className="rounded-full h-12">
                   <Mail className="mr-2 h-5 w-5" />
                   Login with Google
                 </Button>
-                
+
                 <div className="flex text-sm justify-center">
                   <span className="text-muted-foreground">Don't have an account?</span>
                   <Link to="/register" className="ml-1 font-medium text-primary hover:underline">
@@ -135,7 +140,7 @@ const Login = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Demo Credentials - for development only */}
             <div className="mt-8 border-t border-border pt-4">
               <p className="text-xs text-center text-muted-foreground mb-2">Demo Credentials</p>
@@ -161,7 +166,7 @@ const Login = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Footer */}
           <div className="bg-muted/50 p-4 text-center text-xs text-muted-foreground">
             <p>By Health AI</p>
@@ -170,7 +175,7 @@ const Login = () => {
             </p>
           </div>
         </div>
-        
+
         {/* Theme toggle */}
         <div className="absolute top-4 right-4">
           <ThemeToggle />
