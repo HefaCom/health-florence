@@ -63,7 +63,7 @@ export function NavigationBar({
           
           <FloLogo className="w-12 h-12 mr-3" />
           <span className="font-bold text-xl hidden md:inline-block neon-text">
-            Florence<span className="text-primary">.</span>
+            Health AI<span className="text-primary">.</span>
           </span>
         </div>
 

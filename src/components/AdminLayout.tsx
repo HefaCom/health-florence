@@ -78,7 +78,7 @@ export const AdminLayout = () => {
           <div className="flex items-center">
           <FloLogo className="w-10 h-10" />
           <span className="font-bold text-xl hidden lg:block neon-text">
-            HealthAI <span className="text-primary">.</span>
+            Health AI <span className="text-primary">.</span>
           </span>
           </div>
         </div>
