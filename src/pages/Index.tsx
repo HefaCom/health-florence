@@ -66,7 +66,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-6 sm:hidden">
               <Card className="p-4 rounded-florence text-center card-glow">
                 <div className="mb-3 flex justify-center">
                   <FloLogo className="w-24 h-24" />
@@ -117,7 +117,7 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="hidden sm:flex p-4 rounded-florence text-center card-glow">
+              <Card className="hidden md:flex p-4 rounded-florence text-center card-glow">
                 <div className="mb-3 flex justify-center">
                   <FloLogo className="w-24 h-24" />
                 </div>
