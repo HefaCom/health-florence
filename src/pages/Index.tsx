@@ -127,7 +127,7 @@ const Index = () => {
           </div>
 
           <div className="md:col-span-1 space-y-6">
-          <Card className="hidden md:flex flex-col-1 p-4 rounded-florence text-center card-glow">
+          <Card className="hidden md:col-span-1 p-4 rounded-florence text-center card-glow">
                 <div className="mb-3 flex justify-center">
                   <FloLogo className="w-24 h-24" />
                 </div>
