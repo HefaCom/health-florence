@@ -48,7 +48,7 @@ export const DashboardLayout = () => {
       {/* Footer */}
       <footer className="bg-background/80 backdrop-blur-md border-t py-4">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2023 Florence Health Connector. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Florence Health Connector. All rights reserved.</p>
           <div className="flex justify-center space-x-4 mt-2">
             <a href="#" className="hover:text-primary">Privacy Policy</a>
             <a href="#" className="hover:text-primary">Terms of Service</a>
