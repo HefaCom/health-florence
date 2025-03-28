@@ -68,6 +68,21 @@ const Index = () => {
                 Your personal health assistant and medical connector
               </p>
             </div>
+
+            <div>
+            <Card className="hidden sm:flex p-4 rounded-florence text-center card-glow">
+              <div className="mb-3 flex justify-center">
+                <FloLogo className="w-24 h-24" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Need Help?</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Chat with Florence, your AI health assistant
+              </p>
+              <div className="hidden h-[400px]">
+                <ChatInterface />
+              </div>
+            </Card>
+            </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <HealthMetric
