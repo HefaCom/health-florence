@@ -124,7 +124,7 @@ export const AdminLayout = () => {
             <div className={`p-4 flex items-center border-b ${sidebarBorderClass}`}>
               <FloLogo className="w-8 h-8 mr-2" />
               <span className="font-bold text-xl text-foreground">
-                HealthAI<span className="text-primary">.</span>
+                Health AI<span className="text-primary">.</span>
               </span>
             </div>
 

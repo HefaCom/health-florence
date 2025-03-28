@@ -57,7 +57,7 @@ export const MobileSidebar = ({ open, onClose }: MobileSidebarProps) => {
             <SheetTitle className="flex items-center gap-2">
               <FloLogo className="w-8 h-8" />
               <span className="font-bold text-xl neon-text">
-                Florence<span className="text-primary">.</span>
+                Health AI<span className="text-primary">.</span>
               </span>
             </SheetTitle>
           </SheetHeader>
