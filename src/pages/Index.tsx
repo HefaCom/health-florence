@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 import { HealthMetric } from "@/components/dashboard/HealthMetric";
@@ -49,9 +48,7 @@ const Index = () => {
 
   const handleMarkTaken = (id: string) => {
     setMedications((prev) =>
-      prev.map((med) =>
-        med.id === id ? { ...med, taken: true } : med
-      )
+      prev.map((med) => (med.id === id ? { ...med, taken: true } : med))
     );
   };
 
@@ -69,21 +66,21 @@ const Index = () => {
               </p>
             </div>
 
-            <div>
-            <Card className="hidden sm:flex p-4 rounded-florence text-center card-glow">
-              <div className="mb-3 flex justify-center">
-                <FloLogo className="w-24 h-24" />
-              </div>
-              <h3 className="font-semibold text-lg mb-1">Need Help?</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Chat with Florence, your AI health assistant
-              </p>
-              <div className="hidden h-[400px]">
-                <ChatInterface />
-              </div>
-            </Card>
+            <div className="mb-6">
+              <Card className="p-4 rounded-florence text-center card-glow">
+                <div className="mb-3 flex justify-center">
+                  <FloLogo className="w-24 h-24" />
+                </div>
+                <h3 className="font-semibold text-lg mb-1">Need Help?</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Chat with Florence, your AI health assistant
+                </p>
+                <div className=" h-[400px]">
+                  <ChatInterface />
+                </div>
+              </Card>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <HealthMetric
                 title="Steps Today"
@@ -118,20 +115,20 @@ const Index = () => {
                 color="bg-blue-500"
               />
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="hidden sm:flex p-4 rounded-florence text-center card-glow">
-              <div className="mb-3 flex justify-center">
-                <FloLogo className="w-24 h-24" />
-              </div>
-              <h3 className="font-semibold text-lg mb-1">Need Help?</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Chat with Florence, your AI health assistant
-              </p>
-              <div className="hidden h-[400px]">
-                <ChatInterface />
-              </div>
-            </Card>
+              <Card className="hidden sm:flex p-4 rounded-florence text-center card-glow">
+                <div className="mb-3 flex justify-center">
+                  <FloLogo className="w-24 h-24" />
+                </div>
+                <h3 className="font-semibold text-lg mb-1">Need Help?</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Chat with Florence, your AI health assistant
+                </p>
+                <div className="hidden h-[400px]">
+                  <ChatInterface />
+                </div>
+              </Card>
               <MedicationReminder
                 medications={medications}
                 onMarkTaken={handleMarkTaken}
@@ -139,12 +136,9 @@ const Index = () => {
               <AppointmentCard appointments={appointments} />
             </div>
           </div>
-          
+
           <div className="md:col-span-1 space-y-6">
-            
             <TokenRewards balance={250.75} />
-            
-            
           </div>
         </div>
       </div>
