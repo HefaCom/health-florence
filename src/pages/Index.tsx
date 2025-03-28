@@ -117,7 +117,6 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
               <MedicationReminder
                 medications={medications}
                 onMarkTaken={handleMarkTaken}
@@ -127,18 +126,18 @@ const Index = () => {
           </div>
 
           <div className="md:col-span-1 space-y-6">
-          <Card className="hidden md:col-span-1 p-4 rounded-florence text-center card-glow">
-                <div className="mb-3 flex justify-center">
-                  <FloLogo className="w-24 h-24" />
-                </div>
-                <h3 className="font-semibold text-lg mb-1">Need Help?</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Chat with Florence, your AI health assistant
-                </p>
-                <div className="hidden h-[400px]">
-                  <ChatInterface />
-                </div>
-              </Card>
+            <Card className="hidden md:block p-4 rounded-florence text-center card-glow">
+              <div className="mb-3 flex justify-center">
+                <FloLogo className="w-24 h-24" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Need Help?</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Chat with Florence, your AI health assistant
+              </p>
+              <div className="hidden h-[400px]">
+                <ChatInterface />
+              </div>
+            </Card>
             <TokenRewards balance={250.75} />
           </div>
         </div>
