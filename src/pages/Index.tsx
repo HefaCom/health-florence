@@ -66,7 +66,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="mb-6 sm:hidden">
+            <div className="mb-6 md:hidden">
               <Card className="p-4 rounded-florence text-center card-glow">
                 <div className="mb-3 flex justify-center">
                   <FloLogo className="w-24 h-24" />
@@ -134,7 +134,7 @@ const Index = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Chat with Florence, your AI health assistant
               </p>
-              <div className="hidden h-[400px]">
+              <div className="hidden md:block  h-[400px]">
                 <ChatInterface />
               </div>
             </Card>
