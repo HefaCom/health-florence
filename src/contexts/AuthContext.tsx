@@ -2,7 +2,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Amplify, Auth } from 'aws-amplify';
+import { Amplify } from "aws-amplify";
+import { signIn, signOut, fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
 import { awsConfig } from "@/lib/cognito-config";
 
 // Configure Amplify
@@ -36,11 +37,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAuthState = async () => {
     setIsLoading(true);
     try {
-      const cognitoUser = await Auth.currentAuthenticatedUser();
+      const currentUser = await getCurrentUser();
+      const userAttributes = await fetchUserAttributes();
+      
       const userData = {
-        email: cognitoUser.attributes.email,
-        role: cognitoUser.attributes.email === "admin@florence.com" ? "admin" as const : "user" as const
+        email: userAttributes.email || '',
+        role: userAttributes.email === "admin@florence.com" ? "admin" as const : "user" as const
       };
+      
       setUser(userData);
     } catch (error) {
       setUser(null);
@@ -53,16 +57,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
 
     try {
-      const cognitoUser = await Auth.signIn(email, password);
-      const userData = {
-        email: cognitoUser.attributes.email,
-        role: cognitoUser.attributes.email === "admin@florence.com" ? "admin" as const : "user" as const
-      };
+      const { isSignedIn } = await signIn({ username: email, password });
       
-      setUser(userData);
-      toast.success("Login successful!");
-      setIsLoading(false);
-      return true;
+      if (isSignedIn) {
+        const userAttributes = await fetchUserAttributes();
+        const userData = {
+          email: userAttributes.email || '',
+          role: userAttributes.email === "admin@florence.com" ? "admin" as const : "user" as const
+        };
+        
+        setUser(userData);
+        toast.success("Login successful!");
+        setIsLoading(false);
+        return true;
+      }
+      return false;
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Invalid email or password");
       setIsLoading(false);
@@ -72,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await Auth.signOut();
+      await signOut();
       setUser(null);
       toast.info("You have been logged out");
       navigate("/login");

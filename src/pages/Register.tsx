@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Auth } from "aws-amplify";
-
+import { signUp } from "aws-amplify/auth";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -30,12 +29,14 @@ const Register = () => {
 
     try {
       // Sign up with AWS Cognito
-      const { user } = await Auth.signUp({
+      await signUp({
         username: email,
         password,
-        attributes: {
-          name: fullName,
-          email: email
+        options: {
+          userAttributes: {
+            name: fullName,
+            email: email
+          }
         }
       });
       

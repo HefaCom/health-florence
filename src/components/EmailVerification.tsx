@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Auth } from "aws-amplify";
+import { confirmSignUp, resendSignUpCode } from "aws-amplify/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -26,7 +26,10 @@ export const EmailVerification = ({ email, onVerified, onCancel }: EmailVerifica
 
     setIsSubmitting(true);
     try {
-      await Auth.confirmSignUp(email, verificationCode);
+      await confirmSignUp({
+        username: email,
+        confirmationCode: verificationCode
+      });
       toast.success("Email verified successfully!");
       onVerified();
     } catch (error) {
@@ -40,7 +43,7 @@ export const EmailVerification = ({ email, onVerified, onCancel }: EmailVerifica
   const resendVerificationCode = async () => {
     setResendingCode(true);
     try {
-      await Auth.resendSignUp(email);
+      await resendSignUpCode({ username: email });
       toast.success("Verification code resent to your email");
     } catch (error) {
       console.error("Resend code error:", error);

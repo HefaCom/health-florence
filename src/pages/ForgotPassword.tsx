@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Auth } from "aws-amplify";
+import { resetPassword, confirmResetPassword } from "aws-amplify/auth";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -22,7 +22,7 @@ const ForgotPassword = () => {
     setIsSubmitting(true);
 
     try {
-      await Auth.forgotPassword(email);
+      await resetPassword({ username: email });
       setCodeSent(true);
       toast.success("Verification code sent to your email");
     } catch (error) {
@@ -38,7 +38,11 @@ const ForgotPassword = () => {
     setIsSubmitting(true);
 
     try {
-      await Auth.forgotPasswordSubmit(email, verificationCode, newPassword);
+      await confirmResetPassword({
+        username: email,
+        confirmationCode: verificationCode,
+        newPassword: newPassword
+      });
       toast.success("Password reset successfully");
       navigate("/login");
     } catch (error) {
