@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FloLogo } from "@/components/FloLogo";
@@ -25,18 +26,22 @@ const Login = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const success = await login(email, password);
+    try {
+      const success = await login(email, password);
 
-    if (success) {
-      // Redirect to the appropriate dashboard based on credentials
-      if (email === "admin@florence.com") {
-        navigate("/admin");
-      } else {
-        navigate(from);
+      if (success) {
+        // Redirect to the appropriate dashboard based on credentials
+        if (email === "admin@florence.com") {
+          navigate("/admin");
+        } else {
+          navigate(from);
+        }
       }
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   const handleDemoLogin = async (role: "user" | "admin") => {
