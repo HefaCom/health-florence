@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FloLogo } from "@/components/FloLogo";
@@ -7,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { signUp } from "aws-amplify/auth";
+
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -27,27 +26,12 @@ const Register = () => {
 
     setIsSubmitting(true);
 
-    try {
-      // Sign up with AWS Cognito
-      await signUp({
-        username: email,
-        password,
-        options: {
-          userAttributes: {
-            name: fullName,
-            email: email
-          }
-        }
-      });
-      
-      toast.success("Account created successfully! Please verify your email to continue.");
-      navigate("/login");
-    } catch (error) {
-      console.error("Error signing up:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to create account. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    toast.success("Account created successfully! Please log in.");
+    setIsSubmitting(false);
+    navigate("/login");
   };
 
   return (

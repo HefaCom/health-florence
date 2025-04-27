@@ -2,12 +2,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Amplify } from "aws-amplify";
-import { signIn, signOut, fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
-import { awsConfig } from "@/lib/cognito-config";
 
-// Configure Amplify
-Amplify.configure(awsConfig);
+// Dummy user credentials
+const DUMMY_USERS = {
+  user: { email: "user@florence.com", password: "password123", role: "user" },
+  admin: { email: "admin@florence.com", password: "admin123", role: "admin" }
+};
 
 interface AuthContextType {
   user: User | null;
@@ -29,66 +29,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
-  // Check if user is already authenticated on mount
+  // Check local storage for user on mount
   useEffect(() => {
-    checkAuthState();
-  }, []);
-
-  const checkAuthState = async () => {
-    setIsLoading(true);
-    try {
-      const currentUser = await getCurrentUser();
-      const userAttributes = await fetchUserAttributes();
-      
-      const userData = {
-        email: userAttributes.email || '',
-        role: userAttributes.email === "admin@florence.com" ? "admin" as const : "user" as const
-      };
-      
-      setUser(userData);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setIsLoading(false);
+    const storedUser = localStorage.getItem("florenceUser");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
-  };
+    setIsLoading(false);
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
 
-    try {
-      const { isSignedIn } = await signIn({ username: email, password });
-      
-      if (isSignedIn) {
-        const userAttributes = await fetchUserAttributes();
-        const userData = {
-          email: userAttributes.email || '',
-          role: userAttributes.email === "admin@florence.com" ? "admin" as const : "user" as const
-        };
-        
-        setUser(userData);
-        toast.success("Login successful!");
-        setIsLoading(false);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Invalid email or password");
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Check against dummy credentials
+    if (email === DUMMY_USERS.user.email && password === DUMMY_USERS.user.password) {
+      const userData = { email, role: "user" as const };
+      setUser(userData);
+      localStorage.setItem("florenceUser", JSON.stringify(userData));
+      toast.success("Login successful!");
+      setIsLoading(false);
+      return true;
+    } else if (email === DUMMY_USERS.admin.email && password === DUMMY_USERS.admin.password) {
+      const userData = { email, role: "admin" as const };
+      setUser(userData);
+      localStorage.setItem("florenceUser", JSON.stringify(userData));
+      toast.success("Admin login successful!");
+      setIsLoading(false);
+      return true;
+    } else {
+      toast.error("Invalid email or password");
       setIsLoading(false);
       return false;
     }
   };
 
-  const logout = async () => {
-    try {
-      await signOut();
-      setUser(null);
-      toast.info("You have been logged out");
-      navigate("/login");
-    } catch (error) {
-      console.error("Error signing out: ", error);
-      toast.error("Error logging out. Please try again.");
-    }
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("florenceUser");
+    toast.info("You have been logged out");
+    navigate("/login");
   };
 
   return (
