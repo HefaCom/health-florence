@@ -28,7 +28,7 @@ const Login = () => {
     const success = await login(email, password);
 
     if (success) {
-      // Redirect to the appropriate dashboard based on credentials
+      // Redirect to the appropriate dashboard based on user role
       if (email === "admin@florence.com") {
         navigate("/admin");
       } else {

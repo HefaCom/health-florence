@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
@@ -29,22 +28,62 @@ import {
 const Profile = () => {
   const { user } = useAuth();
   
+  // Get user's name from email or attributes
+  const getUserName = () => {
+    if (user?.attributes?.name) {
+      return user.attributes.name;
+    }
+    
+    // Extract name from email if available
+    if (user?.email) {
+      const emailName = user.email.split('@')[0];
+      // Capitalize first letter of each word
+      return emailName
+        .split(/[._-]/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    
+    return "User";
+  };
+  
   const [formData, setFormData] = useState({
-    firstName: "John",
-    lastName: "Doe",
+    firstName: "",
+    lastName: "",
     email: user?.email || "",
-    phone: "(555) 123-4567",
-    dateOfBirth: "1985-05-15",
-    address: "123 Main St",
-    city: "San Francisco",
-    state: "CA",
-    zipCode: "94103",
-    emergencyContact: "Jane Doe",
-    emergencyPhone: "(555) 987-6543",
-    allergies: "Penicillin",
-    medicalConditions: "None",
-    currentMedications: "None"
+    phone: "",
+    dateOfBirth: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    emergencyContact: "",
+    emergencyPhone: "",
+    allergies: "",
+    medicalConditions: "",
+    currentMedications: ""
   });
+  
+  // Initialize form data with user information when component mounts
+  useEffect(() => {
+    if (user) {
+      const userName = getUserName();
+      const nameParts = userName.split(' ');
+      
+      setFormData(prev => ({
+        ...prev,
+        firstName: nameParts[0] || "",
+        lastName: nameParts.slice(1).join(' ') || "",
+        email: user.email || "",
+        // If we have user attributes, use them
+        ...(user.attributes && {
+          phone: user.attributes.phone_number || "",
+          address: user.attributes.address || "",
+          // Add other attributes as needed
+        })
+      }));
+    }
+  }, [user]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -53,6 +92,8 @@ const Profile = () => {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Here you would typically update the user profile in your backend
+    // For now, we'll just show a success message
     toast.success("Profile information updated successfully");
   };
 
@@ -252,164 +293,118 @@ const Profile = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Current Password</Label>
-                  <Input
-                    id="currentPassword"
-                    type="password"
-                    className="rounded-md"
-                    placeholder="••••••••"
-                  />
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-2 bg-primary/10 rounded-full">
+                      <Lock className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Password</h3>
+                      <p className="text-sm text-muted-foreground">Change your password</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" className="rounded-full">Change</Button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="newPassword">New Password</Label>
-                  <Input
-                    id="newPassword"
-                    type="password"
-                    className="rounded-md"
-                    placeholder="••••••••"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    className="rounded-md"
-                    placeholder="••••••••"
-                  />
+                
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-2 bg-primary/10 rounded-full">
+                      <Shield className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Two-Factor Authentication</h3>
+                      <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" className="rounded-full">Enable</Button>
                 </div>
               </div>
-              
-              <Button className="mt-4 rounded-full">
-                <Lock className="h-4 w-4 mr-2" />
-                Update Password
-              </Button>
             </CardContent>
           </Card>
         </div>
         
         <div className="space-y-6">
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <CardTitle>Account Overview</CardTitle>
+              <CardDescription>
+                Your account details and activity
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
-                    <User className="h-6 w-6 text-primary" />
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <User className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-medium text-lg">{formData.firstName} {formData.lastName}</p>
-                    <p className="text-sm text-muted-foreground">Patient</p>
+                    <p className="text-sm text-muted-foreground">Account Type</p>
+                    <p className="font-medium">{user?.role || "Standard User"}</p>
                   </div>
                 </div>
                 
-                <div className="pt-2">
-                  <ul className="space-y-3">
-                    <li className="flex items-center text-sm">
-                      <Mail className="h-4 w-4 mr-3 text-muted-foreground" />
-                      <span>{formData.email}</span>
-                    </li>
-                    <li className="flex items-center text-sm">
-                      <Phone className="h-4 w-4 mr-3 text-muted-foreground" />
-                      <span>{formData.phone}</span>
-                    </li>
-                    <li className="flex items-center text-sm">
-                      <MapPin className="h-4 w-4 mr-3 text-muted-foreground" />
-                      <span>{formData.address}, {formData.city}, {formData.state} {formData.zipCode}</span>
-                    </li>
-                    <li className="flex items-center text-sm">
-                      <Calendar className="h-4 w-4 mr-3 text-muted-foreground" />
-                      <span>DOB: {formData.dateOfBirth}</span>
-                    </li>
-                  </ul>
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Mail className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">{user?.email || "Not provided"}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Member Since</p>
+                    <p className="font-medium">
+                      {user?.attributes?.created_at 
+                        ? new Date(user.attributes.created_at).toLocaleDateString() 
+                        : "Not available"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Plan Information</CardTitle>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>
+                Your recent account activity
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center">
-                  <Shield className="h-5 w-5 mr-3 text-primary" />
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full mt-1">
+                    <Clock className="h-4 w-4 text-primary" />
+                  </div>
                   <div>
-                    <p className="font-medium">HealthGuard Insurance</p>
-                    <p className="text-sm text-muted-foreground">Premium Health Plus</p>
+                    <p className="font-medium">Profile Updated</p>
+                    <p className="text-sm text-muted-foreground">You updated your profile information</p>
+                    <p className="text-xs text-muted-foreground mt-1">Today</p>
                   </div>
                 </div>
-                <div className="text-sm">
-                  <p className="flex justify-between py-1 border-b">
-                    <span className="text-muted-foreground">Policy Number:</span>
-                    <span className="font-medium">HGP-12345678</span>
-                  </p>
-                  <p className="flex justify-between py-1 border-b">
-                    <span className="text-muted-foreground">Coverage:</span>
-                    <span className="font-medium">Active</span>
-                  </p>
-                  <p className="flex justify-between py-1">
-                    <span className="text-muted-foreground">Renewal Date:</span>
-                    <span className="font-medium">Dec 31, 2023</span>
-                  </p>
-                </div>
-                <Button variant="outline" className="w-full mt-2 rounded-full">
-                  View Insurance Details
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Upcoming Appointments</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y">
-                <div className="p-4">
-                  <div className="flex items-start">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                      <Calendar className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Annual Physical Checkup</p>
-                      <p className="text-sm text-muted-foreground">Dr. Sarah Johnson</p>
-                      <div className="flex items-center mt-1 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        <span>May 15, 2023</span>
-                        <Clock className="h-3 w-3 ml-2 mr-1" />
-                        <span>10:30 AM</span>
-                      </div>
-                    </div>
+                
+                <div className="flex items-start space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full mt-1">
+                    <Clock className="h-4 w-4 text-primary" />
                   </div>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-start">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                      <Calendar className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Dental Cleaning</p>
-                      <p className="text-sm text-muted-foreground">Dr. Michael Chen</p>
-                      <div className="flex items-center mt-1 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        <span>May 22, 2023</span>
-                        <Clock className="h-3 w-3 ml-2 mr-1" />
-                        <span>2:00 PM</span>
-                      </div>
-                    </div>
+                  <div>
+                    <p className="font-medium">Account Created</p>
+                    <p className="text-sm text-muted-foreground">You created your account</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {user?.attributes?.created_at 
+                        ? new Date(user.attributes.created_at).toLocaleDateString() 
+                        : "Not available"}
+                    </p>
                   </div>
                 </div>
               </div>
-              <CardFooter className="border-t px-4 py-3">
-                <Button variant="link" className="h-auto p-0">
-                  View all appointments
-                </Button>
-              </CardFooter>
             </CardContent>
           </Card>
         </div>

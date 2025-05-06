@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -14,6 +13,33 @@ export const DashboardLayout = () => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
+  
+  // Get user's name from email or attributes
+  const getUserName = () => {
+    if (user?.attributes?.name) {
+      return user.attributes.name;
+    }
+    
+    // Extract name from email if available
+    if (user?.email) {
+      const emailName = user.email.split('@')[0];
+      // Capitalize first letter of each word
+      return emailName
+        .split(/[._-]/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    
+    return "User";
+  };
+  
+  // Get greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
   
   // Close sidebar when switching to desktop view
   useEffect(() => {
@@ -41,6 +67,18 @@ export const DashboardLayout = () => {
         
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
+          {/* Personalized Greeting */}
+          <div className="bg-card/50 backdrop-blur-sm border-b p-4">
+            <div className="container mx-auto">
+              <h2 className="text-2xl font-bold">
+                {getGreeting()}, {getUserName()}!
+              </h2>
+              <p className="text-muted-foreground">
+                Welcome to your health dashboard
+              </p>
+            </div>
+          </div>
+          
           <Outlet />
         </main>
       </div>

@@ -1,0 +1,112 @@
+{
+  "auth": {
+    "healthflorencef530612c": {
+      "customAuth": false,
+      "dependsOn": [],
+      "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyCharacters": [],
+          "passwordPolicyMinLength": 8
+        },
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "socialProviders": [],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito"
+    }
+  },
+  "function": {
+    "appointmentsTriggerb8d8a287": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn",
+            "StreamArn"
+          ],
+          "category": "storage",
+          "resourceName": "appointments"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "usersTrigger9dd0c00a": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn",
+            "StreamArn"
+          ],
+          "category": "storage",
+          "resourceName": "users"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_appointmentsTriggerb8d8a287_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "appointmentsTriggerb8d8a287"
+        }
+      ]
+    },
+    "AMPLIFY_function_appointmentsTriggerb8d8a287_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "appointmentsTriggerb8d8a287"
+        }
+      ]
+    },
+    "AMPLIFY_function_usersTrigger9dd0c00a_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "usersTrigger9dd0c00a"
+        }
+      ]
+    },
+    "AMPLIFY_function_usersTrigger9dd0c00a_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "usersTrigger9dd0c00a"
+        }
+      ]
+    }
+  },
+  "storage": {
+    "appointments": {
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB"
+    },
+    "doctors": {
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB"
+    },
+    "users": {
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB"
+    }
+  }
+}

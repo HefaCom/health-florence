@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 const Register = () => {
@@ -14,7 +15,10 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
   const navigate = useNavigate();
+  const { register, confirmRegistration } = useAuth();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,12 +30,61 @@ const Register = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const result = await register(email, password, fullName);
 
-    toast.success("Account created successfully! Please log in.");
-    setIsSubmitting(false);
-    navigate("/login");
+      if (result.success) {
+        setVerificationSent(true);
+        toast.success("Please check your email for the verification code");
+      } else if (result.error === "User already exists") {
+        toast.error("This email is already registered. Please login or use a different email.");
+      } else {
+        toast.error(result.error || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setIsSubmitting(true);
+    try {
+      const result = await register(email, password, fullName);
+      if (result.success) {
+        toast.success("Verification code resent. Please check your email.");
+      } else {
+        toast.error("Failed to resend verification code. Please try again.");
+      }
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      toast.error("Failed to resend verification code. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleConfirmRegistration = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const success = await confirmRegistration(email, verificationCode);
+
+      if (success) {
+        toast.success("Email verified successfully! You can now login.");
+        navigate("/login");
+      } else {
+        toast.error("Verification failed. Please check the code and try again.");
+      }
+    } catch (error) {
+      console.error("Verification error:", error);
+      toast.error("Verification failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -62,63 +115,105 @@ const Register = () => {
               <div className="w-10"></div> {/* Empty div for flex spacing */}
             </div>
 
-            <h1 className="text-2xl font-bold text-center mb-6">Create an Account</h1>
+            <h1 className="text-2xl font-bold text-center mb-6">
+              {verificationSent ? "Verify Your Email" : "Create an Account"}
+            </h1>
 
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="space-y-2">
-                <Input
-                  placeholder="Full Name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  className="rounded-full h-12"
-                />
-              </div>
+            {!verificationSent ? (
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Full Name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="rounded-full h-12"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Input
-                  type="email"
-                  placeholder="Email Address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="rounded-full h-12"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Input
+                    type="email"
+                    placeholder="Email Address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="rounded-full h-12"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="rounded-full h-12"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="rounded-full h-12"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Input
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className="rounded-full h-12"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="rounded-full h-12"
+                  />
+                </div>
 
-              <Button 
-                type="submit" 
-                className="w-full rounded-full h-12" 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : null}
-                Create Account
-              </Button>
-            </form>
+                <Button 
+                  type="submit" 
+                  className="w-full rounded-full h-12" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  Create Account
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleConfirmRegistration} className="space-y-4">
+                <p className="text-center text-muted-foreground mb-4">
+                  We've sent a verification code to {email}. Please enter it below to verify your account.
+                </p>
+
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Verification Code"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    required
+                    className="rounded-full h-12"
+                  />
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full rounded-full h-12" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  Verify Email
+                </Button>
+
+                <div className="text-center mt-4">
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    className="text-sm text-primary hover:underline"
+                    disabled={isSubmitting}
+                  >
+                    Didn't receive the code? Resend
+                  </button>
+                </div>
+              </form>
+            )}
 
             <div className="mt-6 text-center">
               <div className="relative">

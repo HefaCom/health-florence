@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Send, Mic, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,11 @@ type Message = {
   timestamp: Date;
 };
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  onClose?: () => void;
+}
+
+export function ChatInterface({ onClose }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -54,28 +57,34 @@ export function ChatInterface() {
 
   const handleVoice = () => {
     toast({
-      title: "Voice Input",
-      description: "Voice recognition is not available in this demo.",
+      title: "Voice input",
+      description: "Voice input is not available in this demo.",
     });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
       handleSend();
     }
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-background">
+    <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-3 border-b">
-        <div className="flex items-center gap-2">
-          <FloLogoSmall />
-          <h2 className="font-semibold text-lg">Florence Chat</h2>
+        <div className="flex items-center space-x-2">
+          <FloLogoSmall className="w-6 h-6" />
+          <h3 className="font-medium">Florence AI Assistant</h3>
         </div>
+        {onClose && (
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
       
-      <ScrollArea className="flex-1 p-3">
-        <div className="flex flex-col gap-3">
+      <ScrollArea className="flex-1 p-4">
+        <div className="space-y-4">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -84,45 +93,39 @@ export function ChatInterface() {
               }`}
             >
               <div
-                className={`max-w-[80%] p-3 rounded-2xl ${
+                className={`max-w-[80%] rounded-lg p-3 ${
                   message.sender === "user"
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted"
                 }`}
               >
-                {message.sender === "florence" && (
-                  <div className="flex items-center gap-2 mb-1">
-                    <FloLogoSmall className="w-6 h-6" />
-                    <span className="font-semibold text-xs">Florence</span>
-                  </div>
-                )}
-                <p>{message.text}</p>
-                <div className="text-xs opacity-70 mt-1 text-right">
+                <p className="text-sm">{message.text}</p>
+                <p className="text-xs opacity-70 mt-1">
                   {message.timestamp.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
-                </div>
+                </p>
               </div>
             </div>
           ))}
         </div>
       </ScrollArea>
       
-      <div className="p-3 border-t mt-auto">
-        <div className="flex gap-2">
+      <div className="p-3 border-t">
+        <div className="flex space-x-2">
           <Input
+            placeholder="Type your message..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message..."
-            className="rounded-full"
+            className="flex-1"
           />
-          <Button onClick={handleVoice} variant="ghost" size="icon" className="rounded-full">
-            <Mic className="h-5 w-5" />
+          <Button variant="outline" size="icon" onClick={handleVoice}>
+            <Mic className="h-4 w-4" />
           </Button>
-          <Button onClick={handleSend} className="rounded-full">
-            <Send className="h-5 w-5" />
+          <Button onClick={handleSend}>
+            <Send className="h-4 w-4" />
           </Button>
         </div>
       </div>

@@ -1,0 +1,20 @@
+{
+  "resourceName": "users",
+  "tableName": "users",
+  "partitionKey": {
+    "fieldName": "email",
+    "fieldType": "string"
+  },
+  "gsi": [
+    {
+      "name": "email-index",
+      "partitionKey": {
+        "fieldName": "email",
+        "fieldType": "string"
+      }
+    }
+  ],
+  "triggerFunctions": [
+    "usersTrigger9dd0c00a"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "resourceName": "appointments",
+  "tableName": "appointments",
+  "partitionKey": {
+    "fieldName": "appointmentId",
+    "fieldType": "string"
+  },
+  "sortKey": {
+    "fieldName": "userId",
+    "fieldType": "string"
+  },
+  "gsi": [
+    {
+      "name": "doctor-date-index",
+      "partitionKey": {
+        "fieldName": "doctorId",
+        "fieldType": "string"
+      },
+      "sortKey": {
+        "fieldName": "date",
+        "fieldType": "string"
+      }
+    }
+  ],
+  "triggerFunctions": [
+    "appointmentsTriggerb8d8a287"
+  ]
+}

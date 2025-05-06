@@ -1,0 +1,18 @@
+{
+  "resourceName": "doctors",
+  "tableName": "doctors",
+  "partitionKey": {
+    "fieldName": "specialty",
+    "fieldType": "string"
+  },
+  "gsi": [
+    {
+      "name": "specialty-index",
+      "partitionKey": {
+        "fieldName": "specialty",
+        "fieldType": "string"
+      }
+    }
+  ],
+  "triggerFunctions": []
+}

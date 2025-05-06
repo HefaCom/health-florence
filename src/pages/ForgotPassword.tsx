@@ -6,24 +6,49 @@ import { Input } from "@/components/ui/input";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
+  const { forgotPassword, resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const success = await forgotPassword(email);
 
-    toast.success("Password reset instructions sent to your email");
+    if (success) {
+      setSubmitted(true);
+    }
+
     setIsSubmitting(false);
-    setSubmitted(true);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    
+    setIsSubmitting(true);
+
+    const success = await resetPassword(email, verificationCode, newPassword);
+
+    if (success) {
+      navigate("/login");
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -93,15 +118,53 @@ const ForgotPassword = () => {
                 </div>
                 <h2 className="text-xl font-medium mb-2">Check Your Email</h2>
                 <p className="text-muted-foreground mb-4">
-                  We've sent password reset instructions to {email}
+                  We've sent a verification code to {email}
                 </p>
-                <Button 
-                  variant="outline" 
-                  className="rounded-full"
-                  onClick={() => navigate("/login")}
-                >
-                  Back to Login
-                </Button>
+                
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Verification Code"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      required
+                      className="rounded-full h-12"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Input
+                      type="password"
+                      placeholder="New Password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      className="rounded-full h-12"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Input
+                      type="password"
+                      placeholder="Confirm New Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      className="rounded-full h-12"
+                    />
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full rounded-full h-12" 
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    Reset Password
+                  </Button>
+                </form>
               </div>
             )}
 

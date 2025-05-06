@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { 
@@ -35,6 +34,33 @@ export const AdminLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const { theme } = useTheme();
+
+  // Get user's name from email or attributes
+  const getUserName = () => {
+    if (user?.attributes?.name) {
+      return user.attributes.name;
+    }
+    
+    // Extract name from email if available
+    if (user?.email) {
+      const emailName = user.email.split('@')[0];
+      // Capitalize first letter of each word
+      return emailName
+        .split(/[._-]/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+    
+    return "Admin";
+  };
+  
+  // Get greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
 
   const navigationItems = [
     {
@@ -83,6 +109,19 @@ export const AdminLayout = () => {
           </div>
         </div>
 
+        {/* Admin Profile Section */}
+        <div className={`p-4 border-b ${sidebarBorderClass}`}>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <span className="text-primary font-bold">{getUserName().charAt(0)}</span>
+            </div>
+            <div>
+              <p className="font-medium text-sm">{getUserName()}</p>
+              <p className="text-xs text-muted-foreground">{user?.role || "Administrator"}</p>
+            </div>
+          </div>
+        </div>
+
         <div className="flex flex-col flex-1 overflow-y-auto">
           <nav className="flex-1 py-6 px-4 space-y-1">
             {navigationItems.map((item) => (
@@ -119,7 +158,7 @@ export const AdminLayout = () => {
 
       {/* Mobile Sidebar */}
       <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-        <SheetContent side="left" className={`p-0 w-[240px] ${sidebarBgClass}`}>
+        <SheetContent side="left" className="p-0 w-72">
           <div className="flex flex-col h-full">
             <div className={`p-4 flex items-center border-b ${sidebarBorderClass}`}>
               <FloLogo className="w-8 h-8 mr-2" />
@@ -149,6 +188,19 @@ export const AdminLayout = () => {
               ))}
             </nav>
 
+            {/* Admin Profile Section for Mobile */}
+            <div className="p-4 border-b border-border">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="text-primary font-bold">{getUserName().charAt(0)}</span>
+                </div>
+                <div>
+                  <p className="font-medium text-sm">{getUserName()}</p>
+                  <p className="text-xs text-muted-foreground">{user?.role || "Administrator"}</p>
+                </div>
+              </div>
+            </div>
+
             <div className={`p-4 mt-auto border-t ${sidebarBorderClass}`}>
               <Button 
                 variant="ghost" 
@@ -163,66 +215,97 @@ export const AdminLayout = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Chat Interface */}
-      <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
-        <SheetContent className="w-[90%] sm:w-[440px] p-0">
-          <ChatInterface />
-        </SheetContent>
-      </Sheet>
-      
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-background/80 backdrop-blur-md sticky top-0 z-10 border-b">
-          <div className="px-4 h-16 flex items-center justify-between">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full mr-2 md:hidden" 
-                onClick={() => setIsSidebarOpen(true)}
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-
-              <h1 className="text-xl font-bold">Admin Dashboard</h1>
+        {/* Top Navigation Bar */}
+        <header className={`h-16 border-b ${sidebarBorderClass} flex items-center justify-between px-4 ${sidebarBgClass}`}>
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden mr-2" 
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg font-semibold">
+              {navigationItems.find(item => item.path === location.pathname)?.name || "Admin Dashboard"}
+            </h1>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            {/* Personalized Greeting */}
+            <div className="hidden md:block mr-4 text-right">
+              <p className="text-sm font-medium">{getGreeting()}, {getUserName()}</p>
+              <p className="text-xs text-muted-foreground">{user?.role || "Administrator"}</p>
             </div>
-
-            <div className="flex items-center space-x-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-full"
-                onClick={() => setIsChatOpen(true)}
-              >
-                <MessageCircle className="h-5 w-5" />
-              </Button>
-              
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Bell className="h-5 w-5" />
-              </Button>
-
-              <ThemeToggle />
-
-              <div className="relative">
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <span className="sr-only">User menu</span>
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium">{user?.email.substring(0, 2).toUpperCase()}</span>
-                  </div>
-                </Button>
-              </div>
-            </div>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="relative"
+                    onClick={() => setIsChatOpen(!isChatOpen)}
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Open Chat</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-5 w-5" />
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Notifications</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <ThemeToggle />
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={logout}
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Logout</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </header>
-
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto bg-muted/30">
-          <div className="container mx-auto px-4 py-6">
-            <Outlet />
-          </div>
+        
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-auto p-4">
+          <Outlet />
         </main>
       </div>
+      
+      {/* Chat Interface */}
+      {isChatOpen && (
+        <div className="fixed bottom-4 right-4 z-50 w-80 h-96 bg-card rounded-lg shadow-lg border overflow-hidden">
+          <ChatInterface onClose={() => setIsChatOpen(false)} />
+        </div>
+      )}
     </div>
   );
 };
