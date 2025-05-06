@@ -29,6 +29,12 @@
         "users": {},
         "appointments": {},
         "doctors": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d23pcjebren39b",
+          "type": "manual"
+        }
       }
     }
   }
