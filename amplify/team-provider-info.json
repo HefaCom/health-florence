@@ -1,4 +1,43 @@
 {
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-amplifycd7815c40a644-staging-24e99-authRole",
+      "UnauthRoleArn": "arn:aws:iam::215925484409:role/amplify-amplifycd7815c40a644-staging-24e99-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::215925484409:role/amplify-amplifycd7815c40a644-staging-24e99-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-amplifycd7815c40a644-staging-24e99-deployment",
+      "UnauthRoleName": "amplify-amplifycd7815c40a644-staging-24e99-unauthRole",
+      "StackName": "amplify-amplifycd7815c40a644-staging-24e99",
+      "StackId": "arn:aws:cloudformation:us-east-1:215925484409:stack/amplify-amplifycd7815c40a644-staging-24e99/03b1e480-2a47-11f0-9b9f-12dfc833a429",
+      "AmplifyAppId": "d23pcjebren39b"
+    },
+    "categories": {
+      "auth": {
+        "healthflorencef530612c": {}
+      },
+      "function": {
+        "appointmentsTriggerb8d8a287": {
+          "deploymentBucketName": "amplify-amplifycd7815c40a644-staging-24e99-deployment",
+          "s3Key": "amplify-builds/appointmentsTriggerb8d8a287-50796864375953553949-build.zip"
+        },
+        "usersTrigger9dd0c00a": {
+          "deploymentBucketName": "amplify-amplifycd7815c40a644-staging-24e99-deployment",
+          "s3Key": "amplify-builds/usersTrigger9dd0c00a-34707277514b79542b37-build.zip"
+        }
+      },
+      "storage": {
+        "appointments": {},
+        "doctors": {},
+        "users": {}
+      },
+      "hosting": {
+        "S3AndCloudFront": {}
+      },
+      "api": {
+        "healthflorence": {}
+      }
+    }
+  },
   "dev": {
     "awscloudformation": {
       "AuthRoleName": "amplify-healthflorence-dev-b8d3d-authRole",

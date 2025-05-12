@@ -1,0 +1,12 @@
+{
+  "AppSyncApiName": "healthflorence",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authhealthflorencef530612c",
+      "Outputs.UserPoolId"
+    ]
+  },
+  "AuthModeLastUpdated": "2025-05-12T08:41:12.015Z"
+}

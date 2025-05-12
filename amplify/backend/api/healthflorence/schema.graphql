@@ -1,0 +1,112 @@
+# This schema defines the data models for the Health Florence application
+
+type User @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create] },
+  { allow: owner, operations: [read, update, delete] },
+  { allow: groups, groups: ["admin"], operations: [read] }
+]) {
+  id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String
+  role: String! @default(value: "user")
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Doctor @model @auth(rules: [
+  { allow: public, provider: iam, operations: [read] },
+  { allow: owner, operations: [create, update, delete] },
+  { allow: private, operations: [read] }
+]) {
+  id: ID!
+  userId: ID!
+  specialization: String!
+  licenseNumber: String!
+  yearsOfExperience: Int!
+  user: User @hasOne(fields: ["userId"])
+  appointments: [Appointment] @hasMany(fields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Appointment @model @auth(rules: [
+  { allow: owner, operations: [create, read, update, delete] },
+  { allow: private, operations: [read] }
+]) {
+  id: ID!
+  userId: ID!
+  doctorId: ID!
+  date: AWSDateTime!
+  status: String! # scheduled, completed, cancelled
+  notes: String
+  user: User @hasOne(fields: ["userId"])
+  doctor: Doctor @hasOne(fields: ["doctorId"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+input CreateUserInput {
+  id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String
+  role: String!
+}
+
+input UpdateUserInput {
+  id: ID!
+  email: String
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  role: String
+}
+
+input DeleteUserInput {
+  id: ID!
+}
+
+input CreateDoctorInput {
+  id: ID!
+  userId: ID!
+  specialization: String!
+  licenseNumber: String!
+  yearsOfExperience: Int!
+}
+
+input UpdateDoctorInput {
+  id: ID!
+  userId: ID
+  specialization: String
+  licenseNumber: String
+  yearsOfExperience: Int
+}
+
+input DeleteDoctorInput {
+  id: ID!
+}
+
+input CreateAppointmentInput {
+  id: ID!
+  userId: ID!
+  doctorId: ID!
+  date: AWSDateTime!
+  status: String!
+  notes: String
+}
+
+input UpdateAppointmentInput {
+  id: ID!
+  userId: ID
+  doctorId: ID
+  date: AWSDateTime
+  status: String
+  notes: String
+}
+
+input DeleteAppointmentInput {
+  id: ID!
+}

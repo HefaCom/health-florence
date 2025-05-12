@@ -161,27 +161,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const confirmRegistration = async (email: string, code: string): Promise<boolean> => {
     setIsLoading(true);
-    
     try {
-      const { isSignUpComplete } = await confirmSignUp({
+      // First ensure no user is currently signed in
+      try {
+        await signOut();
+      } catch (signOutError) {
+        console.log("No user was signed in:", signOutError);
+      }
+
+      // Now confirm the signup
+      const { isSignUpComplete, nextStep } = await confirmSignUp({
         username: email,
         confirmationCode: code
       });
-      
+
       if (isSignUpComplete) {
-        toast.success("Email verified successfully! You can now login.");
-        setIsLoading(false);
         return true;
       }
-      
-      toast.error("Verification failed");
-      setIsLoading(false);
+
+      console.error("Unexpected confirmation state:", { isSignUpComplete, nextStep });
       return false;
-    } catch (error: any) {
-      console.error("Confirmation error:", error);
-      toast.error(error.message || "Failed to confirm registration");
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Error confirming registration:", error);
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 

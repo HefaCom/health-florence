@@ -1,4 +1,42 @@
 {
+  "api": {
+    "healthflorence": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "healthflorencef530612c"
+        }
+      ],
+      "output": {
+        "authConfig": {
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "userPoolConfig": {
+                "userPoolId": "authhealthflorencef530612c"
+              }
+            },
+            {
+              "authenticationType": "AWS_IAM"
+            }
+          ],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDate": "2026-05-12T08:41:00.722Z",
+              "apiKeyExpirationDays": 365,
+              "description": "healthai"
+            },
+            "authenticationType": "API_KEY"
+          }
+        }
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "AppSync"
+    }
+  },
   "auth": {
     "healthflorencef530612c": {
       "customAuth": false,
@@ -62,10 +100,9 @@
     }
   },
   "hosting": {
-    "amplifyhosting": {
+    "S3AndCloudFront": {
       "providerPlugin": "awscloudformation",
-      "service": "amplifyhosting",
-      "type": "manual"
+      "service": "S3AndCloudFront"
     }
   },
   "parameters": {
@@ -98,22 +135,6 @@
         {
           "category": "function",
           "resourceName": "usersTrigger9dd0c00a"
-        }
-      ]
-    },
-    "AMPLIFY_hosting_amplifyhosting_appId": {
-      "usedBy": [
-        {
-          "category": "hosting",
-          "resourceName": "amplifyhosting"
-        }
-      ]
-    },
-    "AMPLIFY_hosting_amplifyhosting_type": {
-      "usedBy": [
-        {
-          "category": "hosting",
-          "resourceName": "amplifyhosting"
         }
       ]
     }

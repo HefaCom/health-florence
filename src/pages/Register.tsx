@@ -7,18 +7,64 @@ import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
+import { generateClient } from "aws-amplify/api";
+import { createUser } from '../graphql/mutations';
+import { getUser, listUsers } from '../graphql/queries';
+import { signIn } from 'aws-amplify/auth';
+import { GraphQLResult } from '@aws-amplify/api-graphql';
+import { CreateUserMutation, CreateUserMutationVariables } from '../API';
+import * as mutations from '../graphql/mutations';
 
+interface CreateUserResponse {
+  createUser: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
+}
+
+const client = generateClient();
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const navigate = useNavigate();
   const { register, confirmRegistration } = useAuth();
+
+  const createUserInDynamoDB = async (userId: string, email: string, firstName: string, lastName: string) => {
+    try {
+      console.log(`Creating user with data: {id: '${userId}', email: '${email}', firstName: '${firstName}', lastName: '${lastName}', role: 'user'}`);
+      
+      const result = await client.graphql({
+        query: mutations.createUser,
+        variables: {
+          input: {
+            id: userId,
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            role: 'user',
+            phoneNumber: null
+          }
+        },
+        authMode: 'apiKey'
+      }) as GraphQLResult<CreateUserMutation>;
+      
+      console.log('User created in DynamoDB:', result);
+      return result.data?.createUser;
+    } catch (error) {
+      console.error('Failed to create user in DynamoDB:', error);
+      throw error;
+    }
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +77,7 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const result = await register(email, password, fullName);
+      const result = await register(email, password, `${firstName} ${lastName}`);
 
       if (result.success) {
         setVerificationSent(true);
@@ -52,7 +98,7 @@ const Register = () => {
   const handleResendVerification = async () => {
     setIsSubmitting(true);
     try {
-      const result = await register(email, password, fullName);
+      const result = await register(email, password, `${firstName} ${lastName}`);
       if (result.success) {
         toast.success("Verification code resent. Please check your email.");
       } else {
@@ -74,8 +120,16 @@ const Register = () => {
       const success = await confirmRegistration(email, verificationCode);
 
       if (success) {
-        toast.success("Email verified successfully! You can now login.");
-        navigate("/login");
+        // Create user in DynamoDB after successful verification
+        const dbSuccess = await createUserInDynamoDB(crypto.randomUUID(), email, firstName, lastName);
+        if (dbSuccess) {
+          toast.success("Registration completed successfully! You can now login.");
+          navigate("/login");
+        } else {
+          toast.error("Account verified but profile setup failed. Please contact support.");
+          // Still navigate to login since Cognito account is verified
+          navigate("/login");
+        }
       } else {
         toast.error("Verification failed. Please check the code and try again.");
       }
@@ -112,7 +166,7 @@ const Register = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <FloLogo className="w-16 h-16" />
-              <div className="w-10"></div> {/* Empty div for flex spacing */}
+              <div className="w-10"></div>
             </div>
 
             <h1 className="text-2xl font-bold text-center mb-6">
@@ -121,14 +175,25 @@ const Register = () => {
 
             {!verificationSent ? (
               <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <Input
-                    placeholder="Full Name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                    className="rounded-full h-12"
-                  />
+                <div className="flex flex-row gap-2">
+                  <div className="space-y-2 flex-1">
+                    <Input
+                      placeholder="First Name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                      className="rounded-full h-12"
+                    />
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <Input
+                      placeholder="Last Name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      className="rounded-full h-12"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
