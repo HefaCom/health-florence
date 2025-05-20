@@ -253,6 +253,115 @@ export type DeleteAppointmentInput = {
   id: string,
 };
 
+export type CreateAuditEventInput = {
+  id?: string | null,
+  timestamp: string,
+  userId: string,
+  action: string,
+  resourceId: string,
+  details: string,
+  transactionHash?: string | null,
+  merkleRoot?: string | null,
+  batchId?: string | null,
+  auditBatchEventsId?: string | null,
+};
+
+export type ModelAuditEventConditionInput = {
+  timestamp?: ModelStringInput | null,
+  userId?: ModelStringInput | null,
+  action?: ModelStringInput | null,
+  resourceId?: ModelStringInput | null,
+  details?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  merkleRoot?: ModelStringInput | null,
+  batchId?: ModelStringInput | null,
+  and?: Array< ModelAuditEventConditionInput | null > | null,
+  or?: Array< ModelAuditEventConditionInput | null > | null,
+  not?: ModelAuditEventConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  auditBatchEventsId?: ModelIDInput | null,
+};
+
+export type AuditEvent = {
+  __typename: "AuditEvent",
+  id: string,
+  timestamp: string,
+  userId: string,
+  action: string,
+  resourceId: string,
+  details: string,
+  transactionHash?: string | null,
+  merkleRoot?: string | null,
+  batchId?: string | null,
+  createdAt: string,
+  updatedAt: string,
+  auditBatchEventsId?: string | null,
+};
+
+export type UpdateAuditEventInput = {
+  id: string,
+  timestamp?: string | null,
+  userId?: string | null,
+  action?: string | null,
+  resourceId?: string | null,
+  details?: string | null,
+  transactionHash?: string | null,
+  merkleRoot?: string | null,
+  batchId?: string | null,
+  auditBatchEventsId?: string | null,
+};
+
+export type DeleteAuditEventInput = {
+  id: string,
+};
+
+export type CreateAuditBatchInput = {
+  id?: string | null,
+  timestamp: string,
+  merkleRoot: string,
+  transactionHash: string,
+};
+
+export type ModelAuditBatchConditionInput = {
+  timestamp?: ModelStringInput | null,
+  merkleRoot?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  and?: Array< ModelAuditBatchConditionInput | null > | null,
+  or?: Array< ModelAuditBatchConditionInput | null > | null,
+  not?: ModelAuditBatchConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type AuditBatch = {
+  __typename: "AuditBatch",
+  id: string,
+  timestamp: string,
+  merkleRoot: string,
+  transactionHash: string,
+  events?: ModelAuditEventConnection | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type ModelAuditEventConnection = {
+  __typename: "ModelAuditEventConnection",
+  items:  Array<AuditEvent | null >,
+  nextToken?: string | null,
+};
+
+export type UpdateAuditBatchInput = {
+  id: string,
+  timestamp?: string | null,
+  merkleRoot?: string | null,
+  transactionHash?: string | null,
+};
+
+export type DeleteAuditBatchInput = {
+  id: string,
+};
+
 export type ModelUserFilterInput = {
   id?: ModelIDInput | null,
   email?: ModelStringInput | null,
@@ -317,6 +426,42 @@ export type ModelAppointmentFilterInput = {
   or?: Array< ModelAppointmentFilterInput | null > | null,
   not?: ModelAppointmentFilterInput | null,
   owner?: ModelStringInput | null,
+};
+
+export type ModelAuditEventFilterInput = {
+  id?: ModelIDInput | null,
+  timestamp?: ModelStringInput | null,
+  userId?: ModelStringInput | null,
+  action?: ModelStringInput | null,
+  resourceId?: ModelStringInput | null,
+  details?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  merkleRoot?: ModelStringInput | null,
+  batchId?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelAuditEventFilterInput | null > | null,
+  or?: Array< ModelAuditEventFilterInput | null > | null,
+  not?: ModelAuditEventFilterInput | null,
+  auditBatchEventsId?: ModelIDInput | null,
+};
+
+export type ModelAuditBatchFilterInput = {
+  id?: ModelIDInput | null,
+  timestamp?: ModelStringInput | null,
+  merkleRoot?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelAuditBatchFilterInput | null > | null,
+  or?: Array< ModelAuditBatchFilterInput | null > | null,
+  not?: ModelAuditBatchFilterInput | null,
+};
+
+export type ModelAuditBatchConnection = {
+  __typename: "ModelAuditBatchConnection",
+  items:  Array<AuditBatch | null >,
+  nextToken?: string | null,
 };
 
 export type ModelSubscriptionUserFilterInput = {
@@ -410,6 +555,34 @@ export type ModelSubscriptionAppointmentFilterInput = {
   and?: Array< ModelSubscriptionAppointmentFilterInput | null > | null,
   or?: Array< ModelSubscriptionAppointmentFilterInput | null > | null,
   owner?: ModelStringInput | null,
+};
+
+export type ModelSubscriptionAuditEventFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  timestamp?: ModelSubscriptionStringInput | null,
+  userId?: ModelSubscriptionStringInput | null,
+  action?: ModelSubscriptionStringInput | null,
+  resourceId?: ModelSubscriptionStringInput | null,
+  details?: ModelSubscriptionStringInput | null,
+  transactionHash?: ModelSubscriptionStringInput | null,
+  merkleRoot?: ModelSubscriptionStringInput | null,
+  batchId?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionAuditEventFilterInput | null > | null,
+  or?: Array< ModelSubscriptionAuditEventFilterInput | null > | null,
+};
+
+export type ModelSubscriptionAuditBatchFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  timestamp?: ModelSubscriptionStringInput | null,
+  merkleRoot?: ModelSubscriptionStringInput | null,
+  transactionHash?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionAuditBatchFilterInput | null > | null,
+  or?: Array< ModelSubscriptionAuditBatchFilterInput | null > | null,
+  auditBatchEventsId?: ModelSubscriptionIDInput | null,
 };
 
 export type CreateUserMutationVariables = {
@@ -796,6 +969,138 @@ export type DeleteAppointmentMutation = {
   } | null,
 };
 
+export type CreateAuditEventMutationVariables = {
+  input: CreateAuditEventInput,
+  condition?: ModelAuditEventConditionInput | null,
+};
+
+export type CreateAuditEventMutation = {
+  createAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type UpdateAuditEventMutationVariables = {
+  input: UpdateAuditEventInput,
+  condition?: ModelAuditEventConditionInput | null,
+};
+
+export type UpdateAuditEventMutation = {
+  updateAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type DeleteAuditEventMutationVariables = {
+  input: DeleteAuditEventInput,
+  condition?: ModelAuditEventConditionInput | null,
+};
+
+export type DeleteAuditEventMutation = {
+  deleteAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type CreateAuditBatchMutationVariables = {
+  input: CreateAuditBatchInput,
+  condition?: ModelAuditBatchConditionInput | null,
+};
+
+export type CreateAuditBatchMutation = {
+  createAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateAuditBatchMutationVariables = {
+  input: UpdateAuditBatchInput,
+  condition?: ModelAuditBatchConditionInput | null,
+};
+
+export type UpdateAuditBatchMutation = {
+  updateAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteAuditBatchMutationVariables = {
+  input: DeleteAuditBatchInput,
+  condition?: ModelAuditBatchConditionInput | null,
+};
+
+export type DeleteAuditBatchMutation = {
+  deleteAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type GetUserQueryVariables = {
   id: string,
 };
@@ -1000,6 +1305,98 @@ export type ListAppointmentsQuery = {
       createdAt: string,
       updatedAt: string,
       owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetAuditEventQueryVariables = {
+  id: string,
+};
+
+export type GetAuditEventQuery = {
+  getAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type ListAuditEventsQueryVariables = {
+  filter?: ModelAuditEventFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListAuditEventsQuery = {
+  listAuditEvents?:  {
+    __typename: "ModelAuditEventConnection",
+    items:  Array< {
+      __typename: "AuditEvent",
+      id: string,
+      timestamp: string,
+      userId: string,
+      action: string,
+      resourceId: string,
+      details: string,
+      transactionHash?: string | null,
+      merkleRoot?: string | null,
+      batchId?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      auditBatchEventsId?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetAuditBatchQueryVariables = {
+  id: string,
+};
+
+export type GetAuditBatchQuery = {
+  getAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListAuditBatchesQueryVariables = {
+  filter?: ModelAuditBatchFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListAuditBatchesQuery = {
+  listAuditBatches?:  {
+    __typename: "ModelAuditBatchConnection",
+    items:  Array< {
+      __typename: "AuditBatch",
+      id: string,
+      timestamp: string,
+      merkleRoot: string,
+      transactionHash: string,
+      createdAt: string,
+      updatedAt: string,
     } | null >,
     nextToken?: string | null,
   } | null,
@@ -1383,5 +1780,131 @@ export type OnDeleteAppointmentSubscription = {
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
+  } | null,
+};
+
+export type OnCreateAuditEventSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditEventFilterInput | null,
+};
+
+export type OnCreateAuditEventSubscription = {
+  onCreateAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type OnUpdateAuditEventSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditEventFilterInput | null,
+};
+
+export type OnUpdateAuditEventSubscription = {
+  onUpdateAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type OnDeleteAuditEventSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditEventFilterInput | null,
+};
+
+export type OnDeleteAuditEventSubscription = {
+  onDeleteAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type OnCreateAuditBatchSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditBatchFilterInput | null,
+};
+
+export type OnCreateAuditBatchSubscription = {
+  onCreateAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateAuditBatchSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditBatchFilterInput | null,
+};
+
+export type OnUpdateAuditBatchSubscription = {
+  onUpdateAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteAuditBatchSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditBatchFilterInput | null,
+};
+
+export type OnDeleteAuditBatchSubscription = {
+  onDeleteAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
   } | null,
 };

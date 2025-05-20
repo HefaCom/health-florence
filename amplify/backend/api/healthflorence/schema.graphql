@@ -2,8 +2,7 @@
 
 type User @model @auth(rules: [
   { allow: public, provider: apiKey, operations: [create, read, update] },
-  { allow: owner },
-  { allow: groups, groups: ["admin"] }
+  { allow: owner }
 ]) {
   id: ID!
   email: String!
@@ -55,6 +54,30 @@ type Appointment @model @auth(rules: [
   doctor: Doctor @hasOne(fields: ["doctorId"])
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
+}
+
+type AuditEvent @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update] }
+]) {
+  id: ID!
+  timestamp: AWSDateTime!
+  userId: String!
+  action: String!
+  resourceId: String!
+  details: AWSJSON!
+  transactionHash: String
+  merkleRoot: String
+  batchId: String
+}
+
+type AuditBatch @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update] }
+]) {
+  id: ID!
+  timestamp: AWSDateTime!
+  merkleRoot: String!
+  transactionHash: String!
+  events: [AuditEvent] @hasMany
 }
 
 input CreateUserInput {

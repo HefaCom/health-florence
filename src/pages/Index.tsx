@@ -83,40 +83,40 @@ const Index = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <HealthMetric
-                title="Steps Today"
-                value={7450}
-                target={10000}
-                unit="steps"
-                icon={<Footprints className="h-5 w-5 text-green-500" />}
-                color="bg-green-500"
-              />
-              <HealthMetric
                 title="Heart Rate"
                 value={72}
                 target={80}
                 unit="bpm"
-                icon={<Heart className="h-5 w-5 text-red-500" />}
-                color="bg-red-500"
+                icon={<Heart className="h-5 w-5" />}
+                color="text-red-500"
               />
               <HealthMetric
-                title="Sleep"
-                value={6.5}
-                target={8}
-                unit="hrs"
-                icon={<Timer className="h-5 w-5 text-purple-500" />}
-                color="bg-purple-500"
+                title="Steps"
+                value={8500}
+                target={10000}
+                unit="steps"
+                icon={<Footprints className="h-5 w-5" />}
+                color="text-blue-500"
               />
               <HealthMetric
                 title="Activity"
-                value={35}
+                value={45}
                 target={60}
                 unit="min"
-                icon={<Activity className="h-5 w-5 text-blue-500" />}
-                color="bg-blue-500"
+                icon={<Activity className="h-5 w-5" />}
+                color="text-green-500"
+              />
+              <HealthMetric
+                title="Sleep"
+                value={7}
+                target={8}
+                unit="hours"
+                icon={<Timer className="h-5 w-5" />}
+                color="text-purple-500"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-4">
               <MedicationReminder
                 medications={medications}
                 onMarkTaken={handleMarkTaken}
@@ -138,7 +138,7 @@ const Index = () => {
                 <ChatInterface />
               </div>
             </Card>
-            <TokenRewards balance={250.75} />
+            <TokenRewards />
           </div>
         </div>
       </div>

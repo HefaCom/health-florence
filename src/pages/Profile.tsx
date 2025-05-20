@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import {
+import { 
   Dialog,
   DialogContent,
   DialogDescription,
@@ -40,6 +40,7 @@ import { updateUser } from '../graphql/mutations';
 import { GraphQLResult } from '@aws-amplify/api';
 import { GetUserQuery, UpdateUserMutation } from '../API';
 import { getCurrentUser, updatePassword } from 'aws-amplify/auth';
+import { useAudit } from '@/hooks/useAudit';
 
 const client = generateClient();
 
@@ -95,6 +96,7 @@ const Profile = () => {
     new: false,
     confirm: false
   });
+  const { logAction } = useAudit();
   
   // Get user's name from email or attributes
   const getUserName = () => {
@@ -253,71 +255,65 @@ const Profile = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // First, ensure we have the correct user ID from our stored userId state
       if (!userId) {
-        toast.error("User ID not found. Please try logging in again.");
-        return;
+        throw new Error('User ID not found');
       }
 
-      // First get the current user data to verify ownership
-      const getCurrentUser = await client.graphql({
-        query: `query GetUserByEmail {
-          listUsers(filter: { email: { eq: "${user?.email}" } }) {
-            items {
-              id
-              role
-            }
-          }
-        }`,
-        authMode: 'apiKey'
-      }) as GraphQLResult<GetUserByEmailResponse>;
-
-      const currentUserData = getCurrentUser.data?.listUsers?.items?.[0];
-      
-      if (!currentUserData || currentUserData.id !== userId) {
-        toast.error("You don't have permission to update this profile");
-        return;
-      }
-
+      // Prepare the update input using the stored userId instead of getting it from getCurrentUser
       const updateInput = {
         id: userId,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phoneNumber: formData.phoneNumber,
-        dateOfBirth: formData.dateOfBirth,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zipCode: formData.zipCode,
-        emergencyContactName: formData.emergencyContactName,
-        emergencyContactPhone: formData.emergencyContactPhone,
-        allergies: formData.allergies,
-        medicalConditions: formData.medicalConditions,
-        currentMedications: formData.currentMedications,
-        role: currentUserData.role || "user"
+        firstName: formData.firstName || null,
+        lastName: formData.lastName || null,
+        phoneNumber: formData.phoneNumber || null,
+        dateOfBirth: formData.dateOfBirth || null,
+        address: formData.address || null,
+        city: formData.city || null,
+        state: formData.state || null,
+        zipCode: formData.zipCode || null,
+        emergencyContactName: formData.emergencyContactName || null,
+        emergencyContactPhone: formData.emergencyContactPhone || null,
+        allergies: formData.allergies || null,
+        medicalConditions: formData.medicalConditions || null,
+        currentMedications: formData.currentMedications || null
       };
 
+      // Update the user profile
       const response = await client.graphql({
         query: updateUser,
-        variables: {
-          input: updateInput
-        },
-        authMode: 'apiKey'
+        variables: { input: updateInput },
+        authMode: 'apiKey'  // Use apiKey mode for consistency
       });
 
       if (response.data?.updateUser) {
         toast.success("Profile updated successfully");
+        
+        // Log the profile update to the audit trail
+        await logAction(
+          'PROFILE_UPDATE',
+          userId,
+          {
+            fields: Object.keys(updateInput).filter(key => key !== 'id'),
+            timestamp: new Date().toISOString()
+          }
+        );
       } else {
-        toast.error("Failed to update profile");
+        throw new Error('Failed to update profile - no data returned');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      const errorMessage = error.errors?.[0]?.message || "Failed to update profile";
-      toast.error(errorMessage);
+      
+      // More descriptive error message
+      if (error.message?.includes('ConditionalCheckFailedException')) {
+        toast.error("Failed to update profile - please refresh the page and try again");
+      } else {
+        toast.error(error.message || "Failed to update profile");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -334,14 +330,31 @@ const Profile = () => {
       return;
     }
 
+    setIsChangingPassword(true);
+
     try {
-      setIsChangingPassword(true);
-      const user = await getCurrentUser();
       await updatePassword({
         oldPassword: passwordForm.oldPassword,
         newPassword: passwordForm.newPassword
       });
-      
+
+      // Log the password change to the audit trail with detailed info
+      const { userId } = await getCurrentUser();
+      await logAction(
+        'PASSWORD_CHANGE',
+        userId,
+        {
+          timestamp: new Date().toISOString(),
+          userEmail: user?.email,
+          changeType: 'user-initiated',
+          securityImpact: 'high',
+          metadata: {
+            source: 'profile-page',
+            passwordComplexity: passwordForm.newPassword.match(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/) ? 'strong' : 'moderate'
+          }
+        }
+      );
+
       toast.success("Password changed successfully");
       setPasswordForm({
         oldPassword: "",
@@ -349,7 +362,7 @@ const Profile = () => {
         confirmPassword: ""
       });
       setIsChangingPassword(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error changing password:', error);
       toast.error(error.message || "Failed to change password");
       setIsChangingPassword(false);
@@ -375,7 +388,7 @@ const Profile = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSaveProfile}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
@@ -578,7 +591,7 @@ const Profile = () => {
                   </div>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline" className="rounded-full">Change</Button>
+                  <Button variant="outline" className="rounded-full">Change</Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
@@ -763,19 +776,19 @@ const Profile = () => {
               <div className="space-y-4">
                 {recentActivity.map((activity, index) => (
                   <div key={index} className="flex items-start space-x-4">
-                    <div className="p-2 bg-primary/10 rounded-full mt-1">
-                      <Clock className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
+                  <div className="p-2 bg-primary/10 rounded-full mt-1">
+                    <Clock className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
                       <p className="font-medium">
                         {activity.type === 'PROFILE_UPDATE' ? 'Profile Updated' : 'Account Created'}
                       </p>
                       <p className="text-sm text-muted-foreground">{activity.description}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                         {formatDateTime(activity.timestamp)}
-                      </p>
-                    </div>
+                    </p>
                   </div>
+                </div>
                 ))}
               </div>
             </CardContent>

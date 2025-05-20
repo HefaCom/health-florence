@@ -401,3 +401,141 @@ export const deleteAppointment = /* GraphQL */ `mutation DeleteAppointment(
   APITypes.DeleteAppointmentMutationVariables,
   APITypes.DeleteAppointmentMutation
 >;
+export const createAuditEvent = /* GraphQL */ `mutation CreateAuditEvent(
+  $input: CreateAuditEventInput!
+  $condition: ModelAuditEventConditionInput
+) {
+  createAuditEvent(input: $input, condition: $condition) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateAuditEventMutationVariables,
+  APITypes.CreateAuditEventMutation
+>;
+export const updateAuditEvent = /* GraphQL */ `mutation UpdateAuditEvent(
+  $input: UpdateAuditEventInput!
+  $condition: ModelAuditEventConditionInput
+) {
+  updateAuditEvent(input: $input, condition: $condition) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateAuditEventMutationVariables,
+  APITypes.UpdateAuditEventMutation
+>;
+export const deleteAuditEvent = /* GraphQL */ `mutation DeleteAuditEvent(
+  $input: DeleteAuditEventInput!
+  $condition: ModelAuditEventConditionInput
+) {
+  deleteAuditEvent(input: $input, condition: $condition) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteAuditEventMutationVariables,
+  APITypes.DeleteAuditEventMutation
+>;
+export const createAuditBatch = /* GraphQL */ `mutation CreateAuditBatch(
+  $input: CreateAuditBatchInput!
+  $condition: ModelAuditBatchConditionInput
+) {
+  createAuditBatch(input: $input, condition: $condition) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateAuditBatchMutationVariables,
+  APITypes.CreateAuditBatchMutation
+>;
+export const updateAuditBatch = /* GraphQL */ `mutation UpdateAuditBatch(
+  $input: UpdateAuditBatchInput!
+  $condition: ModelAuditBatchConditionInput
+) {
+  updateAuditBatch(input: $input, condition: $condition) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateAuditBatchMutationVariables,
+  APITypes.UpdateAuditBatchMutation
+>;
+export const deleteAuditBatch = /* GraphQL */ `mutation DeleteAuditBatch(
+  $input: DeleteAuditBatchInput!
+  $condition: ModelAuditBatchConditionInput
+) {
+  deleteAuditBatch(input: $input, condition: $condition) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteAuditBatchMutationVariables,
+  APITypes.DeleteAuditBatchMutation
+>;

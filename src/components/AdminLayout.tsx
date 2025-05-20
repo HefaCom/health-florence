@@ -9,7 +9,8 @@ import {
   Menu, 
   Bell, 
   LogOut,
-  MessageCircle
+  MessageCircle,
+  History
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -82,6 +83,11 @@ export const AdminLayout = () => {
       name: "Analytics",
       path: "/admin/analytics",
       icon: <BarChart3 className="h-5 w-5" />
+    },
+    {
+      name: "Audit Trails",
+      path: "/admin/audit-trails",
+      icon: <History className="h-5 w-5" />
     },
     {
       name: "Settings",

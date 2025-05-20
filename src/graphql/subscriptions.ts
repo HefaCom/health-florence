@@ -392,3 +392,135 @@ export const onDeleteAppointment = /* GraphQL */ `subscription OnDeleteAppointme
   APITypes.OnDeleteAppointmentSubscriptionVariables,
   APITypes.OnDeleteAppointmentSubscription
 >;
+export const onCreateAuditEvent = /* GraphQL */ `subscription OnCreateAuditEvent(
+  $filter: ModelSubscriptionAuditEventFilterInput
+) {
+  onCreateAuditEvent(filter: $filter) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateAuditEventSubscriptionVariables,
+  APITypes.OnCreateAuditEventSubscription
+>;
+export const onUpdateAuditEvent = /* GraphQL */ `subscription OnUpdateAuditEvent(
+  $filter: ModelSubscriptionAuditEventFilterInput
+) {
+  onUpdateAuditEvent(filter: $filter) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateAuditEventSubscriptionVariables,
+  APITypes.OnUpdateAuditEventSubscription
+>;
+export const onDeleteAuditEvent = /* GraphQL */ `subscription OnDeleteAuditEvent(
+  $filter: ModelSubscriptionAuditEventFilterInput
+) {
+  onDeleteAuditEvent(filter: $filter) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteAuditEventSubscriptionVariables,
+  APITypes.OnDeleteAuditEventSubscription
+>;
+export const onCreateAuditBatch = /* GraphQL */ `subscription OnCreateAuditBatch(
+  $filter: ModelSubscriptionAuditBatchFilterInput
+) {
+  onCreateAuditBatch(filter: $filter) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateAuditBatchSubscriptionVariables,
+  APITypes.OnCreateAuditBatchSubscription
+>;
+export const onUpdateAuditBatch = /* GraphQL */ `subscription OnUpdateAuditBatch(
+  $filter: ModelSubscriptionAuditBatchFilterInput
+) {
+  onUpdateAuditBatch(filter: $filter) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateAuditBatchSubscriptionVariables,
+  APITypes.OnUpdateAuditBatchSubscription
+>;
+export const onDeleteAuditBatch = /* GraphQL */ `subscription OnDeleteAuditBatch(
+  $filter: ModelSubscriptionAuditBatchFilterInput
+) {
+  onDeleteAuditBatch(filter: $filter) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteAuditBatchSubscriptionVariables,
+  APITypes.OnDeleteAuditBatchSubscription
+>;

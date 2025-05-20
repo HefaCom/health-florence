@@ -4,6 +4,10 @@
  * Any changes to this file will be overwritten when running amplify pull. *
  **************************************************************************/
 
+export { default as AuditBatchCreateForm } from "./AuditBatchCreateForm";
+export { default as AuditBatchUpdateForm } from "./AuditBatchUpdateForm";
+export { default as AuditEventCreateForm } from "./AuditEventCreateForm";
+export { default as AuditEventUpdateForm } from "./AuditEventUpdateForm";
 export { default as UserCreateForm } from "./UserCreateForm";
 export { default as UserUpdateForm } from "./UserUpdateForm";
 export { default as studioTheme } from "./studioTheme";
