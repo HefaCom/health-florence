@@ -29,6 +29,16 @@ export default function UserUpdateForm(props) {
     firstName: "",
     lastName: "",
     phoneNumber: "",
+    dateOfBirth: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+    allergies: "",
+    medicalConditions: "",
+    currentMedications: "",
     role: "",
     createdAt: "",
     updatedAt: "",
@@ -38,6 +48,26 @@ export default function UserUpdateForm(props) {
   const [lastName, setLastName] = React.useState(initialValues.lastName);
   const [phoneNumber, setPhoneNumber] = React.useState(
     initialValues.phoneNumber
+  );
+  const [dateOfBirth, setDateOfBirth] = React.useState(
+    initialValues.dateOfBirth
+  );
+  const [address, setAddress] = React.useState(initialValues.address);
+  const [city, setCity] = React.useState(initialValues.city);
+  const [state, setState] = React.useState(initialValues.state);
+  const [zipCode, setZipCode] = React.useState(initialValues.zipCode);
+  const [emergencyContactName, setEmergencyContactName] = React.useState(
+    initialValues.emergencyContactName
+  );
+  const [emergencyContactPhone, setEmergencyContactPhone] = React.useState(
+    initialValues.emergencyContactPhone
+  );
+  const [allergies, setAllergies] = React.useState(initialValues.allergies);
+  const [medicalConditions, setMedicalConditions] = React.useState(
+    initialValues.medicalConditions
+  );
+  const [currentMedications, setCurrentMedications] = React.useState(
+    initialValues.currentMedications
   );
   const [role, setRole] = React.useState(initialValues.role);
   const [createdAt, setCreatedAt] = React.useState(initialValues.createdAt);
@@ -51,6 +81,16 @@ export default function UserUpdateForm(props) {
     setFirstName(cleanValues.firstName);
     setLastName(cleanValues.lastName);
     setPhoneNumber(cleanValues.phoneNumber);
+    setDateOfBirth(cleanValues.dateOfBirth);
+    setAddress(cleanValues.address);
+    setCity(cleanValues.city);
+    setState(cleanValues.state);
+    setZipCode(cleanValues.zipCode);
+    setEmergencyContactName(cleanValues.emergencyContactName);
+    setEmergencyContactPhone(cleanValues.emergencyContactPhone);
+    setAllergies(cleanValues.allergies);
+    setMedicalConditions(cleanValues.medicalConditions);
+    setCurrentMedications(cleanValues.currentMedications);
     setRole(cleanValues.role);
     setCreatedAt(cleanValues.createdAt);
     setUpdatedAt(cleanValues.updatedAt);
@@ -77,6 +117,16 @@ export default function UserUpdateForm(props) {
     firstName: [{ type: "Required" }],
     lastName: [{ type: "Required" }],
     phoneNumber: [],
+    dateOfBirth: [],
+    address: [],
+    city: [],
+    state: [],
+    zipCode: [],
+    emergencyContactName: [],
+    emergencyContactPhone: [],
+    allergies: [],
+    medicalConditions: [],
+    currentMedications: [],
     role: [{ type: "Required" }],
     createdAt: [{ type: "Required" }],
     updatedAt: [{ type: "Required" }],
@@ -128,6 +178,16 @@ export default function UserUpdateForm(props) {
           firstName,
           lastName,
           phoneNumber: phoneNumber ?? null,
+          dateOfBirth: dateOfBirth ?? null,
+          address: address ?? null,
+          city: city ?? null,
+          state: state ?? null,
+          zipCode: zipCode ?? null,
+          emergencyContactName: emergencyContactName ?? null,
+          emergencyContactPhone: emergencyContactPhone ?? null,
+          allergies: allergies ?? null,
+          medicalConditions: medicalConditions ?? null,
+          currentMedications: currentMedications ?? null,
           role,
           createdAt,
           updatedAt,
@@ -195,6 +255,16 @@ export default function UserUpdateForm(props) {
               firstName,
               lastName,
               phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
               role,
               createdAt,
               updatedAt,
@@ -225,6 +295,16 @@ export default function UserUpdateForm(props) {
               firstName: value,
               lastName,
               phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
               role,
               createdAt,
               updatedAt,
@@ -255,6 +335,16 @@ export default function UserUpdateForm(props) {
               firstName,
               lastName: value,
               phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
               role,
               createdAt,
               updatedAt,
@@ -285,6 +375,16 @@ export default function UserUpdateForm(props) {
               firstName,
               lastName,
               phoneNumber: value,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
               role,
               createdAt,
               updatedAt,
@@ -303,6 +403,415 @@ export default function UserUpdateForm(props) {
         {...getOverrideProps(overrides, "phoneNumber")}
       ></TextField>
       <TextField
+        label="Date of birth"
+        isRequired={false}
+        isReadOnly={false}
+        type="date"
+        value={dateOfBirth}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth: value,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.dateOfBirth ?? value;
+          }
+          if (errors.dateOfBirth?.hasError) {
+            runValidationTasks("dateOfBirth", value);
+          }
+          setDateOfBirth(value);
+        }}
+        onBlur={() => runValidationTasks("dateOfBirth", dateOfBirth)}
+        errorMessage={errors.dateOfBirth?.errorMessage}
+        hasError={errors.dateOfBirth?.hasError}
+        {...getOverrideProps(overrides, "dateOfBirth")}
+      ></TextField>
+      <TextField
+        label="Address"
+        isRequired={false}
+        isReadOnly={false}
+        value={address}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address: value,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.address ?? value;
+          }
+          if (errors.address?.hasError) {
+            runValidationTasks("address", value);
+          }
+          setAddress(value);
+        }}
+        onBlur={() => runValidationTasks("address", address)}
+        errorMessage={errors.address?.errorMessage}
+        hasError={errors.address?.hasError}
+        {...getOverrideProps(overrides, "address")}
+      ></TextField>
+      <TextField
+        label="City"
+        isRequired={false}
+        isReadOnly={false}
+        value={city}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city: value,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.city ?? value;
+          }
+          if (errors.city?.hasError) {
+            runValidationTasks("city", value);
+          }
+          setCity(value);
+        }}
+        onBlur={() => runValidationTasks("city", city)}
+        errorMessage={errors.city?.errorMessage}
+        hasError={errors.city?.hasError}
+        {...getOverrideProps(overrides, "city")}
+      ></TextField>
+      <TextField
+        label="State"
+        isRequired={false}
+        isReadOnly={false}
+        value={state}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state: value,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.state ?? value;
+          }
+          if (errors.state?.hasError) {
+            runValidationTasks("state", value);
+          }
+          setState(value);
+        }}
+        onBlur={() => runValidationTasks("state", state)}
+        errorMessage={errors.state?.errorMessage}
+        hasError={errors.state?.hasError}
+        {...getOverrideProps(overrides, "state")}
+      ></TextField>
+      <TextField
+        label="Zip code"
+        isRequired={false}
+        isReadOnly={false}
+        value={zipCode}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode: value,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.zipCode ?? value;
+          }
+          if (errors.zipCode?.hasError) {
+            runValidationTasks("zipCode", value);
+          }
+          setZipCode(value);
+        }}
+        onBlur={() => runValidationTasks("zipCode", zipCode)}
+        errorMessage={errors.zipCode?.errorMessage}
+        hasError={errors.zipCode?.hasError}
+        {...getOverrideProps(overrides, "zipCode")}
+      ></TextField>
+      <TextField
+        label="Emergency contact name"
+        isRequired={false}
+        isReadOnly={false}
+        value={emergencyContactName}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName: value,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.emergencyContactName ?? value;
+          }
+          if (errors.emergencyContactName?.hasError) {
+            runValidationTasks("emergencyContactName", value);
+          }
+          setEmergencyContactName(value);
+        }}
+        onBlur={() =>
+          runValidationTasks("emergencyContactName", emergencyContactName)
+        }
+        errorMessage={errors.emergencyContactName?.errorMessage}
+        hasError={errors.emergencyContactName?.hasError}
+        {...getOverrideProps(overrides, "emergencyContactName")}
+      ></TextField>
+      <TextField
+        label="Emergency contact phone"
+        isRequired={false}
+        isReadOnly={false}
+        value={emergencyContactPhone}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone: value,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.emergencyContactPhone ?? value;
+          }
+          if (errors.emergencyContactPhone?.hasError) {
+            runValidationTasks("emergencyContactPhone", value);
+          }
+          setEmergencyContactPhone(value);
+        }}
+        onBlur={() =>
+          runValidationTasks("emergencyContactPhone", emergencyContactPhone)
+        }
+        errorMessage={errors.emergencyContactPhone?.errorMessage}
+        hasError={errors.emergencyContactPhone?.hasError}
+        {...getOverrideProps(overrides, "emergencyContactPhone")}
+      ></TextField>
+      <TextField
+        label="Allergies"
+        isRequired={false}
+        isReadOnly={false}
+        value={allergies}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies: value,
+              medicalConditions,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.allergies ?? value;
+          }
+          if (errors.allergies?.hasError) {
+            runValidationTasks("allergies", value);
+          }
+          setAllergies(value);
+        }}
+        onBlur={() => runValidationTasks("allergies", allergies)}
+        errorMessage={errors.allergies?.errorMessage}
+        hasError={errors.allergies?.hasError}
+        {...getOverrideProps(overrides, "allergies")}
+      ></TextField>
+      <TextField
+        label="Medical conditions"
+        isRequired={false}
+        isReadOnly={false}
+        value={medicalConditions}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions: value,
+              currentMedications,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.medicalConditions ?? value;
+          }
+          if (errors.medicalConditions?.hasError) {
+            runValidationTasks("medicalConditions", value);
+          }
+          setMedicalConditions(value);
+        }}
+        onBlur={() =>
+          runValidationTasks("medicalConditions", medicalConditions)
+        }
+        errorMessage={errors.medicalConditions?.errorMessage}
+        hasError={errors.medicalConditions?.hasError}
+        {...getOverrideProps(overrides, "medicalConditions")}
+      ></TextField>
+      <TextField
+        label="Current medications"
+        isRequired={false}
+        isReadOnly={false}
+        value={currentMedications}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications: value,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.currentMedications ?? value;
+          }
+          if (errors.currentMedications?.hasError) {
+            runValidationTasks("currentMedications", value);
+          }
+          setCurrentMedications(value);
+        }}
+        onBlur={() =>
+          runValidationTasks("currentMedications", currentMedications)
+        }
+        errorMessage={errors.currentMedications?.errorMessage}
+        hasError={errors.currentMedications?.hasError}
+        {...getOverrideProps(overrides, "currentMedications")}
+      ></TextField>
+      <TextField
         label="Role"
         isRequired={true}
         isReadOnly={false}
@@ -315,6 +824,16 @@ export default function UserUpdateForm(props) {
               firstName,
               lastName,
               phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
               role: value,
               createdAt,
               updatedAt,
@@ -347,6 +866,16 @@ export default function UserUpdateForm(props) {
               firstName,
               lastName,
               phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
               role,
               createdAt: value,
               updatedAt,
@@ -379,6 +908,16 @@ export default function UserUpdateForm(props) {
               firstName,
               lastName,
               phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
               role,
               createdAt,
               updatedAt: value,

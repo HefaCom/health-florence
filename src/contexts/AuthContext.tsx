@@ -2,7 +2,15 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Amplify } from 'aws-amplify';
-import { signIn, signOut, signUp, confirmSignUp, getCurrentUser } from 'aws-amplify/auth';
+import { 
+  signIn, 
+  signOut, 
+  signUp, 
+  confirmSignUp, 
+  getCurrentUser,
+  resetPassword as initiateResetPassword,
+  confirmResetPassword
+} from 'aws-amplify/auth';
 import awsconfig from '../aws-exports';
 
 // Configure Amplify
@@ -193,14 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      // For password reset, we'll use a custom implementation
-      // In a real app, you would use the appropriate Amplify v6 method
-      // This is a placeholder that simulates the behavior
-      console.log(`Password reset requested for ${email}`);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await initiateResetPassword({ username: email });
       toast.success("Password reset instructions sent to your email");
       setIsLoading(false);
       return true;
@@ -216,13 +217,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      // For password reset confirmation, we'll use a custom implementation
-      // In a real app, you would use the appropriate Amplify v6 method
-      // This is a placeholder that simulates the behavior
-      console.log(`Password reset confirmation for ${email} with code ${code}`);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await confirmResetPassword({
+        username: email,
+        confirmationCode: code,
+        newPassword
+      });
       
       toast.success("Password reset successful! You can now login with your new password.");
       setIsLoading(false);

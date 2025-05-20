@@ -43,7 +43,7 @@ const Register = () => {
     try {
       console.log(`Creating user with data: {id: '${userId}', email: '${email}', firstName: '${firstName}', lastName: '${lastName}', role: 'user'}`);
       
-      const result = await client.graphql({
+      const response = await client.graphql({
         query: mutations.createUser,
         variables: {
           input: {
@@ -58,8 +58,8 @@ const Register = () => {
         authMode: 'apiKey'
       }) as GraphQLResult<CreateUserMutation>;
       
-      console.log('User created in DynamoDB:', result);
-      return result.data?.createUser;
+      console.log('User created in DynamoDB:', response);
+      return response.data?.createUser;
     } catch (error) {
       console.error('Failed to create user in DynamoDB:', error);
       throw error;
@@ -120,14 +120,38 @@ const Register = () => {
       const success = await confirmRegistration(email, verificationCode);
 
       if (success) {
-        // Create user in DynamoDB after successful verification
-        const dbSuccess = await createUserInDynamoDB(crypto.randomUUID(), email, firstName, lastName);
-        if (dbSuccess) {
-          toast.success("Registration completed successfully! You can now login.");
-          navigate("/login");
-        } else {
+        // Generate a unique ID
+        const userId = crypto.randomUUID();
+        
+        try {
+          // Create user in DynamoDB
+          const userResponse = await client.graphql({
+            query: mutations.createUser,
+            variables: {
+              input: {
+                id: userId,
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                role: 'user'  // Required field
+              }
+            },
+            authMode: 'apiKey'
+          });
+
+          console.log('DynamoDB User Creation Response:', userResponse);
+
+          if (userResponse.data?.createUser) {
+            toast.success("Registration completed successfully! You can now login.");
+            navigate("/login");
+          } else {
+            console.error('Failed to create user in DynamoDB:', userResponse);
+            toast.error("Account verified but profile setup failed. Please contact support.");
+            navigate("/login");
+          }
+        } catch (error) {
+          console.error('Error creating user in DynamoDB:', error);
           toast.error("Account verified but profile setup failed. Please contact support.");
-          // Still navigate to login since Cognito account is verified
           navigate("/login");
         }
       } else {

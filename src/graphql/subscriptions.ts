@@ -18,6 +18,16 @@ export const onCreateUser = /* GraphQL */ `subscription OnCreateUser(
     firstName
     lastName
     phoneNumber
+    dateOfBirth
+    address
+    city
+    state
+    zipCode
+    emergencyContactName
+    emergencyContactPhone
+    allergies
+    medicalConditions
+    currentMedications
     role
     createdAt
     updatedAt
@@ -39,6 +49,16 @@ export const onUpdateUser = /* GraphQL */ `subscription OnUpdateUser(
     firstName
     lastName
     phoneNumber
+    dateOfBirth
+    address
+    city
+    state
+    zipCode
+    emergencyContactName
+    emergencyContactPhone
+    allergies
+    medicalConditions
+    currentMedications
     role
     createdAt
     updatedAt
@@ -60,6 +80,16 @@ export const onDeleteUser = /* GraphQL */ `subscription OnDeleteUser(
     firstName
     lastName
     phoneNumber
+    dateOfBirth
+    address
+    city
+    state
+    zipCode
+    emergencyContactName
+    emergencyContactPhone
+    allergies
+    medicalConditions
+    currentMedications
     role
     createdAt
     updatedAt
@@ -84,6 +114,16 @@ export const onCreateDoctor = /* GraphQL */ `subscription OnCreateDoctor($filter
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -117,6 +157,16 @@ export const onUpdateDoctor = /* GraphQL */ `subscription OnUpdateDoctor($filter
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -150,6 +200,16 @@ export const onDeleteDoctor = /* GraphQL */ `subscription OnDeleteDoctor($filter
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -187,6 +247,16 @@ export const onCreateAppointment = /* GraphQL */ `subscription OnCreateAppointme
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -231,6 +301,16 @@ export const onUpdateAppointment = /* GraphQL */ `subscription OnUpdateAppointme
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -275,6 +355,16 @@ export const onDeleteAppointment = /* GraphQL */ `subscription OnDeleteAppointme
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt

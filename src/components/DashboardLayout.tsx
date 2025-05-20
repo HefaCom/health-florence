@@ -8,14 +8,64 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { generateClient } from "aws-amplify/api";
+import { GraphQLResult } from '@aws-amplify/api';
+
+interface UserData {
+  listUsers: {
+    items: Array<{
+      firstName: string;
+      lastName: string;
+    }>;
+  };
+}
+
+const client = generateClient();
 
 export const DashboardLayout = () => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
+  const [userData, setUserData] = useState<{ firstName: string; lastName: string; } | null>(null);
+  
+  // Fetch user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user?.email) {
+        try {
+          const response = await client.graphql({
+            query: `query GetUserByEmail {
+              listUsers(filter: { email: { eq: "${user.email}" } }) {
+                items {
+                  firstName
+                  lastName
+                }
+              }
+            }`,
+            authMode: 'apiKey'
+          }) as GraphQLResult<UserData>;
+          
+          const fetchedUser = response.data?.listUsers?.items?.[0];
+          if (fetchedUser) {
+            setUserData(fetchedUser);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [user?.email]);
   
   // Get user's name from email or attributes
   const getUserName = () => {
+    // First try to get the name from fetched user data
+    if (userData?.firstName && userData?.lastName) {
+      return `${userData.firstName} ${userData.lastName}`;
+    }
+    
+    // Fallback to attributes if available
     if (user?.attributes?.name) {
       return user.attributes.name;
     }

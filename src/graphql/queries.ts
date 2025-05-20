@@ -15,6 +15,16 @@ export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
     firstName
     lastName
     phoneNumber
+    dateOfBirth
+    address
+    city
+    state
+    zipCode
+    emergencyContactName
+    emergencyContactPhone
+    allergies
+    medicalConditions
+    currentMedications
     role
     createdAt
     updatedAt
@@ -35,6 +45,16 @@ export const listUsers = /* GraphQL */ `query ListUsers(
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -59,6 +79,16 @@ export const getDoctor = /* GraphQL */ `query GetDoctor($id: ID!) {
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -115,6 +145,16 @@ export const getAppointment = /* GraphQL */ `query GetAppointment($id: ID!) {
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt

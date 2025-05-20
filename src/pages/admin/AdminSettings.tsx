@@ -116,7 +116,7 @@ const AdminSettings = () => {
             </CardFooter>
           </Card>
           
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Regional Settings</CardTitle>
               <CardDescription>Configure timezone and localization preferences</CardDescription>
@@ -193,7 +193,7 @@ const AdminSettings = () => {
             <CardFooter>
               <Button onClick={() => toast.success("Regional settings saved")}>Save Settings</Button>
             </CardFooter>
-          </Card>
+          </Card> */}
         </TabsContent>
         
         <TabsContent value="notifications" className="space-y-4 mt-4">
@@ -286,7 +286,7 @@ const AdminSettings = () => {
             </CardFooter>
           </Card>
           
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Two-Factor Authentication</CardTitle>
               <CardDescription>Enhance your account security with 2FA</CardDescription>
@@ -305,7 +305,7 @@ const AdminSettings = () => {
                 Set Up 2FA
               </Button>
             </CardFooter>
-          </Card>
+          </Card> */}
         </TabsContent>
         
         <TabsContent value="system" className="space-y-4 mt-4">

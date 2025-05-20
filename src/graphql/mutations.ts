@@ -18,6 +18,16 @@ export const createUser = /* GraphQL */ `mutation CreateUser(
     firstName
     lastName
     phoneNumber
+    dateOfBirth
+    address
+    city
+    state
+    zipCode
+    emergencyContactName
+    emergencyContactPhone
+    allergies
+    medicalConditions
+    currentMedications
     role
     createdAt
     updatedAt
@@ -39,6 +49,16 @@ export const updateUser = /* GraphQL */ `mutation UpdateUser(
     firstName
     lastName
     phoneNumber
+    dateOfBirth
+    address
+    city
+    state
+    zipCode
+    emergencyContactName
+    emergencyContactPhone
+    allergies
+    medicalConditions
+    currentMedications
     role
     createdAt
     updatedAt
@@ -60,6 +80,16 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
     firstName
     lastName
     phoneNumber
+    dateOfBirth
+    address
+    city
+    state
+    zipCode
+    emergencyContactName
+    emergencyContactPhone
+    allergies
+    medicalConditions
+    currentMedications
     role
     createdAt
     updatedAt
@@ -87,6 +117,16 @@ export const createDoctor = /* GraphQL */ `mutation CreateDoctor(
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -123,6 +163,16 @@ export const updateDoctor = /* GraphQL */ `mutation UpdateDoctor(
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -159,6 +209,16 @@ export const deleteDoctor = /* GraphQL */ `mutation DeleteDoctor(
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -196,6 +256,16 @@ export const createAppointment = /* GraphQL */ `mutation CreateAppointment(
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -240,6 +310,16 @@ export const updateAppointment = /* GraphQL */ `mutation UpdateAppointment(
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt
@@ -284,6 +364,16 @@ export const deleteAppointment = /* GraphQL */ `mutation DeleteAppointment(
       firstName
       lastName
       phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
       role
       createdAt
       updatedAt

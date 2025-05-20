@@ -1,15 +1,25 @@
 # This schema defines the data models for the Health Florence application
 
 type User @model @auth(rules: [
-  { allow: public, provider: apiKey, operations: [create] },
-  { allow: owner, operations: [read, update, delete] },
-  { allow: groups, groups: ["admin"], operations: [read] }
+  { allow: public, provider: apiKey, operations: [create, read, update] },
+  { allow: owner },
+  { allow: groups, groups: ["admin"] }
 ]) {
   id: ID!
   email: String!
   firstName: String!
   lastName: String!
   phoneNumber: String
+  dateOfBirth: AWSDate
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  allergies: String
+  medicalConditions: String
+  currentMedications: String
   role: String! @default(value: "user")
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
@@ -62,6 +72,16 @@ input UpdateUserInput {
   firstName: String
   lastName: String
   phoneNumber: String
+  dateOfBirth: AWSDate
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  allergies: String
+  medicalConditions: String
+  currentMedications: String
   role: String
 }
 
