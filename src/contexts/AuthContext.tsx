@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let role: UserRole = "user";
       
       // Check for admin role
-      if (attributes === "toptutor0001@gmail.com") {
+      if (attributes === "toptutor0001@gmail.com" ||  email === "trillo3@outlook.com") {
         role = "admin";
       }
       // You can add more role checks here for nurse/doctor in the future
