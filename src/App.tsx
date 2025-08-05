@@ -100,17 +100,21 @@ const App = () => (
 
                 {/* Expert Portal Routes */}
                 <Route path="/expert" element={<ExpertLogin />} />
-                        <Route path="/expert/dashboard" element={<ExpertLayout />}>
-          <Route index element={<ExpertDashboard />} />
-          <Route path="florence" element={<ExpertFlorence />} />
-          <Route path="patients" element={<ExpertPatients />} />
-          <Route path="appointments" element={<ExpertAppointments />} />
-          <Route path="records" element={<ExpertRecords />} />
-          <Route path="consultations" element={<ExpertConsultations />} />
-          <Route path="analytics" element={<ExpertAnalytics />} />
-          <Route path="messages" element={<ExpertMessages />} />
-          <Route path="activity" element={<ExpertActivity />} />
-        </Route>
+                <Route path="/expert/dashboard" element={
+                  <ProtectedRoute allowedRoles={["expert"]}>
+                    <ExpertLayout />
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<ExpertDashboard />} />
+                  <Route path="florence" element={<ExpertFlorence />} />
+                  <Route path="patients" element={<ExpertPatients />} />
+                  <Route path="appointments" element={<ExpertAppointments />} />
+                  <Route path="records" element={<ExpertRecords />} />
+                  <Route path="consultations" element={<ExpertConsultations />} />
+                  <Route path="analytics" element={<ExpertAnalytics />} />
+                  <Route path="messages" element={<ExpertMessages />} />
+                  <Route path="activity" element={<ExpertActivity />} />
+                </Route>
                 
                 {/* 404 Route */}
                 <Route path="*" element={<NotFound />} />

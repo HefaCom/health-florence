@@ -5,7 +5,7 @@
  **************************************************************************/
 
 import * as React from "react";
-import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
+import { GridProps, SwitchFieldProps, TextAreaFieldProps, TextFieldProps } from "@aws-amplify/ui-react";
 import { User } from "../API.ts";
 export declare type EscapeHatchProps = {
     [elementHierarchy: string]: Record<string, unknown>;
@@ -37,7 +37,19 @@ export declare type UserUpdateFormInputValues = {
     allergies?: string;
     medicalConditions?: string;
     currentMedications?: string;
+    height?: number;
+    weight?: number;
+    gender?: string;
+    bloodType?: string;
     role?: string;
+    isActive?: boolean;
+    lastLoginAt?: string;
+    loginCount?: number;
+    preferences?: string;
+    notificationSettings?: string;
+    privacySettings?: string;
+    subscriptionTier?: string;
+    subscriptionExpiresAt?: string;
     createdAt?: string;
     updatedAt?: string;
 };
@@ -56,7 +68,19 @@ export declare type UserUpdateFormValidationValues = {
     allergies?: ValidationFunction<string>;
     medicalConditions?: ValidationFunction<string>;
     currentMedications?: ValidationFunction<string>;
+    height?: ValidationFunction<number>;
+    weight?: ValidationFunction<number>;
+    gender?: ValidationFunction<string>;
+    bloodType?: ValidationFunction<string>;
     role?: ValidationFunction<string>;
+    isActive?: ValidationFunction<boolean>;
+    lastLoginAt?: ValidationFunction<string>;
+    loginCount?: ValidationFunction<number>;
+    preferences?: ValidationFunction<string>;
+    notificationSettings?: ValidationFunction<string>;
+    privacySettings?: ValidationFunction<string>;
+    subscriptionTier?: ValidationFunction<string>;
+    subscriptionExpiresAt?: ValidationFunction<string>;
     createdAt?: ValidationFunction<string>;
     updatedAt?: ValidationFunction<string>;
 };
@@ -77,7 +101,19 @@ export declare type UserUpdateFormOverridesProps = {
     allergies?: PrimitiveOverrideProps<TextFieldProps>;
     medicalConditions?: PrimitiveOverrideProps<TextFieldProps>;
     currentMedications?: PrimitiveOverrideProps<TextFieldProps>;
+    height?: PrimitiveOverrideProps<TextFieldProps>;
+    weight?: PrimitiveOverrideProps<TextFieldProps>;
+    gender?: PrimitiveOverrideProps<TextFieldProps>;
+    bloodType?: PrimitiveOverrideProps<TextFieldProps>;
     role?: PrimitiveOverrideProps<TextFieldProps>;
+    isActive?: PrimitiveOverrideProps<SwitchFieldProps>;
+    lastLoginAt?: PrimitiveOverrideProps<TextFieldProps>;
+    loginCount?: PrimitiveOverrideProps<TextFieldProps>;
+    preferences?: PrimitiveOverrideProps<TextAreaFieldProps>;
+    notificationSettings?: PrimitiveOverrideProps<TextAreaFieldProps>;
+    privacySettings?: PrimitiveOverrideProps<TextAreaFieldProps>;
+    subscriptionTier?: PrimitiveOverrideProps<TextFieldProps>;
+    subscriptionExpiresAt?: PrimitiveOverrideProps<TextFieldProps>;
     createdAt?: PrimitiveOverrideProps<TextFieldProps>;
     updatedAt?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;

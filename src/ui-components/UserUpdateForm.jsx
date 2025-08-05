@@ -6,7 +6,14 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
+import {
+  Button,
+  Flex,
+  Grid,
+  SwitchField,
+  TextAreaField,
+  TextField,
+} from "@aws-amplify/ui-react";
 import { fetchByPath, getOverrideProps, validateField } from "./utils";
 import { generateClient } from "aws-amplify/api";
 import { getUser } from "../graphql/queries";
@@ -39,7 +46,19 @@ export default function UserUpdateForm(props) {
     allergies: "",
     medicalConditions: "",
     currentMedications: "",
+    height: "",
+    weight: "",
+    gender: "",
+    bloodType: "",
     role: "",
+    isActive: false,
+    lastLoginAt: "",
+    loginCount: "",
+    preferences: "",
+    notificationSettings: "",
+    privacySettings: "",
+    subscriptionTier: "",
+    subscriptionExpiresAt: "",
     createdAt: "",
     updatedAt: "",
   };
@@ -69,7 +88,31 @@ export default function UserUpdateForm(props) {
   const [currentMedications, setCurrentMedications] = React.useState(
     initialValues.currentMedications
   );
+  const [height, setHeight] = React.useState(initialValues.height);
+  const [weight, setWeight] = React.useState(initialValues.weight);
+  const [gender, setGender] = React.useState(initialValues.gender);
+  const [bloodType, setBloodType] = React.useState(initialValues.bloodType);
   const [role, setRole] = React.useState(initialValues.role);
+  const [isActive, setIsActive] = React.useState(initialValues.isActive);
+  const [lastLoginAt, setLastLoginAt] = React.useState(
+    initialValues.lastLoginAt
+  );
+  const [loginCount, setLoginCount] = React.useState(initialValues.loginCount);
+  const [preferences, setPreferences] = React.useState(
+    initialValues.preferences
+  );
+  const [notificationSettings, setNotificationSettings] = React.useState(
+    initialValues.notificationSettings
+  );
+  const [privacySettings, setPrivacySettings] = React.useState(
+    initialValues.privacySettings
+  );
+  const [subscriptionTier, setSubscriptionTier] = React.useState(
+    initialValues.subscriptionTier
+  );
+  const [subscriptionExpiresAt, setSubscriptionExpiresAt] = React.useState(
+    initialValues.subscriptionExpiresAt
+  );
   const [createdAt, setCreatedAt] = React.useState(initialValues.createdAt);
   const [updatedAt, setUpdatedAt] = React.useState(initialValues.updatedAt);
   const [errors, setErrors] = React.useState({});
@@ -91,7 +134,34 @@ export default function UserUpdateForm(props) {
     setAllergies(cleanValues.allergies);
     setMedicalConditions(cleanValues.medicalConditions);
     setCurrentMedications(cleanValues.currentMedications);
+    setHeight(cleanValues.height);
+    setWeight(cleanValues.weight);
+    setGender(cleanValues.gender);
+    setBloodType(cleanValues.bloodType);
     setRole(cleanValues.role);
+    setIsActive(cleanValues.isActive);
+    setLastLoginAt(cleanValues.lastLoginAt);
+    setLoginCount(cleanValues.loginCount);
+    setPreferences(
+      typeof cleanValues.preferences === "string" ||
+        cleanValues.preferences === null
+        ? cleanValues.preferences
+        : JSON.stringify(cleanValues.preferences)
+    );
+    setNotificationSettings(
+      typeof cleanValues.notificationSettings === "string" ||
+        cleanValues.notificationSettings === null
+        ? cleanValues.notificationSettings
+        : JSON.stringify(cleanValues.notificationSettings)
+    );
+    setPrivacySettings(
+      typeof cleanValues.privacySettings === "string" ||
+        cleanValues.privacySettings === null
+        ? cleanValues.privacySettings
+        : JSON.stringify(cleanValues.privacySettings)
+    );
+    setSubscriptionTier(cleanValues.subscriptionTier);
+    setSubscriptionExpiresAt(cleanValues.subscriptionExpiresAt);
     setCreatedAt(cleanValues.createdAt);
     setUpdatedAt(cleanValues.updatedAt);
     setErrors({});
@@ -127,7 +197,19 @@ export default function UserUpdateForm(props) {
     allergies: [],
     medicalConditions: [],
     currentMedications: [],
+    height: [],
+    weight: [],
+    gender: [],
+    bloodType: [],
     role: [{ type: "Required" }],
+    isActive: [{ type: "Required" }],
+    lastLoginAt: [],
+    loginCount: [{ type: "Required" }],
+    preferences: [{ type: "JSON" }],
+    notificationSettings: [{ type: "JSON" }],
+    privacySettings: [{ type: "JSON" }],
+    subscriptionTier: [],
+    subscriptionExpiresAt: [],
     createdAt: [{ type: "Required" }],
     updatedAt: [{ type: "Required" }],
   };
@@ -188,7 +270,19 @@ export default function UserUpdateForm(props) {
           allergies: allergies ?? null,
           medicalConditions: medicalConditions ?? null,
           currentMedications: currentMedications ?? null,
+          height: height ?? null,
+          weight: weight ?? null,
+          gender: gender ?? null,
+          bloodType: bloodType ?? null,
           role,
+          isActive,
+          lastLoginAt: lastLoginAt ?? null,
+          loginCount,
+          preferences: preferences ?? null,
+          notificationSettings: notificationSettings ?? null,
+          privacySettings: privacySettings ?? null,
+          subscriptionTier: subscriptionTier ?? null,
+          subscriptionExpiresAt: subscriptionExpiresAt ?? null,
           createdAt,
           updatedAt,
         };
@@ -265,7 +359,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -305,7 +411,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -345,7 +463,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -385,7 +515,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -426,7 +568,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -466,7 +620,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -506,7 +672,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -546,7 +724,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -586,7 +776,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -626,7 +828,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -668,7 +882,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -710,7 +936,19 @@ export default function UserUpdateForm(props) {
               allergies: value,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -750,7 +988,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions: value,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -792,7 +1042,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications: value,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -810,6 +1072,222 @@ export default function UserUpdateForm(props) {
         errorMessage={errors.currentMedications?.errorMessage}
         hasError={errors.currentMedications?.hasError}
         {...getOverrideProps(overrides, "currentMedications")}
+      ></TextField>
+      <TextField
+        label="Height"
+        isRequired={false}
+        isReadOnly={false}
+        type="number"
+        step="any"
+        value={height}
+        onChange={(e) => {
+          let value = isNaN(parseFloat(e.target.value))
+            ? e.target.value
+            : parseFloat(e.target.value);
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height: value,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.height ?? value;
+          }
+          if (errors.height?.hasError) {
+            runValidationTasks("height", value);
+          }
+          setHeight(value);
+        }}
+        onBlur={() => runValidationTasks("height", height)}
+        errorMessage={errors.height?.errorMessage}
+        hasError={errors.height?.hasError}
+        {...getOverrideProps(overrides, "height")}
+      ></TextField>
+      <TextField
+        label="Weight"
+        isRequired={false}
+        isReadOnly={false}
+        type="number"
+        step="any"
+        value={weight}
+        onChange={(e) => {
+          let value = isNaN(parseFloat(e.target.value))
+            ? e.target.value
+            : parseFloat(e.target.value);
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight: value,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.weight ?? value;
+          }
+          if (errors.weight?.hasError) {
+            runValidationTasks("weight", value);
+          }
+          setWeight(value);
+        }}
+        onBlur={() => runValidationTasks("weight", weight)}
+        errorMessage={errors.weight?.errorMessage}
+        hasError={errors.weight?.hasError}
+        {...getOverrideProps(overrides, "weight")}
+      ></TextField>
+      <TextField
+        label="Gender"
+        isRequired={false}
+        isReadOnly={false}
+        value={gender}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender: value,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.gender ?? value;
+          }
+          if (errors.gender?.hasError) {
+            runValidationTasks("gender", value);
+          }
+          setGender(value);
+        }}
+        onBlur={() => runValidationTasks("gender", gender)}
+        errorMessage={errors.gender?.errorMessage}
+        hasError={errors.gender?.hasError}
+        {...getOverrideProps(overrides, "gender")}
+      ></TextField>
+      <TextField
+        label="Blood type"
+        isRequired={false}
+        isReadOnly={false}
+        value={bloodType}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType: value,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.bloodType ?? value;
+          }
+          if (errors.bloodType?.hasError) {
+            runValidationTasks("bloodType", value);
+          }
+          setBloodType(value);
+        }}
+        onBlur={() => runValidationTasks("bloodType", bloodType)}
+        errorMessage={errors.bloodType?.errorMessage}
+        hasError={errors.bloodType?.hasError}
+        {...getOverrideProps(overrides, "bloodType")}
       ></TextField>
       <TextField
         label="Role"
@@ -834,7 +1312,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role: value,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt,
             };
@@ -850,6 +1340,437 @@ export default function UserUpdateForm(props) {
         errorMessage={errors.role?.errorMessage}
         hasError={errors.role?.hasError}
         {...getOverrideProps(overrides, "role")}
+      ></TextField>
+      <SwitchField
+        label="Is active"
+        defaultChecked={false}
+        isDisabled={false}
+        isChecked={isActive}
+        onChange={(e) => {
+          let value = e.target.checked;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive: value,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.isActive ?? value;
+          }
+          if (errors.isActive?.hasError) {
+            runValidationTasks("isActive", value);
+          }
+          setIsActive(value);
+        }}
+        onBlur={() => runValidationTasks("isActive", isActive)}
+        errorMessage={errors.isActive?.errorMessage}
+        hasError={errors.isActive?.hasError}
+        {...getOverrideProps(overrides, "isActive")}
+      ></SwitchField>
+      <TextField
+        label="Last login at"
+        isRequired={false}
+        isReadOnly={false}
+        type="datetime-local"
+        value={lastLoginAt && convertToLocal(new Date(lastLoginAt))}
+        onChange={(e) => {
+          let value =
+            e.target.value === "" ? "" : new Date(e.target.value).toISOString();
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt: value,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.lastLoginAt ?? value;
+          }
+          if (errors.lastLoginAt?.hasError) {
+            runValidationTasks("lastLoginAt", value);
+          }
+          setLastLoginAt(value);
+        }}
+        onBlur={() => runValidationTasks("lastLoginAt", lastLoginAt)}
+        errorMessage={errors.lastLoginAt?.errorMessage}
+        hasError={errors.lastLoginAt?.hasError}
+        {...getOverrideProps(overrides, "lastLoginAt")}
+      ></TextField>
+      <TextField
+        label="Login count"
+        isRequired={true}
+        isReadOnly={false}
+        type="number"
+        step="any"
+        value={loginCount}
+        onChange={(e) => {
+          let value = isNaN(parseInt(e.target.value))
+            ? e.target.value
+            : parseInt(e.target.value);
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount: value,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.loginCount ?? value;
+          }
+          if (errors.loginCount?.hasError) {
+            runValidationTasks("loginCount", value);
+          }
+          setLoginCount(value);
+        }}
+        onBlur={() => runValidationTasks("loginCount", loginCount)}
+        errorMessage={errors.loginCount?.errorMessage}
+        hasError={errors.loginCount?.hasError}
+        {...getOverrideProps(overrides, "loginCount")}
+      ></TextField>
+      <TextAreaField
+        label="Preferences"
+        isRequired={false}
+        isReadOnly={false}
+        value={preferences}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences: value,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.preferences ?? value;
+          }
+          if (errors.preferences?.hasError) {
+            runValidationTasks("preferences", value);
+          }
+          setPreferences(value);
+        }}
+        onBlur={() => runValidationTasks("preferences", preferences)}
+        errorMessage={errors.preferences?.errorMessage}
+        hasError={errors.preferences?.hasError}
+        {...getOverrideProps(overrides, "preferences")}
+      ></TextAreaField>
+      <TextAreaField
+        label="Notification settings"
+        isRequired={false}
+        isReadOnly={false}
+        value={notificationSettings}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings: value,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.notificationSettings ?? value;
+          }
+          if (errors.notificationSettings?.hasError) {
+            runValidationTasks("notificationSettings", value);
+          }
+          setNotificationSettings(value);
+        }}
+        onBlur={() =>
+          runValidationTasks("notificationSettings", notificationSettings)
+        }
+        errorMessage={errors.notificationSettings?.errorMessage}
+        hasError={errors.notificationSettings?.hasError}
+        {...getOverrideProps(overrides, "notificationSettings")}
+      ></TextAreaField>
+      <TextAreaField
+        label="Privacy settings"
+        isRequired={false}
+        isReadOnly={false}
+        value={privacySettings}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings: value,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.privacySettings ?? value;
+          }
+          if (errors.privacySettings?.hasError) {
+            runValidationTasks("privacySettings", value);
+          }
+          setPrivacySettings(value);
+        }}
+        onBlur={() => runValidationTasks("privacySettings", privacySettings)}
+        errorMessage={errors.privacySettings?.errorMessage}
+        hasError={errors.privacySettings?.hasError}
+        {...getOverrideProps(overrides, "privacySettings")}
+      ></TextAreaField>
+      <TextField
+        label="Subscription tier"
+        isRequired={false}
+        isReadOnly={false}
+        value={subscriptionTier}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier: value,
+              subscriptionExpiresAt,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.subscriptionTier ?? value;
+          }
+          if (errors.subscriptionTier?.hasError) {
+            runValidationTasks("subscriptionTier", value);
+          }
+          setSubscriptionTier(value);
+        }}
+        onBlur={() => runValidationTasks("subscriptionTier", subscriptionTier)}
+        errorMessage={errors.subscriptionTier?.errorMessage}
+        hasError={errors.subscriptionTier?.hasError}
+        {...getOverrideProps(overrides, "subscriptionTier")}
+      ></TextField>
+      <TextField
+        label="Subscription expires at"
+        isRequired={false}
+        isReadOnly={false}
+        type="datetime-local"
+        value={
+          subscriptionExpiresAt &&
+          convertToLocal(new Date(subscriptionExpiresAt))
+        }
+        onChange={(e) => {
+          let value =
+            e.target.value === "" ? "" : new Date(e.target.value).toISOString();
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt: value,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.subscriptionExpiresAt ?? value;
+          }
+          if (errors.subscriptionExpiresAt?.hasError) {
+            runValidationTasks("subscriptionExpiresAt", value);
+          }
+          setSubscriptionExpiresAt(value);
+        }}
+        onBlur={() =>
+          runValidationTasks("subscriptionExpiresAt", subscriptionExpiresAt)
+        }
+        errorMessage={errors.subscriptionExpiresAt?.errorMessage}
+        hasError={errors.subscriptionExpiresAt?.hasError}
+        {...getOverrideProps(overrides, "subscriptionExpiresAt")}
       ></TextField>
       <TextField
         label="Created at"
@@ -876,7 +1797,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt: value,
               updatedAt,
             };
@@ -918,7 +1851,19 @@ export default function UserUpdateForm(props) {
               allergies,
               medicalConditions,
               currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
               role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
               createdAt,
               updatedAt: value,
             };

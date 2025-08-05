@@ -12,12 +12,13 @@ import {
   confirmResetPassword
 } from 'aws-amplify/auth';
 import awsconfig from '../aws-exports';
+import { userService, User as UserData } from '../services/user.service';
 
 // Configure Amplify
 Amplify.configure(awsconfig);
 
 // Define user roles
-export type UserRole = "user" | "admin" | "nurse" | "doctor";
+export type UserRole = "user" | "admin" | "expert";
 
 interface AuthContextType {
   user: User | null;
@@ -34,6 +35,10 @@ interface AuthContextType {
 interface User {
   email: string;
   role: UserRole;
+  id: string;
+  firstName: string;
+  lastName: string;
+  isActive: boolean;
   attributes?: {
     email: string;
     name?: string;
@@ -58,26 +63,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = await getCurrentUser();
       
       // Get user attributes
-      const attributes = currentUser.signInDetails?.loginId || '';
+      const email = currentUser.signInDetails?.loginId || '';
       
-      // Determine user role based on email or custom attribute
-      let role: UserRole = "user";
-      
-      // Check for admin role
-      if (attributes === "toptutor0001@gmail.com" || attributes === "trillo3@outlook.com" || attributes === "rightangletechbusinesssolution@gmail.com") {
-        role = "admin";
+      if (email) {
+        // Get user data from database
+        const userData = await userService.getUserByEmail(email);
+        
+        if (userData && userData.isActive) {
+          const user: User = {
+            email: userData.email,
+            role: userData.role as UserRole,
+            id: userData.id,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            isActive: userData.isActive,
+            attributes: { email: userData.email }
+          };
+          
+          setUser(user);
+          
+          // Update login information
+          try {
+            await userService.updateUserLogin(userData.id);
+          } catch (loginError) {
+            console.warn('Failed to update login info:', loginError);
+            // Don't fail authentication if login update fails
+          }
+        } else {
+          // User not found in database but authenticated in Cognito
+          // Try to create the user in database with default values
+          try {
+            console.log('Creating user in database:', email);
+            const nameParts = email.split('@')[0].split('.');
+            const firstName = nameParts[0] || 'User';
+            const lastName = nameParts.slice(1).join(' ') || 'Account';
+            
+            const userData = await userService.createUser({
+              email,
+              firstName,
+              lastName,
+              role: 'user'
+            });
+            
+            const user: User = {
+              email: userData.email,
+              role: userData.role as UserRole,
+              id: userData.id,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              isActive: userData.isActive,
+              attributes: { email: userData.email }
+            };
+            
+            setUser(user);
+            toast.success("Account synced successfully!");
+          } catch (createError) {
+            console.error('Failed to create user in database:', createError);
+            setUser(null);
+            await signOut();
+          }
+        }
+      } else {
+        setUser(null);
       }
-      // You can add more role checks here for nurse/doctor in the future
-      
-      const userData: User = {
-        email: attributes,
-        role,
-        attributes: { email: attributes }
-      };
-      
-      setUser(userData);
     } catch (error) {
       // User is not authenticated
+      console.log('User not authenticated:', error);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -92,24 +143,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const currentUser = await getCurrentUser();
         if (currentUser) {
-          // User is already authenticated, determine role and redirect
-          let role: UserRole = "user";
+          // User is already authenticated, get from database
+          const userData = await userService.getUserByEmail(email);
           
-          // Check for admin role
-          if (email === "toptutor0001@gmail.com" || email === "trillo3@outlook.com" || email === "rightangletechbusinesssolution@gmail.com") {
-            role = "admin";
+          if (userData && userData.isActive) {
+            const user: User = {
+              email: userData.email,
+              role: userData.role as UserRole,
+              id: userData.id,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              isActive: userData.isActive,
+              attributes: { email: userData.email }
+            };
+            
+            setUser(user);
+            
+            // Update login information
+            try {
+              await userService.updateUserLogin(userData.id);
+            } catch (loginError) {
+              console.warn('Failed to update login info:', loginError);
+              // Don't fail authentication if login update fails
+            }
+            
+            toast.success("Already signed in!");
+            setIsLoading(false);
+            return true;
+
           }
-          
-          const userData: User = {
-            email,
-            role,
-            attributes: { email }
-          };
-          
-          setUser(userData);
-          toast.success("Already signed in!");
-          setIsLoading(false);
-          return true;
         }
       } catch (authError) {
         // User is not authenticated, proceed with sign in
@@ -119,25 +181,79 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { isSignedIn } = await signIn({ username: email, password });
       
       if (isSignedIn) {
-        // Determine user role based on email or custom attribute
-        let role: UserRole = "user";
+        // Get user data from database
+        const userData = await userService.getUserByEmail(email);
         
-        // Check for admin role
-        if (email === "toptutor0001@gmail.com" || email === "trillo3@outlook.com" || email === "rightangletechbusinesssolution@gmail.com") {
-          role = "admin";
+        if (userData && userData.isActive) {
+          const user: User = {
+            email: userData.email,
+            role: userData.role as UserRole,
+            id: userData.id,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            isActive: userData.isActive,
+            attributes: { email: userData.email }
+          };
+          
+          setUser(user);
+          
+          // Update login information
+          try {
+            await userService.updateUserLogin(userData.id);
+          } catch (loginError) {
+            console.warn('Failed to update login info:', loginError);
+            // Don't fail authentication if login update fails
+          }
+          
+          toast.success("Login successful!");
+          setIsLoading(false);
+          return true;
+        } else {
+          // User not found in database but authenticated in Cognito
+          // Try to create the user in database with default values
+          try {
+            console.log('Creating user in database during login:', email);
+            const nameParts = email.split('@')[0].split('.');
+            const firstName = nameParts[0] || 'User';
+            const lastName = nameParts.slice(1).join(' ') || 'Account';
+            
+            const userData = await userService.createUser({
+              email,
+              firstName,
+              lastName,
+              role: 'user'
+            });
+            
+            const user: User = {
+              email: userData.email,
+              role: userData.role as UserRole,
+              id: userData.id,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              isActive: userData.isActive,
+              attributes: { email: userData.email }
+            };
+            
+            setUser(user);
+            
+            // Update login information
+            try {
+              await userService.updateUserLogin(userData.id);
+            } catch (loginError) {
+              console.warn('Failed to update login info:', loginError);
+            }
+            
+            toast.success("Account synced and login successful!");
+            setIsLoading(false);
+            return true;
+          } catch (createError) {
+            console.error('Failed to create user in database:', createError);
+            toast.error("Failed to sync account");
+            await signOut();
+            setIsLoading(false);
+            return false;
+          }
         }
-        // You can add more role checks here for nurse/doctor in the future
-        
-        const userData: User = {
-          email,
-          role,
-          attributes: { email }
-        };
-        
-        setUser(userData);
-        toast.success("Login successful!");
-        setIsLoading(false);
-        return true;
       }
       
       toast.error("Login failed");
@@ -145,48 +261,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } catch (error: any) {
       console.error("Login error:", error);
-      
-      // Handle specific error for already authenticated user
-      if (error.name === 'UserAlreadyAuthenticatedException') {
-        // User is already authenticated, get current user info
-        try {
-          const currentUser = await getCurrentUser();
-          let role: UserRole = "user";
-          
-          // Check for admin role
-          if (email === "toptutor0001@gmail.com" || email === "trillo3@outlook.com" || email === "rightangletechbusinesssolution@gmail.com") {
-            role = "admin";
-          }
-          
-          const userData: User = {
-            email,
-            role,
-            attributes: { email }
-          };
-          
-          setUser(userData);
-          toast.success("Already signed in!");
-          setIsLoading(false);
-          return true;
-        } catch (getUserError) {
-          console.error("Error getting current user:", getUserError);
-          toast.error("Authentication error");
-          setIsLoading(false);
-          return false;
-        }
-      }
-      
-      toast.error(error.message || "Failed to login");
+      toast.error(error.message || "Login failed");
       setIsLoading(false);
       return false;
     }
   };
 
   const register = async (email: string, password: string, fullName: string): Promise<{ success: boolean; error?: string }> => {
-    setIsLoading(true);
-    
     try {
-      const { isSignUpComplete, nextStep } = await signUp({
+      // Split full name into first and last name
+      const nameParts = fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Sign up with AWS Cognito
+      const { isSignUpComplete } = await signUp({
         username: email,
         password,
         options: {
@@ -196,99 +285,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       });
-      
-      // In Cognito v6, isSignUpComplete can be false when nextStep is CONFIRM_SIGN_UP
-      // This is actually a successful registration that needs verification
-      if (nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
-        toast.success("Registration successful! Please check your email for verification code.");
-        setIsLoading(false);
+
+      if (isSignUpComplete) {
+        // Create user in database with default 'user' role
+        await userService.createUser({
+          email,
+          firstName,
+          lastName,
+          role: 'user' // Default role
+        });
+
+        toast.success("Registration successful! Please check your email for verification.");
         return { success: true };
+      } else {
+        return { success: false, error: "Registration failed" };
       }
-      
-      // If we get here, something unexpected happened
-      console.error("Unexpected registration state:", { isSignUpComplete, nextStep });
-      toast.error("Registration failed - unexpected state");
-      setIsLoading(false);
-      return { success: false, error: "Registration failed - unexpected state" };
     } catch (error: any) {
       console.error("Registration error:", error);
-      
-      // Handle specific error cases
-      if (error.name === 'UsernameExistsException') {
-        toast.error("This email is already registered. Please login or use a different email.");
-        setIsLoading(false);
-        return { success: false, error: "User already exists" };
-      }
-      
-      toast.error(error.message || "Failed to register");
-      setIsLoading(false);
-      return { success: false, error: error.message || "Failed to register" };
+      return { success: false, error: error.message || "Registration failed" };
     }
   };
 
   const confirmRegistration = async (email: string, code: string): Promise<boolean> => {
-    setIsLoading(true);
     try {
-      // First ensure no user is currently signed in
-      try {
-        await signOut();
-      } catch (signOutError) {
-        console.log("No user was signed in:", signOutError);
-      }
-
-      // Now confirm the signup
-      const { isSignUpComplete, nextStep } = await confirmSignUp({
+      const { isSignUpComplete } = await confirmSignUp({
         username: email,
         confirmationCode: code
       });
 
       if (isSignUpComplete) {
+        toast.success("Email confirmed successfully!");
         return true;
+      } else {
+        toast.error("Email confirmation failed");
+        return false;
       }
-
-      console.error("Unexpected confirmation state:", { isSignUpComplete, nextStep });
+    } catch (error: any) {
+      console.error("Email confirmation error:", error);
+      toast.error(error.message || "Email confirmation failed");
       return false;
-    } catch (error) {
-      console.error("Error confirming registration:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const forgotPassword = async (email: string): Promise<boolean> => {
-    setIsLoading(true);
-    
     try {
       await initiateResetPassword({ username: email });
-      toast.success("Password reset instructions sent to your email");
-      setIsLoading(false);
+      toast.success("Password reset email sent!");
       return true;
     } catch (error: any) {
       console.error("Forgot password error:", error);
-      toast.error(error.message || "Failed to send reset instructions");
-      setIsLoading(false);
+      toast.error(error.message || "Failed to send reset email");
       return false;
     }
   };
 
   const resetPassword = async (email: string, code: string, newPassword: string): Promise<boolean> => {
-    setIsLoading(true);
-    
     try {
       await confirmResetPassword({
         username: email,
         confirmationCode: code,
         newPassword
       });
-      
-      toast.success("Password reset successful! You can now login with your new password.");
-      setIsLoading(false);
+      toast.success("Password reset successfully!");
       return true;
     } catch (error: any) {
       console.error("Reset password error:", error);
-      toast.error(error.message || "Failed to reset password");
-      setIsLoading(false);
+      toast.error(error.message || "Password reset failed");
       return false;
     }
   };
@@ -297,26 +359,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await signOut();
       setUser(null);
-      toast.info("You have been logged out");
-      navigate("/login");
-    } catch (error: any) {
+      toast.success("Logged out successfully!");
+      navigate('/login');
+    } catch (error) {
       console.error("Logout error:", error);
-      toast.error(error.message || "Failed to logout");
+      toast.error("Logout failed");
     }
   };
 
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        isAuthenticated: !!user, 
-        login, 
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        login,
         register,
         confirmRegistration,
         forgotPassword,
         resetPassword,
-        logout, 
-        isLoading 
+        logout,
+        isLoading
       }}
     >
       {children}

@@ -25,9 +25,37 @@ export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
     allergies
     medicalConditions
     currentMedications
+    height
+    weight
+    gender
+    bloodType
     role
+    isActive
+    lastLoginAt
+    loginCount
+    preferences
+    notificationSettings
+    privacySettings
+    subscriptionTier
+    subscriptionExpiresAt
     createdAt
     updatedAt
+    dietaryPlans {
+      nextToken
+      __typename
+    }
+    healthGoals {
+      nextToken
+      __typename
+    }
+    healthConditions {
+      nextToken
+      __typename
+    }
+    haicRewards {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -55,7 +83,19 @@ export const listUsers = /* GraphQL */ `query ListUsers(
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -89,7 +129,19 @@ export const getDoctor = /* GraphQL */ `query GetDoctor($id: ID!) {
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -155,7 +207,19 @@ export const getAppointment = /* GraphQL */ `query GetAppointment($id: ID!) {
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -247,13 +311,17 @@ export const listAuditEvents = /* GraphQL */ `query ListAuditEvents(
       batchId
       createdAt
       updatedAt
+      auditBatchEventsId
       __typename
     }
     nextToken
     __typename
   }
 }
-` as GeneratedQuery<APITypes.ListAuditEventsQueryVariables, APITypes.ListAuditEventsQuery>;
+` as GeneratedQuery<
+  APITypes.ListAuditEventsQueryVariables,
+  APITypes.ListAuditEventsQuery
+>;
 export const getAuditBatch = /* GraphQL */ `query GetAuditBatch($id: ID!) {
   getAuditBatch(id: $id) {
     id
@@ -295,4 +363,350 @@ export const listAuditBatches = /* GraphQL */ `query ListAuditBatches(
 ` as GeneratedQuery<
   APITypes.ListAuditBatchesQueryVariables,
   APITypes.ListAuditBatchesQuery
+>;
+export const getDietaryPlan = /* GraphQL */ `query GetDietaryPlan($id: ID!) {
+  getDietaryPlan(id: $id) {
+    id
+    userId
+    name
+    category
+    calories
+    protein
+    carbs
+    fat
+    fiber
+    isRecommended
+    isCompleted
+    time
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetDietaryPlanQueryVariables,
+  APITypes.GetDietaryPlanQuery
+>;
+export const listDietaryPlans = /* GraphQL */ `query ListDietaryPlans(
+  $filter: ModelDietaryPlanFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listDietaryPlans(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      name
+      category
+      calories
+      protein
+      carbs
+      fat
+      fiber
+      isRecommended
+      isCompleted
+      time
+      reason
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListDietaryPlansQueryVariables,
+  APITypes.ListDietaryPlansQuery
+>;
+export const getHealthGoal = /* GraphQL */ `query GetHealthGoal($id: ID!) {
+  getHealthGoal(id: $id) {
+    id
+    userId
+    title
+    description
+    category
+    target
+    current
+    unit
+    deadline
+    isCompleted
+    isRecommended
+    priority
+    reward
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetHealthGoalQueryVariables,
+  APITypes.GetHealthGoalQuery
+>;
+export const listHealthGoals = /* GraphQL */ `query ListHealthGoals(
+  $filter: ModelHealthGoalFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listHealthGoals(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      title
+      description
+      category
+      target
+      current
+      unit
+      deadline
+      isCompleted
+      isRecommended
+      priority
+      reward
+      reason
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListHealthGoalsQueryVariables,
+  APITypes.ListHealthGoalsQuery
+>;
+export const getHealthCondition = /* GraphQL */ `query GetHealthCondition($id: ID!) {
+  getHealthCondition(id: $id) {
+    id
+    userId
+    name
+    severity
+    status
+    diagnosedDate
+    description
+    medications
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetHealthConditionQueryVariables,
+  APITypes.GetHealthConditionQuery
+>;
+export const listHealthConditions = /* GraphQL */ `query ListHealthConditions(
+  $filter: ModelHealthConditionFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listHealthConditions(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      name
+      severity
+      status
+      diagnosedDate
+      description
+      medications
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListHealthConditionsQueryVariables,
+  APITypes.ListHealthConditionsQuery
+>;
+export const getHAICReward = /* GraphQL */ `query GetHAICReward($id: ID!) {
+  getHAICReward(id: $id) {
+    id
+    userId
+    amount
+    reason
+    category
+    transactionHash
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetHAICRewardQueryVariables,
+  APITypes.GetHAICRewardQuery
+>;
+export const listHAICRewards = /* GraphQL */ `query ListHAICRewards(
+  $filter: ModelHAICRewardFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listHAICRewards(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      amount
+      reason
+      category
+      transactionHash
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListHAICRewardsQueryVariables,
+  APITypes.ListHAICRewardsQuery
 >;

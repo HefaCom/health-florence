@@ -28,9 +28,37 @@ export const createUser = /* GraphQL */ `mutation CreateUser(
     allergies
     medicalConditions
     currentMedications
+    height
+    weight
+    gender
+    bloodType
     role
+    isActive
+    lastLoginAt
+    loginCount
+    preferences
+    notificationSettings
+    privacySettings
+    subscriptionTier
+    subscriptionExpiresAt
     createdAt
     updatedAt
+    dietaryPlans {
+      nextToken
+      __typename
+    }
+    healthGoals {
+      nextToken
+      __typename
+    }
+    healthConditions {
+      nextToken
+      __typename
+    }
+    haicRewards {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -59,9 +87,37 @@ export const updateUser = /* GraphQL */ `mutation UpdateUser(
     allergies
     medicalConditions
     currentMedications
+    height
+    weight
+    gender
+    bloodType
     role
+    isActive
+    lastLoginAt
+    loginCount
+    preferences
+    notificationSettings
+    privacySettings
+    subscriptionTier
+    subscriptionExpiresAt
     createdAt
     updatedAt
+    dietaryPlans {
+      nextToken
+      __typename
+    }
+    healthGoals {
+      nextToken
+      __typename
+    }
+    healthConditions {
+      nextToken
+      __typename
+    }
+    haicRewards {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -90,9 +146,37 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
     allergies
     medicalConditions
     currentMedications
+    height
+    weight
+    gender
+    bloodType
     role
+    isActive
+    lastLoginAt
+    loginCount
+    preferences
+    notificationSettings
+    privacySettings
+    subscriptionTier
+    subscriptionExpiresAt
     createdAt
     updatedAt
+    dietaryPlans {
+      nextToken
+      __typename
+    }
+    healthGoals {
+      nextToken
+      __typename
+    }
+    healthConditions {
+      nextToken
+      __typename
+    }
+    haicRewards {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -127,7 +211,19 @@ export const createDoctor = /* GraphQL */ `mutation CreateDoctor(
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -173,7 +269,19 @@ export const updateDoctor = /* GraphQL */ `mutation UpdateDoctor(
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -219,7 +327,19 @@ export const deleteDoctor = /* GraphQL */ `mutation DeleteDoctor(
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -266,7 +386,19 @@ export const createAppointment = /* GraphQL */ `mutation CreateAppointment(
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -320,7 +452,19 @@ export const updateAppointment = /* GraphQL */ `mutation UpdateAppointment(
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -374,7 +518,19 @@ export const deleteAppointment = /* GraphQL */ `mutation DeleteAppointment(
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -538,4 +694,715 @@ export const deleteAuditBatch = /* GraphQL */ `mutation DeleteAuditBatch(
 ` as GeneratedMutation<
   APITypes.DeleteAuditBatchMutationVariables,
   APITypes.DeleteAuditBatchMutation
+>;
+export const createDietaryPlan = /* GraphQL */ `mutation CreateDietaryPlan(
+  $input: CreateDietaryPlanInput!
+  $condition: ModelDietaryPlanConditionInput
+) {
+  createDietaryPlan(input: $input, condition: $condition) {
+    id
+    userId
+    name
+    category
+    calories
+    protein
+    carbs
+    fat
+    fiber
+    isRecommended
+    isCompleted
+    time
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateDietaryPlanMutationVariables,
+  APITypes.CreateDietaryPlanMutation
+>;
+export const updateDietaryPlan = /* GraphQL */ `mutation UpdateDietaryPlan(
+  $input: UpdateDietaryPlanInput!
+  $condition: ModelDietaryPlanConditionInput
+) {
+  updateDietaryPlan(input: $input, condition: $condition) {
+    id
+    userId
+    name
+    category
+    calories
+    protein
+    carbs
+    fat
+    fiber
+    isRecommended
+    isCompleted
+    time
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateDietaryPlanMutationVariables,
+  APITypes.UpdateDietaryPlanMutation
+>;
+export const deleteDietaryPlan = /* GraphQL */ `mutation DeleteDietaryPlan(
+  $input: DeleteDietaryPlanInput!
+  $condition: ModelDietaryPlanConditionInput
+) {
+  deleteDietaryPlan(input: $input, condition: $condition) {
+    id
+    userId
+    name
+    category
+    calories
+    protein
+    carbs
+    fat
+    fiber
+    isRecommended
+    isCompleted
+    time
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteDietaryPlanMutationVariables,
+  APITypes.DeleteDietaryPlanMutation
+>;
+export const createHealthGoal = /* GraphQL */ `mutation CreateHealthGoal(
+  $input: CreateHealthGoalInput!
+  $condition: ModelHealthGoalConditionInput
+) {
+  createHealthGoal(input: $input, condition: $condition) {
+    id
+    userId
+    title
+    description
+    category
+    target
+    current
+    unit
+    deadline
+    isCompleted
+    isRecommended
+    priority
+    reward
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateHealthGoalMutationVariables,
+  APITypes.CreateHealthGoalMutation
+>;
+export const updateHealthGoal = /* GraphQL */ `mutation UpdateHealthGoal(
+  $input: UpdateHealthGoalInput!
+  $condition: ModelHealthGoalConditionInput
+) {
+  updateHealthGoal(input: $input, condition: $condition) {
+    id
+    userId
+    title
+    description
+    category
+    target
+    current
+    unit
+    deadline
+    isCompleted
+    isRecommended
+    priority
+    reward
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateHealthGoalMutationVariables,
+  APITypes.UpdateHealthGoalMutation
+>;
+export const deleteHealthGoal = /* GraphQL */ `mutation DeleteHealthGoal(
+  $input: DeleteHealthGoalInput!
+  $condition: ModelHealthGoalConditionInput
+) {
+  deleteHealthGoal(input: $input, condition: $condition) {
+    id
+    userId
+    title
+    description
+    category
+    target
+    current
+    unit
+    deadline
+    isCompleted
+    isRecommended
+    priority
+    reward
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteHealthGoalMutationVariables,
+  APITypes.DeleteHealthGoalMutation
+>;
+export const createHealthCondition = /* GraphQL */ `mutation CreateHealthCondition(
+  $input: CreateHealthConditionInput!
+  $condition: ModelHealthConditionConditionInput
+) {
+  createHealthCondition(input: $input, condition: $condition) {
+    id
+    userId
+    name
+    severity
+    status
+    diagnosedDate
+    description
+    medications
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateHealthConditionMutationVariables,
+  APITypes.CreateHealthConditionMutation
+>;
+export const updateHealthCondition = /* GraphQL */ `mutation UpdateHealthCondition(
+  $input: UpdateHealthConditionInput!
+  $condition: ModelHealthConditionConditionInput
+) {
+  updateHealthCondition(input: $input, condition: $condition) {
+    id
+    userId
+    name
+    severity
+    status
+    diagnosedDate
+    description
+    medications
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateHealthConditionMutationVariables,
+  APITypes.UpdateHealthConditionMutation
+>;
+export const deleteHealthCondition = /* GraphQL */ `mutation DeleteHealthCondition(
+  $input: DeleteHealthConditionInput!
+  $condition: ModelHealthConditionConditionInput
+) {
+  deleteHealthCondition(input: $input, condition: $condition) {
+    id
+    userId
+    name
+    severity
+    status
+    diagnosedDate
+    description
+    medications
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteHealthConditionMutationVariables,
+  APITypes.DeleteHealthConditionMutation
+>;
+export const createHAICReward = /* GraphQL */ `mutation CreateHAICReward(
+  $input: CreateHAICRewardInput!
+  $condition: ModelHAICRewardConditionInput
+) {
+  createHAICReward(input: $input, condition: $condition) {
+    id
+    userId
+    amount
+    reason
+    category
+    transactionHash
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateHAICRewardMutationVariables,
+  APITypes.CreateHAICRewardMutation
+>;
+export const updateHAICReward = /* GraphQL */ `mutation UpdateHAICReward(
+  $input: UpdateHAICRewardInput!
+  $condition: ModelHAICRewardConditionInput
+) {
+  updateHAICReward(input: $input, condition: $condition) {
+    id
+    userId
+    amount
+    reason
+    category
+    transactionHash
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateHAICRewardMutationVariables,
+  APITypes.UpdateHAICRewardMutation
+>;
+export const deleteHAICReward = /* GraphQL */ `mutation DeleteHAICReward(
+  $input: DeleteHAICRewardInput!
+  $condition: ModelHAICRewardConditionInput
+) {
+  deleteHAICReward(input: $input, condition: $condition) {
+    id
+    userId
+    amount
+    reason
+    category
+    transactionHash
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteHAICRewardMutationVariables,
+  APITypes.DeleteHAICRewardMutation
 >;

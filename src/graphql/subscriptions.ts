@@ -28,9 +28,37 @@ export const onCreateUser = /* GraphQL */ `subscription OnCreateUser(
     allergies
     medicalConditions
     currentMedications
+    height
+    weight
+    gender
+    bloodType
     role
+    isActive
+    lastLoginAt
+    loginCount
+    preferences
+    notificationSettings
+    privacySettings
+    subscriptionTier
+    subscriptionExpiresAt
     createdAt
     updatedAt
+    dietaryPlans {
+      nextToken
+      __typename
+    }
+    healthGoals {
+      nextToken
+      __typename
+    }
+    healthConditions {
+      nextToken
+      __typename
+    }
+    haicRewards {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -59,9 +87,37 @@ export const onUpdateUser = /* GraphQL */ `subscription OnUpdateUser(
     allergies
     medicalConditions
     currentMedications
+    height
+    weight
+    gender
+    bloodType
     role
+    isActive
+    lastLoginAt
+    loginCount
+    preferences
+    notificationSettings
+    privacySettings
+    subscriptionTier
+    subscriptionExpiresAt
     createdAt
     updatedAt
+    dietaryPlans {
+      nextToken
+      __typename
+    }
+    healthGoals {
+      nextToken
+      __typename
+    }
+    healthConditions {
+      nextToken
+      __typename
+    }
+    haicRewards {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -90,9 +146,37 @@ export const onDeleteUser = /* GraphQL */ `subscription OnDeleteUser(
     allergies
     medicalConditions
     currentMedications
+    height
+    weight
+    gender
+    bloodType
     role
+    isActive
+    lastLoginAt
+    loginCount
+    preferences
+    notificationSettings
+    privacySettings
+    subscriptionTier
+    subscriptionExpiresAt
     createdAt
     updatedAt
+    dietaryPlans {
+      nextToken
+      __typename
+    }
+    healthGoals {
+      nextToken
+      __typename
+    }
+    healthConditions {
+      nextToken
+      __typename
+    }
+    haicRewards {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -124,7 +208,19 @@ export const onCreateDoctor = /* GraphQL */ `subscription OnCreateDoctor($filter
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -167,7 +263,19 @@ export const onUpdateDoctor = /* GraphQL */ `subscription OnUpdateDoctor($filter
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -210,7 +318,19 @@ export const onDeleteDoctor = /* GraphQL */ `subscription OnDeleteDoctor($filter
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -257,7 +377,19 @@ export const onCreateAppointment = /* GraphQL */ `subscription OnCreateAppointme
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -311,7 +443,19 @@ export const onUpdateAppointment = /* GraphQL */ `subscription OnUpdateAppointme
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -365,7 +509,19 @@ export const onDeleteAppointment = /* GraphQL */ `subscription OnDeleteAppointme
       allergies
       medicalConditions
       currentMedications
+      height
+      weight
+      gender
+      bloodType
       role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
       createdAt
       updatedAt
       owner
@@ -523,4 +679,715 @@ export const onDeleteAuditBatch = /* GraphQL */ `subscription OnDeleteAuditBatch
 ` as GeneratedSubscription<
   APITypes.OnDeleteAuditBatchSubscriptionVariables,
   APITypes.OnDeleteAuditBatchSubscription
+>;
+export const onCreateDietaryPlan = /* GraphQL */ `subscription OnCreateDietaryPlan(
+  $filter: ModelSubscriptionDietaryPlanFilterInput
+  $owner: String
+) {
+  onCreateDietaryPlan(filter: $filter, owner: $owner) {
+    id
+    userId
+    name
+    category
+    calories
+    protein
+    carbs
+    fat
+    fiber
+    isRecommended
+    isCompleted
+    time
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateDietaryPlanSubscriptionVariables,
+  APITypes.OnCreateDietaryPlanSubscription
+>;
+export const onUpdateDietaryPlan = /* GraphQL */ `subscription OnUpdateDietaryPlan(
+  $filter: ModelSubscriptionDietaryPlanFilterInput
+  $owner: String
+) {
+  onUpdateDietaryPlan(filter: $filter, owner: $owner) {
+    id
+    userId
+    name
+    category
+    calories
+    protein
+    carbs
+    fat
+    fiber
+    isRecommended
+    isCompleted
+    time
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateDietaryPlanSubscriptionVariables,
+  APITypes.OnUpdateDietaryPlanSubscription
+>;
+export const onDeleteDietaryPlan = /* GraphQL */ `subscription OnDeleteDietaryPlan(
+  $filter: ModelSubscriptionDietaryPlanFilterInput
+  $owner: String
+) {
+  onDeleteDietaryPlan(filter: $filter, owner: $owner) {
+    id
+    userId
+    name
+    category
+    calories
+    protein
+    carbs
+    fat
+    fiber
+    isRecommended
+    isCompleted
+    time
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteDietaryPlanSubscriptionVariables,
+  APITypes.OnDeleteDietaryPlanSubscription
+>;
+export const onCreateHealthGoal = /* GraphQL */ `subscription OnCreateHealthGoal(
+  $filter: ModelSubscriptionHealthGoalFilterInput
+  $owner: String
+) {
+  onCreateHealthGoal(filter: $filter, owner: $owner) {
+    id
+    userId
+    title
+    description
+    category
+    target
+    current
+    unit
+    deadline
+    isCompleted
+    isRecommended
+    priority
+    reward
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateHealthGoalSubscriptionVariables,
+  APITypes.OnCreateHealthGoalSubscription
+>;
+export const onUpdateHealthGoal = /* GraphQL */ `subscription OnUpdateHealthGoal(
+  $filter: ModelSubscriptionHealthGoalFilterInput
+  $owner: String
+) {
+  onUpdateHealthGoal(filter: $filter, owner: $owner) {
+    id
+    userId
+    title
+    description
+    category
+    target
+    current
+    unit
+    deadline
+    isCompleted
+    isRecommended
+    priority
+    reward
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateHealthGoalSubscriptionVariables,
+  APITypes.OnUpdateHealthGoalSubscription
+>;
+export const onDeleteHealthGoal = /* GraphQL */ `subscription OnDeleteHealthGoal(
+  $filter: ModelSubscriptionHealthGoalFilterInput
+  $owner: String
+) {
+  onDeleteHealthGoal(filter: $filter, owner: $owner) {
+    id
+    userId
+    title
+    description
+    category
+    target
+    current
+    unit
+    deadline
+    isCompleted
+    isRecommended
+    priority
+    reward
+    reason
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteHealthGoalSubscriptionVariables,
+  APITypes.OnDeleteHealthGoalSubscription
+>;
+export const onCreateHealthCondition = /* GraphQL */ `subscription OnCreateHealthCondition(
+  $filter: ModelSubscriptionHealthConditionFilterInput
+  $owner: String
+) {
+  onCreateHealthCondition(filter: $filter, owner: $owner) {
+    id
+    userId
+    name
+    severity
+    status
+    diagnosedDate
+    description
+    medications
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateHealthConditionSubscriptionVariables,
+  APITypes.OnCreateHealthConditionSubscription
+>;
+export const onUpdateHealthCondition = /* GraphQL */ `subscription OnUpdateHealthCondition(
+  $filter: ModelSubscriptionHealthConditionFilterInput
+  $owner: String
+) {
+  onUpdateHealthCondition(filter: $filter, owner: $owner) {
+    id
+    userId
+    name
+    severity
+    status
+    diagnosedDate
+    description
+    medications
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateHealthConditionSubscriptionVariables,
+  APITypes.OnUpdateHealthConditionSubscription
+>;
+export const onDeleteHealthCondition = /* GraphQL */ `subscription OnDeleteHealthCondition(
+  $filter: ModelSubscriptionHealthConditionFilterInput
+  $owner: String
+) {
+  onDeleteHealthCondition(filter: $filter, owner: $owner) {
+    id
+    userId
+    name
+    severity
+    status
+    diagnosedDate
+    description
+    medications
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteHealthConditionSubscriptionVariables,
+  APITypes.OnDeleteHealthConditionSubscription
+>;
+export const onCreateHAICReward = /* GraphQL */ `subscription OnCreateHAICReward(
+  $filter: ModelSubscriptionHAICRewardFilterInput
+  $owner: String
+) {
+  onCreateHAICReward(filter: $filter, owner: $owner) {
+    id
+    userId
+    amount
+    reason
+    category
+    transactionHash
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateHAICRewardSubscriptionVariables,
+  APITypes.OnCreateHAICRewardSubscription
+>;
+export const onUpdateHAICReward = /* GraphQL */ `subscription OnUpdateHAICReward(
+  $filter: ModelSubscriptionHAICRewardFilterInput
+  $owner: String
+) {
+  onUpdateHAICReward(filter: $filter, owner: $owner) {
+    id
+    userId
+    amount
+    reason
+    category
+    transactionHash
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateHAICRewardSubscriptionVariables,
+  APITypes.OnUpdateHAICRewardSubscription
+>;
+export const onDeleteHAICReward = /* GraphQL */ `subscription OnDeleteHAICReward(
+  $filter: ModelSubscriptionHAICRewardFilterInput
+  $owner: String
+) {
+  onDeleteHAICReward(filter: $filter, owner: $owner) {
+    id
+    userId
+    amount
+    reason
+    category
+    transactionHash
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteHAICRewardSubscriptionVariables,
+  APITypes.OnDeleteHAICRewardSubscription
 >;

@@ -1,7 +1,7 @@
 # This schema defines the data models for the Health Florence application
 
 type User @model @auth(rules: [
-  { allow: public, provider: apiKey, operations: [create, read, update] },
+  { allow: public, provider: apiKey, operations: [create, read, update, delete] },
   { allow: owner }
 ]) {
   id: ID!
@@ -24,11 +24,23 @@ type User @model @auth(rules: [
   gender: String
   bloodType: String
   role: String! @default(value: "user")
+  
+  # Enhanced fields for production
+  isActive: Boolean! @default(value: "true")
+  lastLoginAt: AWSDateTime
+  loginCount: Int! @default(value: "0")
+  preferences: AWSJSON
+  notificationSettings: AWSJSON
+  privacySettings: AWSJSON
+  subscriptionTier: String @default(value: "basic")
+  subscriptionExpiresAt: AWSDateTime
+  
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
   dietaryPlans: [DietaryPlan] @hasMany(fields: ["id"])
   healthGoals: [HealthGoal] @hasMany(fields: ["id"])
   healthConditions: [HealthCondition] @hasMany(fields: ["id"])
+  haicRewards: [HAICReward] @hasMany(fields: ["id"])
 }
 
 type Doctor @model @auth(rules: [
@@ -167,6 +179,14 @@ input CreateUserInput {
   lastName: String!
   phoneNumber: String
   role: String!
+  isActive: Boolean
+  lastLoginAt: AWSDateTime
+  loginCount: Int
+  preferences: AWSJSON
+  notificationSettings: AWSJSON
+  privacySettings: AWSJSON
+  subscriptionTier: String
+  subscriptionExpiresAt: AWSDateTime
 }
 
 input UpdateUserInput {
@@ -186,6 +206,14 @@ input UpdateUserInput {
   medicalConditions: String
   currentMedications: String
   role: String
+  isActive: Boolean
+  lastLoginAt: AWSDateTime
+  loginCount: Int
+  preferences: AWSJSON
+  notificationSettings: AWSJSON
+  privacySettings: AWSJSON
+  subscriptionTier: String
+  subscriptionExpiresAt: AWSDateTime
 }
 
 input DeleteUserInput {
@@ -231,5 +259,127 @@ input UpdateAppointmentInput {
 }
 
 input DeleteAppointmentInput {
+  id: ID!
+}
+
+input CreateDietaryPlanInput {
+  id: ID!
+  userId: ID!
+  name: String!
+  category: String!
+  calories: Int!
+  protein: Float!
+  carbs: Float!
+  fat: Float!
+  fiber: Float!
+  isRecommended: Boolean!
+  isCompleted: Boolean!
+  time: String
+  reason: String
+}
+
+input UpdateDietaryPlanInput {
+  id: ID!
+  userId: ID
+  name: String
+  category: String
+  calories: Int
+  protein: Float
+  carbs: Float
+  fat: Float
+  fiber: Float
+  isRecommended: Boolean
+  isCompleted: Boolean
+  time: String
+  reason: String
+}
+
+input DeleteDietaryPlanInput {
+  id: ID!
+}
+
+input CreateHealthGoalInput {
+  id: ID!
+  userId: ID!
+  title: String!
+  description: String!
+  category: String!
+  target: Float!
+  current: Float!
+  unit: String!
+  deadline: AWSDate!
+  isCompleted: Boolean!
+  isRecommended: Boolean!
+  priority: String!
+  reward: Int!
+  reason: String
+}
+
+input UpdateHealthGoalInput {
+  id: ID!
+  userId: ID
+  title: String
+  description: String
+  category: String
+  target: Float
+  current: Float
+  unit: String
+  deadline: AWSDate
+  isCompleted: Boolean
+  isRecommended: Boolean
+  priority: String
+  reward: Int
+  reason: String
+}
+
+input DeleteHealthGoalInput {
+  id: ID!
+}
+
+input CreateHealthConditionInput {
+  id: ID!
+  userId: ID!
+  name: String!
+  severity: String!
+  status: String!
+  diagnosedDate: AWSDate!
+  description: String!
+  medications: [String]
+}
+
+input UpdateHealthConditionInput {
+  id: ID!
+  userId: ID
+  name: String
+  severity: String
+  status: String
+  diagnosedDate: AWSDate
+  description: String
+  medications: [String]
+}
+
+input DeleteHealthConditionInput {
+  id: ID!
+}
+
+input CreateHAICRewardInput {
+  id: ID!
+  userId: ID!
+  amount: Int!
+  reason: String!
+  category: String!
+  transactionHash: String
+}
+
+input UpdateHAICRewardInput {
+  id: ID!
+  userId: ID
+  amount: Int
+  reason: String
+  category: String
+  transactionHash: String
+}
+
+input DeleteHAICRewardInput {
   id: ID!
 }
