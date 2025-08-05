@@ -28,7 +28,7 @@ interface AuthContextType {
   confirmRegistration: (email: string, code: string) => Promise<boolean>;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (email: string, code: string, newPassword: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<boolean>;
   isLoading: boolean;
 }
 
@@ -359,11 +359,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await signOut();
       setUser(null);
-      toast.success("Logged out successfully!");
-      navigate('/login');
+      // Don't navigate here - let the calling component handle navigation
+      return true;
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("Logout failed");
+      throw error;
     }
   };
 

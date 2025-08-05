@@ -1,9 +1,11 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FloLogo } from "@/components/FloLogo";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useExpertSidebar } from "./ExpertSidebarContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   Users,
@@ -23,6 +25,8 @@ import {
 
 export const ExpertSidebar = () => {
   const { isCollapsed, setIsCollapsed } = useExpertSidebar();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   
   const navigationItems = [
     {
@@ -72,9 +76,15 @@ export const ExpertSidebar = () => {
     }
   ];
 
-  const handleLogout = () => {
-    // TODO: Implement logout functionality
-    console.log("Logging out...");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Failed to logout");
+    }
   };
 
   return (
