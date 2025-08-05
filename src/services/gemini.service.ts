@@ -232,97 +232,160 @@ class GeminiService {
     context: 'dietary' | 'goals' | 'profile' | 'general' | 'expert' = 'general',
     healthContext?: HealthContext
   ): Promise<FlorenceResponse> {
-    try {
-      let systemPrompt: string;
-      
-      if (context === 'expert') {
-        systemPrompt = EXPERT_RULES;
-      } else {
-        const contextConfig = HEALTH_CONTEXTS[context as keyof typeof HEALTH_CONTEXTS];
-        if (!contextConfig) {
-          console.warn(`Unknown context: ${context}, falling back to general`);
-          systemPrompt = HEALTH_CONTEXTS.general.systemPrompt;
+    const maxRetries = 3;
+    const retryDelay = 1000; // 1 second
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        let systemPrompt: string;
+        
+        if (context === 'expert') {
+          systemPrompt = EXPERT_RULES;
         } else {
-          systemPrompt = contextConfig.systemPrompt;
+          const contextConfig = HEALTH_CONTEXTS[context as keyof typeof HEALTH_CONTEXTS];
+          if (!contextConfig) {
+            console.warn(`Unknown context: ${context}, falling back to general`);
+            systemPrompt = HEALTH_CONTEXTS.general.systemPrompt;
+          } else {
+            systemPrompt = contextConfig.systemPrompt;
+          }
         }
-      }
-      
-      // Safety check: ensure systemPrompt is valid
-      if (!systemPrompt || typeof systemPrompt !== 'string') {
-        console.error('Invalid systemPrompt generated:', systemPrompt);
-        systemPrompt = FLORENCE_RULES; // Fallback to base rules
-      }
-      
-      // Build context-aware prompt
-      let fullPrompt = `${systemPrompt}\n\nUser Message: "${userMessage}"\n\n`;
-      
-      if (healthContext) {
-        fullPrompt += `Current Health Context:\n`;
-        if (healthContext.dietaryItems && Array.isArray(healthContext.dietaryItems) && healthContext.dietaryItems.length > 0) {
-          fullPrompt += `- Current dietary items: ${JSON.stringify(healthContext.dietaryItems)}\n`;
+        
+        // Safety check: ensure systemPrompt is valid
+        if (!systemPrompt || typeof systemPrompt !== 'string') {
+          console.error('Invalid systemPrompt generated:', systemPrompt);
+          systemPrompt = FLORENCE_RULES; // Fallback to base rules
         }
-        if (healthContext.healthGoals && Array.isArray(healthContext.healthGoals) && healthContext.healthGoals.length > 0) {
-          fullPrompt += `- Current health goals: ${JSON.stringify(healthContext.healthGoals)}\n`;
+        
+        // Build context-aware prompt
+        let fullPrompt = `${systemPrompt}\n\nUser Message: "${userMessage}"\n\n`;
+        
+        if (healthContext) {
+          fullPrompt += `Current Health Context:\n`;
+          if (healthContext.dietaryItems && Array.isArray(healthContext.dietaryItems) && healthContext.dietaryItems.length > 0) {
+            fullPrompt += `- Current dietary items: ${JSON.stringify(healthContext.dietaryItems)}\n`;
+          }
+          if (healthContext.healthGoals && Array.isArray(healthContext.healthGoals) && healthContext.healthGoals.length > 0) {
+            fullPrompt += `- Current health goals: ${JSON.stringify(healthContext.healthGoals)}\n`;
+          }
+          if (healthContext.healthProfile && typeof healthContext.healthProfile === 'object') {
+            fullPrompt += `- Health profile: ${JSON.stringify(healthContext.healthProfile)}\n`;
+          }
         }
-        if (healthContext.healthProfile && typeof healthContext.healthProfile === 'object') {
-          fullPrompt += `- Health profile: ${JSON.stringify(healthContext.healthProfile)}\n`;
-        }
-      }
-      
-      fullPrompt += `\nPlease respond as Florence, following all the rules above. Be helpful, encouraging, and provide actionable advice.`;
+        
+        fullPrompt += `\nPlease respond as Florence, following all the rules above. Be helpful, encouraging, and provide actionable advice.`;
 
-      // Safety check: ensure prompt is valid
-      if (!fullPrompt || typeof fullPrompt !== 'string') {
-        console.error('Invalid prompt generated:', fullPrompt);
-        throw new Error('Failed to generate valid prompt');
-      }
-
-      console.log('Sending prompt to Gemini:', fullPrompt.substring(0, 200) + '...');
-      
-      const result = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
-      });
-      
-      console.log('Gemini API Response:', result);
-      console.log('Response type:', typeof result);
-      console.log('Response keys:', result ? Object.keys(result) : 'null/undefined');
-      
-      // Extract text from the response
-      let responseText = '';
-      if (result && result.candidates && result.candidates.length > 0) {
-        const candidate = result.candidates[0];
-        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-          responseText = candidate.content.parts[0].text || '';
+        // Safety check: ensure prompt is valid
+        if (!fullPrompt || typeof fullPrompt !== 'string') {
+          console.error('Invalid prompt generated:', fullPrompt);
+          throw new Error('Failed to generate valid prompt');
         }
-      }
-      
-      // Fallback if no text found
-      if (!responseText) {
-        console.warn('No text found in Gemini response, using fallback');
-        responseText = "I'm having trouble processing your request right now. Please try again.";
-      }
 
-      // Ensure responseText is a string
-      if (typeof responseText !== 'string') {
-        responseText = String(responseText);
+        console.log(`Attempt ${attempt}/${maxRetries}: Sending prompt to Gemini:`, fullPrompt.substring(0, 200) + '...');
+        
+        const result = await ai.models.generateContent({
+          model: "gemini-1.5-flash",
+          contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
+        });
+        
+        console.log('Gemini API Response:', result);
+        console.log('Response type:', typeof result);
+        console.log('Response keys:', result ? Object.keys(result) : 'null/undefined');
+        
+        // Extract text from the response
+        let responseText = '';
+        if (result && result.candidates && result.candidates.length > 0) {
+          const candidate = result.candidates[0];
+          if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+            responseText = candidate.content.parts[0].text || '';
+          }
+        }
+        
+        // Fallback if no text found
+        if (!responseText) {
+          console.warn('No text found in Gemini response, using fallback');
+          responseText = "I'm having trouble processing your request right now. Please try again.";
+        }
+
+        // Ensure responseText is a string
+        if (typeof responseText !== 'string') {
+          responseText = String(responseText);
+        }
+        
+        // Parse response for actions
+        const action = this.parseActionFromResponse(responseText, context);
+        
+        return {
+          text: responseText,
+          action,
+          suggestions: this.extractSuggestions(responseText)
+        };
+      } catch (error: any) {
+        console.error(`Gemini API Error (Attempt ${attempt}/${maxRetries}):`, error);
+        
+        // Check if it's a retryable error
+        const isRetryableError = this.isRetryableError(error);
+        
+        if (attempt === maxRetries || !isRetryableError) {
+          // Final attempt or non-retryable error
+          return this.getFallbackResponse(error, context);
+        }
+        
+        // Wait before retrying
+        console.log(`Retrying in ${retryDelay}ms... (Attempt ${attempt + 1}/${maxRetries})`);
+        await this.delay(retryDelay * attempt); // Exponential backoff
       }
-      
-      // Parse response for actions
-      const action = this.parseActionFromResponse(responseText, context);
-      
-      return {
-        text: responseText,
-        action,
-        suggestions: this.extractSuggestions(responseText)
-      };
-    } catch (error) {
-      console.error('Gemini API Error:', error);
-      return {
-        text: "I'm having trouble processing your request right now. Please try again, or if you need immediate assistance, consider reaching out to a healthcare professional.",
-        suggestions: ["Try rephrasing your question", "Check your internet connection", "Contact support if the issue persists"]
-      };
     }
+
+    // This should never be reached, but just in case
+    return this.getFallbackResponse(new Error('Max retries exceeded'), context);
+  }
+
+  private isRetryableError(error: any): boolean {
+    // Check for specific error codes that are retryable
+    if (error?.error?.code === 503 || 
+        error?.error?.status === 'UNAVAILABLE' ||
+        error?.error?.message?.includes('overloaded') ||
+        error?.error?.message?.includes('try again later')) {
+      return true;
+    }
+    
+    // Check for network errors
+    if (error?.message?.includes('network') || 
+        error?.message?.includes('timeout') ||
+        error?.message?.includes('connection')) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  private getFallbackResponse(error: any, context: string): FlorenceResponse {
+    let fallbackText = "I'm having trouble processing your request right now. ";
+    
+    if (error?.error?.code === 503 || error?.error?.status === 'UNAVAILABLE') {
+      fallbackText += "The AI service is temporarily overloaded. Please try again in a few moments.";
+    } else if (error?.error?.code === 429) {
+      fallbackText += "We've reached our rate limit. Please wait a moment before trying again.";
+    } else {
+      fallbackText += "Please try again, or if you need immediate assistance, consider reaching out to a healthcare professional.";
+    }
+
+    const suggestions = [
+      "Try again in a few moments",
+      "Check your internet connection", 
+      "Rephrase your question",
+      "Contact support if the issue persists"
+    ];
+
+    return {
+      text: fallbackText,
+      suggestions
+    };
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   private parseActionFromResponse(response: string, context: string): any {
