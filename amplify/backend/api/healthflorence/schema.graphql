@@ -43,18 +43,50 @@ type User @model @auth(rules: [
   haicRewards: [HAICReward] @hasMany(fields: ["id"])
 }
 
-type Doctor @model @auth(rules: [
-  { allow: public, provider: iam, operations: [read] },
-  { allow: owner, operations: [create, update, delete] },
-  { allow: private, operations: [read] }
+type Expert @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [read, create, update, delete] },
+  { allow: owner, operations: [create, update, delete] }
 ]) {
   id: ID!
   userId: ID!
+  user: User @hasOne(fields: ["userId"])
+  
+  # Professional Information
   specialization: String!
+  subSpecializations: [String]
   licenseNumber: String!
   yearsOfExperience: Int!
-  user: User @hasOne(fields: ["userId"])
+  education: [String]
+  certifications: [String]
+  languages: [String]
+  
+  # Practice Information
+  practiceName: String
+  practiceAddress: String
+  practicePhone: String
+  practiceEmail: String
+  practiceWebsite: String
+  
+  # Availability & Services
+  availability: AWSJSON
+  consultationFee: Float
+  services: [String]
+  
+  # Profile & Media
+  bio: String
+  profileImage: String
+  coverImage: String
+  
+  # Status & Verification
+  isVerified: Boolean! @default(value: "false")
+  isActive: Boolean! @default(value: "true")
+  verificationStatus: String @default(value: "pending") # pending, verified, rejected
+  
+  # Relationships
   appointments: [Appointment] @hasMany(fields: ["id"])
+  expertPatients: [ExpertPatient] @hasMany(fields: ["id"])
+  patientRecords: [PatientRecord] @hasMany(fields: ["id"])
+  
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
@@ -65,12 +97,72 @@ type Appointment @model @auth(rules: [
 ]) {
   id: ID!
   userId: ID!
-  doctorId: ID!
+  expertId: ID!
   date: AWSDateTime!
-  status: String! # scheduled, completed, cancelled
+  status: String! # scheduled, completed, cancelled, rescheduled
+  type: String! # consultation, follow-up, emergency, routine
+  duration: Int # in minutes
   notes: String
+  symptoms: String
+  diagnosis: String
+  prescription: String
+  followUpDate: AWSDateTime
+  
   user: User @hasOne(fields: ["userId"])
-  doctor: Doctor @hasOne(fields: ["doctorId"])
+  expert: Expert @hasOne(fields: ["expertId"])
+  
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+# Relationship between Users and Experts (when users add experts as their specialists)
+type ExpertPatient @model @auth(rules: [
+  { allow: owner, operations: [create, read, update, delete] }
+]) {
+  id: ID!
+  userId: ID!
+  expertId: ID!
+  status: String! # active, inactive, pending
+  addedAt: AWSDateTime!
+  notes: String
+  
+  user: User @hasOne(fields: ["userId"])
+  expert: Expert @hasOne(fields: ["expertId"])
+  
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+# Patient records for external patients (not platform users)
+type PatientRecord @model @auth(rules: [
+  { allow: owner, operations: [create, read, update, delete] }
+]) {
+  id: ID!
+  expertId: ID!
+  
+  # Patient Information
+  firstName: String!
+  lastName: String!
+  dateOfBirth: AWSDate
+  gender: String
+  phoneNumber: String
+  email: String
+  address: String
+  emergencyContact: String
+  
+  # Medical Information
+  medicalHistory: String
+  allergies: String
+  currentMedications: String
+  familyHistory: String
+  
+  # Records
+  appointments: [String] # Array of appointment IDs
+  notes: String
+  documents: [String] # Array of document URLs
+  
+  expert: Expert @hasOne(fields: ["expertId"])
+  
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
@@ -220,47 +312,7 @@ input DeleteUserInput {
   id: ID!
 }
 
-input CreateDoctorInput {
-  id: ID!
-  userId: ID!
-  specialization: String!
-  licenseNumber: String!
-  yearsOfExperience: Int!
-}
 
-input UpdateDoctorInput {
-  id: ID!
-  userId: ID
-  specialization: String
-  licenseNumber: String
-  yearsOfExperience: Int
-}
-
-input DeleteDoctorInput {
-  id: ID!
-}
-
-input CreateAppointmentInput {
-  id: ID!
-  userId: ID!
-  doctorId: ID!
-  date: AWSDateTime!
-  status: String!
-  notes: String
-}
-
-input UpdateAppointmentInput {
-  id: ID!
-  userId: ID
-  doctorId: ID
-  date: AWSDateTime
-  status: String
-  notes: String
-}
-
-input DeleteAppointmentInput {
-  id: ID!
-}
 
 input CreateDietaryPlanInput {
   id: ID!
@@ -381,5 +433,165 @@ input UpdateHAICRewardInput {
 }
 
 input DeleteHAICRewardInput {
+  id: ID!
+}
+
+# Expert Input Types
+input CreateExpertInput {
+  id: ID!
+  userId: ID!
+  specialization: String!
+  subSpecializations: [String]
+  licenseNumber: String!
+  yearsOfExperience: Int!
+  education: [String]
+  certifications: [String]
+  languages: [String]
+  practiceName: String
+  practiceAddress: String
+  practicePhone: String
+  practiceEmail: String
+  practiceWebsite: String
+  availability: AWSJSON
+  consultationFee: Float
+  services: [String]
+  bio: String
+  profileImage: String
+  coverImage: String
+  isVerified: Boolean
+  isActive: Boolean
+  verificationStatus: String
+}
+
+input UpdateExpertInput {
+  id: ID!
+  userId: ID
+  specialization: String
+  subSpecializations: [String]
+  licenseNumber: String
+  yearsOfExperience: Int
+  education: [String]
+  certifications: [String]
+  languages: [String]
+  practiceName: String
+  practiceAddress: String
+  practicePhone: String
+  practiceEmail: String
+  practiceWebsite: String
+  availability: AWSJSON
+  consultationFee: Float
+  services: [String]
+  bio: String
+  profileImage: String
+  coverImage: String
+  isVerified: Boolean
+  isActive: Boolean
+  verificationStatus: String
+}
+
+input DeleteExpertInput {
+  id: ID!
+}
+
+# ExpertPatient Input Types
+input CreateExpertPatientInput {
+  id: ID!
+  userId: ID!
+  expertId: ID!
+  status: String!
+  addedAt: AWSDateTime!
+  notes: String
+}
+
+input UpdateExpertPatientInput {
+  id: ID!
+  userId: ID
+  expertId: ID
+  status: String
+  addedAt: AWSDateTime
+  notes: String
+}
+
+input DeleteExpertPatientInput {
+  id: ID!
+}
+
+# PatientRecord Input Types
+input CreatePatientRecordInput {
+  id: ID!
+  expertId: ID!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: AWSDate
+  gender: String
+  phoneNumber: String
+  email: String
+  address: String
+  emergencyContact: String
+  medicalHistory: String
+  allergies: String
+  currentMedications: String
+  familyHistory: String
+  appointments: [String]
+  notes: String
+  documents: [String]
+}
+
+input UpdatePatientRecordInput {
+  id: ID!
+  expertId: ID
+  firstName: String
+  lastName: String
+  dateOfBirth: AWSDate
+  gender: String
+  phoneNumber: String
+  email: String
+  address: String
+  emergencyContact: String
+  medicalHistory: String
+  allergies: String
+  currentMedications: String
+  familyHistory: String
+  appointments: [String]
+  notes: String
+  documents: [String]
+}
+
+input DeletePatientRecordInput {
+  id: ID!
+}
+
+# Updated Appointment Input Types
+input CreateAppointmentInput {
+  id: ID!
+  userId: ID!
+  expertId: ID!
+  date: AWSDateTime!
+  status: String!
+  type: String!
+  duration: Int
+  notes: String
+  symptoms: String
+  diagnosis: String
+  prescription: String
+  followUpDate: AWSDateTime
+}
+
+input UpdateAppointmentInput {
+  id: ID!
+  userId: ID
+  expertId: ID
+  date: AWSDateTime
+  status: String
+  type: String
+  duration: Int
+  notes: String
+  symptoms: String
+  diagnosis: String
+  prescription: String
+  followUpDate: AWSDateTime
+}
+
+input DeleteAppointmentInput {
   id: ID!
 }

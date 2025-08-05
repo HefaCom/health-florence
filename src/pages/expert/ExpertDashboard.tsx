@@ -1,248 +1,295 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import {
-  Users,
-  Calendar,
-  FileText,
-  TrendingUp,
-  AlertTriangle,
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { expertService } from '@/services/expert.service';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
+import { 
+  User, 
+  Calendar, 
+  Users, 
+  FileText, 
+  Settings, 
+  Plus,
+  AlertCircle,
   CheckCircle,
   Clock,
-  UserPlus,
-  Activity,
-  MessageSquare
-} from "lucide-react";
+  DollarSign,
+  Star,
+  TrendingUp
+} from 'lucide-react';
 
 export default function ExpertDashboard() {
-  // Mock data
-  const stats = [
-    {
-      title: "Total Patients",
-      value: "1,247",
-      change: "+12%",
-      changeType: "positive",
-      icon: <Users className="h-6 w-6" />
-    },
-    {
-      title: "Today's Appointments",
-      value: "18",
-      change: "+3",
-      changeType: "positive",
-      icon: <Calendar className="h-6 w-6" />
-    },
-    {
-      title: "Pending Records",
-      value: "23",
-      change: "-5",
-      changeType: "negative",
-      icon: <FileText className="h-6 w-6" />
-    },
-    {
-      title: "Patient Satisfaction",
-      value: "94%",
-      change: "+2%",
-      changeType: "positive",
-      icon: <TrendingUp className="h-6 w-6" />
-    }
-  ];
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const recentPatients = [
-    {
-      id: 1,
-      name: "John Smith",
-      age: 45,
-      condition: "Hypertension",
-      status: "Active",
-      lastVisit: "2 days ago"
-    },
-    {
-      id: 2,
-      name: "Sarah Wilson",
-      age: 32,
-      condition: "Diabetes Type 2",
-      status: "Follow-up",
-      lastVisit: "1 week ago"
-    },
-    {
-      id: 3,
-      name: "Michael Brown",
-      age: 58,
-      condition: "Heart Disease",
-      status: "Critical",
-      lastVisit: "3 days ago"
-    },
-    {
-      id: 4,
-      name: "Emily Davis",
-      age: 29,
-      condition: "Asthma",
-      status: "Stable",
-      lastVisit: "2 weeks ago"
-    }
-  ];
+  useEffect(() => {
+    checkProfileStatus();
+  }, [user]);
 
-  const upcomingAppointments = [
-    {
-      id: 1,
-      patient: "John Smith",
-      time: "09:00 AM",
-      type: "Follow-up",
-      status: "Confirmed"
-    },
-    {
-      id: 2,
-      patient: "Sarah Wilson",
-      time: "10:30 AM",
-      type: "Consultation",
-      status: "Confirmed"
-    },
-    {
-      id: 3,
-      patient: "Michael Brown",
-      time: "02:00 PM",
-      type: "Emergency",
-      status: "Pending"
-    }
-  ];
+  const checkProfileStatus = async () => {
+    if (!user) return;
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-      case 'confirmed':
-      case 'stable':
-        return 'bg-green-100 text-green-800';
-      case 'critical':
-      case 'emergency':
-        return 'bg-red-100 text-red-800';
-      case 'follow-up':
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    try {
+      setIsLoading(true);
+      const hasExpertProfile = await expertService.hasExpertProfile(user.id);
+      setHasProfile(hasExpertProfile);
+
+      if (!hasExpertProfile) {
+        toast.info('Please complete your expert profile to get started');
+        navigate('/expert/profile-setup');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking profile status:', error);
+      toast.error('Failed to check profile status');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasProfile) {
+    return null; // Will redirect to profile setup
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Welcome back, Dr. Sarah Johnson. Here's your overview for today.
-        </p>
+    <div className="p-6 space-y-6">
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">
+              Welcome back, {user?.firstName}!
+            </h1>
+            <p className="text-blue-100">
+              Manage your patients, appointments, and practice from your expert dashboard
+            </p>
+          </div>
+          <div className="text-right">
+            <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Profile Complete
+            </Badge>
+          </div>
+        </div>
       </div>
 
-      {/* Stats Grid */}
+      {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                <p className={`text-sm mt-1 ${
-                  stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stat.change} from last month
-                </p>
-              </div>
-              <div className="p-3 bg-blue-50 rounded-lg">
-                {stat.icon}
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Patients */}
-        <Card className="lg:col-span-2 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Patients</h2>
-            <Button variant="outline" size="sm">
-              <UserPlus className="h-4 w-4 mr-2" />
-              Add Patient
-            </Button>
-          </div>
-          
-          <div className="space-y-4">
-            {recentPatients.map((patient) => (
-              <div key={patient.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Users className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{patient.name}</p>
-                    <p className="text-sm text-gray-500">{patient.age} years • {patient.condition}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <Badge className={getStatusColor(patient.status)}>
-                    {patient.status}
-                  </Badge>
-                  <p className="text-xs text-gray-500 mt-1">{patient.lastVisit}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">
+              +0% from last month
+            </p>
+          </CardContent>
         </Card>
 
-        {/* Upcoming Appointments */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Today's Schedule</h2>
-            <Button variant="outline" size="sm">
-              <Calendar className="h-4 w-4 mr-2" />
-              View All
-            </Button>
-          </div>
-          
-          <div className="space-y-4">
-            {upcomingAppointments.map((appointment) => (
-              <div key={appointment.id} className="p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-medium text-gray-900">{appointment.patient}</p>
-                  <Badge className={getStatusColor(appointment.status)}>
-                    {appointment.status}
-                  </Badge>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <Clock className="h-4 w-4" />
-                  <span>{appointment.time}</span>
-                  <span>•</span>
-                  <span>{appointment.type}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Appointments Today</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">
+              No upcoming appointments
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">$0</div>
+            <p className="text-xs text-muted-foreground">
+              +0% from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
+            <Star className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">-</div>
+            <p className="text-xs text-muted-foreground">
+              No reviews yet
+            </p>
+          </CardContent>
         </Card>
       </div>
 
       {/* Quick Actions */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
-            <UserPlus className="h-6 w-6" />
-            <span className="text-sm">New Patient</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
-            <Calendar className="h-6 w-6" />
-            <span className="text-sm">Schedule</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
-            <FileText className="h-6 w-6" />
-            <span className="text-sm">Records</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
-            <MessageSquare className="h-6 w-6" />
-            <span className="text-sm">Messages</span>
-          </Button>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Appointments
+            </CardTitle>
+            <CardDescription>
+              Manage your appointments and schedule
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center py-4">
+              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-600 mb-4">No appointments scheduled</p>
+              <Button onClick={() => navigate('/expert/appointments')}>
+                View Appointments
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Patients
+            </CardTitle>
+            <CardDescription>
+              Manage your patient relationships
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center py-4">
+              <Users className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-600 mb-4">No patients yet</p>
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => navigate('/expert/patients')}
+                  className="w-full"
+                >
+                  View Patients
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/expert/patients/external')}
+                  className="w-full"
+                >
+                  Add External Patient
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Recent Activity
+          </CardTitle>
+          <CardDescription>
+            Your latest activities and updates
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <Clock className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-600">No recent activity</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Your activity will appear here as you interact with patients
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Setup */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Quick Setup
+          </CardTitle>
+          <CardDescription>
+            Complete these steps to optimize your practice
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <div>
+                  <h4 className="font-medium">Complete Profile</h4>
+                  <p className="text-sm text-gray-600">Your profile is complete</p>
+                </div>
+              </div>
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                Complete
+              </Badge>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <div>
+                  <h4 className="font-medium">Set Availability</h4>
+                  <p className="text-sm text-gray-600">Configure your working hours</p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm">
+                Configure
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <div>
+                  <h4 className="font-medium">Add Services</h4>
+                  <p className="text-sm text-gray-600">Define your consultation services</p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm">
+                Add Services
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <div>
+                  <h4 className="font-medium">Upload Documents</h4>
+                  <p className="text-sm text-gray-600">Add licenses and certifications</p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm">
+                Upload
+              </Button>
+            </div>
+          </div>
+        </CardContent>
       </Card>
     </div>
   );

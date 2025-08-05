@@ -2,9 +2,6 @@ import { generateClient } from 'aws-amplify/api';
 import { 
   createUser, 
   updateUser, 
-  updateUserRole,
-  getUser, 
-  listUsers,
   deleteUser 
 } from '../graphql/mutations';
 import { 
@@ -195,7 +192,7 @@ class UserService {
       };
 
       const result = await client.graphql({
-        query: updateUserRole,
+        query: updateUser,
         variables: { input }
       });
 

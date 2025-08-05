@@ -185,13 +185,10 @@ export const onDeleteUser = /* GraphQL */ `subscription OnDeleteUser(
   APITypes.OnDeleteUserSubscriptionVariables,
   APITypes.OnDeleteUserSubscription
 >;
-export const onCreateDoctor = /* GraphQL */ `subscription OnCreateDoctor($filter: ModelSubscriptionDoctorFilterInput) {
-  onCreateDoctor(filter: $filter) {
+export const onCreateExpert = /* GraphQL */ `subscription OnCreateExpert($filter: ModelSubscriptionExpertFilterInput) {
+  onCreateExpert(filter: $filter) {
     id
     userId
-    specialization
-    licenseNumber
-    yearsOfExperience
     user {
       id
       email
@@ -226,7 +223,36 @@ export const onCreateDoctor = /* GraphQL */ `subscription OnCreateDoctor($filter
       owner
       __typename
     }
+    specialization
+    subSpecializations
+    licenseNumber
+    yearsOfExperience
+    education
+    certifications
+    languages
+    practiceName
+    practiceAddress
+    practicePhone
+    practiceEmail
+    practiceWebsite
+    availability
+    consultationFee
+    services
+    bio
+    profileImage
+    coverImage
+    isVerified
+    isActive
+    verificationStatus
     appointments {
+      nextToken
+      __typename
+    }
+    expertPatients {
+      nextToken
+      __typename
+    }
+    patientRecords {
       nextToken
       __typename
     }
@@ -237,16 +263,13 @@ export const onCreateDoctor = /* GraphQL */ `subscription OnCreateDoctor($filter
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnCreateDoctorSubscriptionVariables,
-  APITypes.OnCreateDoctorSubscription
+  APITypes.OnCreateExpertSubscriptionVariables,
+  APITypes.OnCreateExpertSubscription
 >;
-export const onUpdateDoctor = /* GraphQL */ `subscription OnUpdateDoctor($filter: ModelSubscriptionDoctorFilterInput) {
-  onUpdateDoctor(filter: $filter) {
+export const onUpdateExpert = /* GraphQL */ `subscription OnUpdateExpert($filter: ModelSubscriptionExpertFilterInput) {
+  onUpdateExpert(filter: $filter) {
     id
     userId
-    specialization
-    licenseNumber
-    yearsOfExperience
     user {
       id
       email
@@ -281,7 +304,36 @@ export const onUpdateDoctor = /* GraphQL */ `subscription OnUpdateDoctor($filter
       owner
       __typename
     }
+    specialization
+    subSpecializations
+    licenseNumber
+    yearsOfExperience
+    education
+    certifications
+    languages
+    practiceName
+    practiceAddress
+    practicePhone
+    practiceEmail
+    practiceWebsite
+    availability
+    consultationFee
+    services
+    bio
+    profileImage
+    coverImage
+    isVerified
+    isActive
+    verificationStatus
     appointments {
+      nextToken
+      __typename
+    }
+    expertPatients {
+      nextToken
+      __typename
+    }
+    patientRecords {
       nextToken
       __typename
     }
@@ -292,16 +344,13 @@ export const onUpdateDoctor = /* GraphQL */ `subscription OnUpdateDoctor($filter
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnUpdateDoctorSubscriptionVariables,
-  APITypes.OnUpdateDoctorSubscription
+  APITypes.OnUpdateExpertSubscriptionVariables,
+  APITypes.OnUpdateExpertSubscription
 >;
-export const onDeleteDoctor = /* GraphQL */ `subscription OnDeleteDoctor($filter: ModelSubscriptionDoctorFilterInput) {
-  onDeleteDoctor(filter: $filter) {
+export const onDeleteExpert = /* GraphQL */ `subscription OnDeleteExpert($filter: ModelSubscriptionExpertFilterInput) {
+  onDeleteExpert(filter: $filter) {
     id
     userId
-    specialization
-    licenseNumber
-    yearsOfExperience
     user {
       id
       email
@@ -336,7 +385,36 @@ export const onDeleteDoctor = /* GraphQL */ `subscription OnDeleteDoctor($filter
       owner
       __typename
     }
+    specialization
+    subSpecializations
+    licenseNumber
+    yearsOfExperience
+    education
+    certifications
+    languages
+    practiceName
+    practiceAddress
+    practicePhone
+    practiceEmail
+    practiceWebsite
+    availability
+    consultationFee
+    services
+    bio
+    profileImage
+    coverImage
+    isVerified
+    isActive
+    verificationStatus
     appointments {
+      nextToken
+      __typename
+    }
+    expertPatients {
+      nextToken
+      __typename
+    }
+    patientRecords {
       nextToken
       __typename
     }
@@ -347,8 +425,8 @@ export const onDeleteDoctor = /* GraphQL */ `subscription OnDeleteDoctor($filter
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnDeleteDoctorSubscriptionVariables,
-  APITypes.OnDeleteDoctorSubscription
+  APITypes.OnDeleteExpertSubscriptionVariables,
+  APITypes.OnDeleteExpertSubscription
 >;
 export const onCreateAppointment = /* GraphQL */ `subscription OnCreateAppointment(
   $filter: ModelSubscriptionAppointmentFilterInput
@@ -357,10 +435,16 @@ export const onCreateAppointment = /* GraphQL */ `subscription OnCreateAppointme
   onCreateAppointment(filter: $filter, owner: $owner) {
     id
     userId
-    doctorId
+    expertId
     date
     status
+    type
+    duration
     notes
+    symptoms
+    diagnosis
+    prescription
+    followUpDate
     user {
       id
       email
@@ -395,12 +479,30 @@ export const onCreateAppointment = /* GraphQL */ `subscription OnCreateAppointme
       owner
       __typename
     }
-    doctor {
+    expert {
       id
       userId
       specialization
+      subSpecializations
       licenseNumber
       yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
       createdAt
       updatedAt
       owner
@@ -423,10 +525,16 @@ export const onUpdateAppointment = /* GraphQL */ `subscription OnUpdateAppointme
   onUpdateAppointment(filter: $filter, owner: $owner) {
     id
     userId
-    doctorId
+    expertId
     date
     status
+    type
+    duration
     notes
+    symptoms
+    diagnosis
+    prescription
+    followUpDate
     user {
       id
       email
@@ -461,12 +569,30 @@ export const onUpdateAppointment = /* GraphQL */ `subscription OnUpdateAppointme
       owner
       __typename
     }
-    doctor {
+    expert {
       id
       userId
       specialization
+      subSpecializations
       licenseNumber
       yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
       createdAt
       updatedAt
       owner
@@ -489,9 +615,99 @@ export const onDeleteAppointment = /* GraphQL */ `subscription OnDeleteAppointme
   onDeleteAppointment(filter: $filter, owner: $owner) {
     id
     userId
-    doctorId
+    expertId
     date
     status
+    type
+    duration
+    notes
+    symptoms
+    diagnosis
+    prescription
+    followUpDate
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteAppointmentSubscriptionVariables,
+  APITypes.OnDeleteAppointmentSubscription
+>;
+export const onCreateExpertPatient = /* GraphQL */ `subscription OnCreateExpertPatient(
+  $filter: ModelSubscriptionExpertPatientFilterInput
+  $owner: String
+) {
+  onCreateExpertPatient(filter: $filter, owner: $owner) {
+    id
+    userId
+    expertId
+    status
+    addedAt
     notes
     user {
       id
@@ -527,12 +743,30 @@ export const onDeleteAppointment = /* GraphQL */ `subscription OnDeleteAppointme
       owner
       __typename
     }
-    doctor {
+    expert {
       id
       userId
       specialization
+      subSpecializations
       licenseNumber
       yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
       createdAt
       updatedAt
       owner
@@ -545,8 +779,359 @@ export const onDeleteAppointment = /* GraphQL */ `subscription OnDeleteAppointme
   }
 }
 ` as GeneratedSubscription<
-  APITypes.OnDeleteAppointmentSubscriptionVariables,
-  APITypes.OnDeleteAppointmentSubscription
+  APITypes.OnCreateExpertPatientSubscriptionVariables,
+  APITypes.OnCreateExpertPatientSubscription
+>;
+export const onUpdateExpertPatient = /* GraphQL */ `subscription OnUpdateExpertPatient(
+  $filter: ModelSubscriptionExpertPatientFilterInput
+  $owner: String
+) {
+  onUpdateExpertPatient(filter: $filter, owner: $owner) {
+    id
+    userId
+    expertId
+    status
+    addedAt
+    notes
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateExpertPatientSubscriptionVariables,
+  APITypes.OnUpdateExpertPatientSubscription
+>;
+export const onDeleteExpertPatient = /* GraphQL */ `subscription OnDeleteExpertPatient(
+  $filter: ModelSubscriptionExpertPatientFilterInput
+  $owner: String
+) {
+  onDeleteExpertPatient(filter: $filter, owner: $owner) {
+    id
+    userId
+    expertId
+    status
+    addedAt
+    notes
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteExpertPatientSubscriptionVariables,
+  APITypes.OnDeleteExpertPatientSubscription
+>;
+export const onCreatePatientRecord = /* GraphQL */ `subscription OnCreatePatientRecord(
+  $filter: ModelSubscriptionPatientRecordFilterInput
+  $owner: String
+) {
+  onCreatePatientRecord(filter: $filter, owner: $owner) {
+    id
+    expertId
+    firstName
+    lastName
+    dateOfBirth
+    gender
+    phoneNumber
+    email
+    address
+    emergencyContact
+    medicalHistory
+    allergies
+    currentMedications
+    familyHistory
+    appointments
+    notes
+    documents
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreatePatientRecordSubscriptionVariables,
+  APITypes.OnCreatePatientRecordSubscription
+>;
+export const onUpdatePatientRecord = /* GraphQL */ `subscription OnUpdatePatientRecord(
+  $filter: ModelSubscriptionPatientRecordFilterInput
+  $owner: String
+) {
+  onUpdatePatientRecord(filter: $filter, owner: $owner) {
+    id
+    expertId
+    firstName
+    lastName
+    dateOfBirth
+    gender
+    phoneNumber
+    email
+    address
+    emergencyContact
+    medicalHistory
+    allergies
+    currentMedications
+    familyHistory
+    appointments
+    notes
+    documents
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdatePatientRecordSubscriptionVariables,
+  APITypes.OnUpdatePatientRecordSubscription
+>;
+export const onDeletePatientRecord = /* GraphQL */ `subscription OnDeletePatientRecord(
+  $filter: ModelSubscriptionPatientRecordFilterInput
+  $owner: String
+) {
+  onDeletePatientRecord(filter: $filter, owner: $owner) {
+    id
+    expertId
+    firstName
+    lastName
+    dateOfBirth
+    gender
+    phoneNumber
+    email
+    address
+    emergencyContact
+    medicalHistory
+    allergies
+    currentMedications
+    familyHistory
+    appointments
+    notes
+    documents
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeletePatientRecordSubscriptionVariables,
+  APITypes.OnDeletePatientRecordSubscription
 >;
 export const onCreateAuditEvent = /* GraphQL */ `subscription OnCreateAuditEvent(
   $filter: ModelSubscriptionAuditEventFilterInput

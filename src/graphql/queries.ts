@@ -106,13 +106,10 @@ export const listUsers = /* GraphQL */ `query ListUsers(
   }
 }
 ` as GeneratedQuery<APITypes.ListUsersQueryVariables, APITypes.ListUsersQuery>;
-export const getDoctor = /* GraphQL */ `query GetDoctor($id: ID!) {
-  getDoctor(id: $id) {
+export const getExpert = /* GraphQL */ `query GetExpert($id: ID!) {
+  getExpert(id: $id) {
     id
     userId
-    specialization
-    licenseNumber
-    yearsOfExperience
     user {
       id
       email
@@ -147,7 +144,36 @@ export const getDoctor = /* GraphQL */ `query GetDoctor($id: ID!) {
       owner
       __typename
     }
+    specialization
+    subSpecializations
+    licenseNumber
+    yearsOfExperience
+    education
+    certifications
+    languages
+    practiceName
+    practiceAddress
+    practicePhone
+    practiceEmail
+    practiceWebsite
+    availability
+    consultationFee
+    services
+    bio
+    profileImage
+    coverImage
+    isVerified
+    isActive
+    verificationStatus
     appointments {
+      nextToken
+      __typename
+    }
+    expertPatients {
+      nextToken
+      __typename
+    }
+    patientRecords {
       nextToken
       __typename
     }
@@ -157,19 +183,37 @@ export const getDoctor = /* GraphQL */ `query GetDoctor($id: ID!) {
     __typename
   }
 }
-` as GeneratedQuery<APITypes.GetDoctorQueryVariables, APITypes.GetDoctorQuery>;
-export const listDoctors = /* GraphQL */ `query ListDoctors(
-  $filter: ModelDoctorFilterInput
+` as GeneratedQuery<APITypes.GetExpertQueryVariables, APITypes.GetExpertQuery>;
+export const listExperts = /* GraphQL */ `query ListExperts(
+  $filter: ModelExpertFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  listDoctors(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  listExperts(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
       userId
       specialization
+      subSpecializations
       licenseNumber
       yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
       createdAt
       updatedAt
       owner
@@ -180,16 +224,135 @@ export const listDoctors = /* GraphQL */ `query ListDoctors(
   }
 }
 ` as GeneratedQuery<
-  APITypes.ListDoctorsQueryVariables,
-  APITypes.ListDoctorsQuery
+  APITypes.ListExpertsQueryVariables,
+  APITypes.ListExpertsQuery
 >;
 export const getAppointment = /* GraphQL */ `query GetAppointment($id: ID!) {
   getAppointment(id: $id) {
     id
     userId
-    doctorId
+    expertId
     date
     status
+    type
+    duration
+    notes
+    symptoms
+    diagnosis
+    prescription
+    followUpDate
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetAppointmentQueryVariables,
+  APITypes.GetAppointmentQuery
+>;
+export const listAppointments = /* GraphQL */ `query ListAppointments(
+  $filter: ModelAppointmentFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listAppointments(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      expertId
+      date
+      status
+      type
+      duration
+      notes
+      symptoms
+      diagnosis
+      prescription
+      followUpDate
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAppointmentsQueryVariables,
+  APITypes.ListAppointmentsQuery
+>;
+export const getExpertPatient = /* GraphQL */ `query GetExpertPatient($id: ID!) {
+  getExpertPatient(id: $id) {
+    id
+    userId
+    expertId
+    status
+    addedAt
     notes
     user {
       id
@@ -225,12 +388,30 @@ export const getAppointment = /* GraphQL */ `query GetAppointment($id: ID!) {
       owner
       __typename
     }
-    doctor {
+    expert {
       id
       userId
       specialization
+      subSpecializations
       licenseNumber
       yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
       createdAt
       updatedAt
       owner
@@ -243,21 +424,21 @@ export const getAppointment = /* GraphQL */ `query GetAppointment($id: ID!) {
   }
 }
 ` as GeneratedQuery<
-  APITypes.GetAppointmentQueryVariables,
-  APITypes.GetAppointmentQuery
+  APITypes.GetExpertPatientQueryVariables,
+  APITypes.GetExpertPatientQuery
 >;
-export const listAppointments = /* GraphQL */ `query ListAppointments(
-  $filter: ModelAppointmentFilterInput
+export const listExpertPatients = /* GraphQL */ `query ListExpertPatients(
+  $filter: ModelExpertPatientFilterInput
   $limit: Int
   $nextToken: String
 ) {
-  listAppointments(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  listExpertPatients(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
       userId
-      doctorId
-      date
+      expertId
       status
+      addedAt
       notes
       createdAt
       updatedAt
@@ -269,8 +450,103 @@ export const listAppointments = /* GraphQL */ `query ListAppointments(
   }
 }
 ` as GeneratedQuery<
-  APITypes.ListAppointmentsQueryVariables,
-  APITypes.ListAppointmentsQuery
+  APITypes.ListExpertPatientsQueryVariables,
+  APITypes.ListExpertPatientsQuery
+>;
+export const getPatientRecord = /* GraphQL */ `query GetPatientRecord($id: ID!) {
+  getPatientRecord(id: $id) {
+    id
+    expertId
+    firstName
+    lastName
+    dateOfBirth
+    gender
+    phoneNumber
+    email
+    address
+    emergencyContact
+    medicalHistory
+    allergies
+    currentMedications
+    familyHistory
+    appointments
+    notes
+    documents
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetPatientRecordQueryVariables,
+  APITypes.GetPatientRecordQuery
+>;
+export const listPatientRecords = /* GraphQL */ `query ListPatientRecords(
+  $filter: ModelPatientRecordFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listPatientRecords(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      expertId
+      firstName
+      lastName
+      dateOfBirth
+      gender
+      phoneNumber
+      email
+      address
+      emergencyContact
+      medicalHistory
+      allergies
+      currentMedications
+      familyHistory
+      appointments
+      notes
+      documents
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListPatientRecordsQueryVariables,
+  APITypes.ListPatientRecordsQuery
 >;
 export const getAuditEvent = /* GraphQL */ `query GetAuditEvent($id: ID!) {
   getAuditEvent(id: $id) {

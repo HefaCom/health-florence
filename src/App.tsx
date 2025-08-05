@@ -17,6 +17,7 @@ import HealthGoals from "./pages/HealthGoals";
 import HealthProfile from "./pages/HealthProfile";
 import Appointments from "./pages/Appointments";
 import FindDoctor from "./pages/FindDoctor";
+import FindExpert from "./pages/FindExpert";
 import Insurance from "./pages/Insurance";
 import Profile from "./pages/Profile";
 
@@ -31,6 +32,7 @@ import ExpertAnalytics from "./pages/expert/ExpertAnalytics";
 import ExpertMessages from "./pages/expert/ExpertMessages";
 import ExpertActivity from "./pages/expert/ExpertActivity";
 import ExpertFlorence from "./pages/expert/ExpertFlorence";
+import ExpertProfileSetup from "./pages/expert/ExpertProfileSetup";
 import { ExpertLayout } from "./components/expert/ExpertLayout";
 
 // Auth pages
@@ -79,6 +81,7 @@ const App = () => (
                   <Route path="health-profile" element={<HealthProfile />} />
                   <Route path="appointments" element={<Appointments />} />
                   <Route path="find-doctor" element={<FindDoctor />} />
+                  <Route path="find-expert" element={<FindExpert />} />
                   <Route path="insurance" element={<Insurance />} />
                   <Route path="profile" element={<Profile />} />
                 </Route>
@@ -100,6 +103,11 @@ const App = () => (
 
                 {/* Expert Portal Routes */}
                 <Route path="/expert" element={<ExpertLogin />} />
+                <Route path="/expert/profile-setup" element={
+                  <ProtectedRoute allowedRoles={["expert"]}>
+                    <ExpertProfileSetup />
+                  </ProtectedRoute>
+                } />
                 <Route path="/expert/dashboard" element={
                   <ProtectedRoute allowedRoles={["expert"]}>
                     <ExpertLayout />

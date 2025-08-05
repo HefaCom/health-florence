@@ -8,26 +8,6 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
-// Custom mutation for role updates only
-export const updateUserRole = /* GraphQL */ `mutation UpdateUserRole(
-  $input: UpdateUserInput!
-) {
-  updateUser(input: $input) {
-    id
-    email
-    firstName
-    lastName
-    role
-    isActive
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.UpdateUserMutationVariables,
-  APITypes.UpdateUserMutation
->;
-
 export const createUser = /* GraphQL */ `mutation CreateUser(
   $input: CreateUserInput!
   $condition: ModelUserConditionInput
@@ -205,16 +185,13 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
   APITypes.DeleteUserMutationVariables,
   APITypes.DeleteUserMutation
 >;
-export const createDoctor = /* GraphQL */ `mutation CreateDoctor(
-  $input: CreateDoctorInput!
-  $condition: ModelDoctorConditionInput
+export const createExpert = /* GraphQL */ `mutation CreateExpert(
+  $input: CreateExpertInput!
+  $condition: ModelExpertConditionInput
 ) {
-  createDoctor(input: $input, condition: $condition) {
+  createExpert(input: $input, condition: $condition) {
     id
     userId
-    specialization
-    licenseNumber
-    yearsOfExperience
     user {
       id
       email
@@ -249,7 +226,36 @@ export const createDoctor = /* GraphQL */ `mutation CreateDoctor(
       owner
       __typename
     }
+    specialization
+    subSpecializations
+    licenseNumber
+    yearsOfExperience
+    education
+    certifications
+    languages
+    practiceName
+    practiceAddress
+    practicePhone
+    practiceEmail
+    practiceWebsite
+    availability
+    consultationFee
+    services
+    bio
+    profileImage
+    coverImage
+    isVerified
+    isActive
+    verificationStatus
     appointments {
+      nextToken
+      __typename
+    }
+    expertPatients {
+      nextToken
+      __typename
+    }
+    patientRecords {
       nextToken
       __typename
     }
@@ -260,19 +266,16 @@ export const createDoctor = /* GraphQL */ `mutation CreateDoctor(
   }
 }
 ` as GeneratedMutation<
-  APITypes.CreateDoctorMutationVariables,
-  APITypes.CreateDoctorMutation
+  APITypes.CreateExpertMutationVariables,
+  APITypes.CreateExpertMutation
 >;
-export const updateDoctor = /* GraphQL */ `mutation UpdateDoctor(
-  $input: UpdateDoctorInput!
-  $condition: ModelDoctorConditionInput
+export const updateExpert = /* GraphQL */ `mutation UpdateExpert(
+  $input: UpdateExpertInput!
+  $condition: ModelExpertConditionInput
 ) {
-  updateDoctor(input: $input, condition: $condition) {
+  updateExpert(input: $input, condition: $condition) {
     id
     userId
-    specialization
-    licenseNumber
-    yearsOfExperience
     user {
       id
       email
@@ -307,7 +310,36 @@ export const updateDoctor = /* GraphQL */ `mutation UpdateDoctor(
       owner
       __typename
     }
+    specialization
+    subSpecializations
+    licenseNumber
+    yearsOfExperience
+    education
+    certifications
+    languages
+    practiceName
+    practiceAddress
+    practicePhone
+    practiceEmail
+    practiceWebsite
+    availability
+    consultationFee
+    services
+    bio
+    profileImage
+    coverImage
+    isVerified
+    isActive
+    verificationStatus
     appointments {
+      nextToken
+      __typename
+    }
+    expertPatients {
+      nextToken
+      __typename
+    }
+    patientRecords {
       nextToken
       __typename
     }
@@ -318,19 +350,16 @@ export const updateDoctor = /* GraphQL */ `mutation UpdateDoctor(
   }
 }
 ` as GeneratedMutation<
-  APITypes.UpdateDoctorMutationVariables,
-  APITypes.UpdateDoctorMutation
+  APITypes.UpdateExpertMutationVariables,
+  APITypes.UpdateExpertMutation
 >;
-export const deleteDoctor = /* GraphQL */ `mutation DeleteDoctor(
-  $input: DeleteDoctorInput!
-  $condition: ModelDoctorConditionInput
+export const deleteExpert = /* GraphQL */ `mutation DeleteExpert(
+  $input: DeleteExpertInput!
+  $condition: ModelExpertConditionInput
 ) {
-  deleteDoctor(input: $input, condition: $condition) {
+  deleteExpert(input: $input, condition: $condition) {
     id
     userId
-    specialization
-    licenseNumber
-    yearsOfExperience
     user {
       id
       email
@@ -365,7 +394,36 @@ export const deleteDoctor = /* GraphQL */ `mutation DeleteDoctor(
       owner
       __typename
     }
+    specialization
+    subSpecializations
+    licenseNumber
+    yearsOfExperience
+    education
+    certifications
+    languages
+    practiceName
+    practiceAddress
+    practicePhone
+    practiceEmail
+    practiceWebsite
+    availability
+    consultationFee
+    services
+    bio
+    profileImage
+    coverImage
+    isVerified
+    isActive
+    verificationStatus
     appointments {
+      nextToken
+      __typename
+    }
+    expertPatients {
+      nextToken
+      __typename
+    }
+    patientRecords {
       nextToken
       __typename
     }
@@ -376,8 +434,8 @@ export const deleteDoctor = /* GraphQL */ `mutation DeleteDoctor(
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteDoctorMutationVariables,
-  APITypes.DeleteDoctorMutation
+  APITypes.DeleteExpertMutationVariables,
+  APITypes.DeleteExpertMutation
 >;
 export const createAppointment = /* GraphQL */ `mutation CreateAppointment(
   $input: CreateAppointmentInput!
@@ -386,10 +444,16 @@ export const createAppointment = /* GraphQL */ `mutation CreateAppointment(
   createAppointment(input: $input, condition: $condition) {
     id
     userId
-    doctorId
+    expertId
     date
     status
+    type
+    duration
     notes
+    symptoms
+    diagnosis
+    prescription
+    followUpDate
     user {
       id
       email
@@ -424,12 +488,30 @@ export const createAppointment = /* GraphQL */ `mutation CreateAppointment(
       owner
       __typename
     }
-    doctor {
+    expert {
       id
       userId
       specialization
+      subSpecializations
       licenseNumber
       yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
       createdAt
       updatedAt
       owner
@@ -452,10 +534,16 @@ export const updateAppointment = /* GraphQL */ `mutation UpdateAppointment(
   updateAppointment(input: $input, condition: $condition) {
     id
     userId
-    doctorId
+    expertId
     date
     status
+    type
+    duration
     notes
+    symptoms
+    diagnosis
+    prescription
+    followUpDate
     user {
       id
       email
@@ -490,12 +578,30 @@ export const updateAppointment = /* GraphQL */ `mutation UpdateAppointment(
       owner
       __typename
     }
-    doctor {
+    expert {
       id
       userId
       specialization
+      subSpecializations
       licenseNumber
       yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
       createdAt
       updatedAt
       owner
@@ -518,9 +624,99 @@ export const deleteAppointment = /* GraphQL */ `mutation DeleteAppointment(
   deleteAppointment(input: $input, condition: $condition) {
     id
     userId
-    doctorId
+    expertId
     date
     status
+    type
+    duration
+    notes
+    symptoms
+    diagnosis
+    prescription
+    followUpDate
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteAppointmentMutationVariables,
+  APITypes.DeleteAppointmentMutation
+>;
+export const createExpertPatient = /* GraphQL */ `mutation CreateExpertPatient(
+  $input: CreateExpertPatientInput!
+  $condition: ModelExpertPatientConditionInput
+) {
+  createExpertPatient(input: $input, condition: $condition) {
+    id
+    userId
+    expertId
+    status
+    addedAt
     notes
     user {
       id
@@ -556,12 +752,30 @@ export const deleteAppointment = /* GraphQL */ `mutation DeleteAppointment(
       owner
       __typename
     }
-    doctor {
+    expert {
       id
       userId
       specialization
+      subSpecializations
       licenseNumber
       yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
       createdAt
       updatedAt
       owner
@@ -574,8 +788,359 @@ export const deleteAppointment = /* GraphQL */ `mutation DeleteAppointment(
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteAppointmentMutationVariables,
-  APITypes.DeleteAppointmentMutation
+  APITypes.CreateExpertPatientMutationVariables,
+  APITypes.CreateExpertPatientMutation
+>;
+export const updateExpertPatient = /* GraphQL */ `mutation UpdateExpertPatient(
+  $input: UpdateExpertPatientInput!
+  $condition: ModelExpertPatientConditionInput
+) {
+  updateExpertPatient(input: $input, condition: $condition) {
+    id
+    userId
+    expertId
+    status
+    addedAt
+    notes
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateExpertPatientMutationVariables,
+  APITypes.UpdateExpertPatientMutation
+>;
+export const deleteExpertPatient = /* GraphQL */ `mutation DeleteExpertPatient(
+  $input: DeleteExpertPatientInput!
+  $condition: ModelExpertPatientConditionInput
+) {
+  deleteExpertPatient(input: $input, condition: $condition) {
+    id
+    userId
+    expertId
+    status
+    addedAt
+    notes
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteExpertPatientMutationVariables,
+  APITypes.DeleteExpertPatientMutation
+>;
+export const createPatientRecord = /* GraphQL */ `mutation CreatePatientRecord(
+  $input: CreatePatientRecordInput!
+  $condition: ModelPatientRecordConditionInput
+) {
+  createPatientRecord(input: $input, condition: $condition) {
+    id
+    expertId
+    firstName
+    lastName
+    dateOfBirth
+    gender
+    phoneNumber
+    email
+    address
+    emergencyContact
+    medicalHistory
+    allergies
+    currentMedications
+    familyHistory
+    appointments
+    notes
+    documents
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreatePatientRecordMutationVariables,
+  APITypes.CreatePatientRecordMutation
+>;
+export const updatePatientRecord = /* GraphQL */ `mutation UpdatePatientRecord(
+  $input: UpdatePatientRecordInput!
+  $condition: ModelPatientRecordConditionInput
+) {
+  updatePatientRecord(input: $input, condition: $condition) {
+    id
+    expertId
+    firstName
+    lastName
+    dateOfBirth
+    gender
+    phoneNumber
+    email
+    address
+    emergencyContact
+    medicalHistory
+    allergies
+    currentMedications
+    familyHistory
+    appointments
+    notes
+    documents
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdatePatientRecordMutationVariables,
+  APITypes.UpdatePatientRecordMutation
+>;
+export const deletePatientRecord = /* GraphQL */ `mutation DeletePatientRecord(
+  $input: DeletePatientRecordInput!
+  $condition: ModelPatientRecordConditionInput
+) {
+  deletePatientRecord(input: $input, condition: $condition) {
+    id
+    expertId
+    firstName
+    lastName
+    dateOfBirth
+    gender
+    phoneNumber
+    email
+    address
+    emergencyContact
+    medicalHistory
+    allergies
+    currentMedications
+    familyHistory
+    appointments
+    notes
+    documents
+    expert {
+      id
+      userId
+      specialization
+      subSpecializations
+      licenseNumber
+      yearsOfExperience
+      education
+      certifications
+      languages
+      practiceName
+      practiceAddress
+      practicePhone
+      practiceEmail
+      practiceWebsite
+      availability
+      consultationFee
+      services
+      bio
+      profileImage
+      coverImage
+      isVerified
+      isActive
+      verificationStatus
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeletePatientRecordMutationVariables,
+  APITypes.DeletePatientRecordMutation
 >;
 export const createAuditEvent = /* GraphQL */ `mutation CreateAuditEvent(
   $input: CreateAuditEventInput!
@@ -1425,4 +1990,23 @@ export const deleteHAICReward = /* GraphQL */ `mutation DeleteHAICReward(
 ` as GeneratedMutation<
   APITypes.DeleteHAICRewardMutationVariables,
   APITypes.DeleteHAICRewardMutation
+>;
+
+export const updateUserRole = /* GraphQL */ `mutation UpdateUserRole(
+  $input: UpdateUserInput!
+) {
+  updateUser(input: $input) {
+    id
+    email
+    firstName
+    lastName
+    role
+    isActive
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateUserMutationVariables,
+  APITypes.UpdateUserMutation
 >;
