@@ -30,9 +30,6 @@
         "doctors": {},
         "users": {}
       },
-      "hosting": {
-        "S3AndCloudFront": {}
-      },
       "api": {
         "healthflorence": {}
       }
