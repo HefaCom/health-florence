@@ -52,9 +52,15 @@ class AdminService {
   async updateUserRole(userId: string, role: 'user' | 'admin' | 'expert'): Promise<User> {
     try {
       return await userService.updateUserRole(userId, role);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating user role:', error);
-      throw error;
+      
+      // Re-throw with better error message
+      if (error.message) {
+        throw new Error(error.message);
+      }
+      
+      throw new Error('Failed to update user role');
     }
   }
 

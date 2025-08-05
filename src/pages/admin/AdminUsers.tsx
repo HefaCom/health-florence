@@ -109,9 +109,10 @@ const AdminUsers = () => {
       await adminService.updateUserRole(userId, newRole);
       toast.success('User role updated successfully');
       loadUsers(); // Reload users to get updated data
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating user role:', error);
-      toast.error('Failed to update user role');
+      const errorMessage = error.message || 'Failed to update user role';
+      toast.error(errorMessage);
     }
   };
 

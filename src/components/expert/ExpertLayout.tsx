@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { ExpertSidebar } from "./ExpertSidebar";
 import { ExpertSidebarProvider, useExpertSidebar } from "./ExpertSidebarContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import { 
   Bell, 
   Search, 
@@ -28,6 +30,8 @@ const ExpertLayoutContent = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isCollapsed } = useExpertSidebar();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   // Check if mobile
   useEffect(() => {
@@ -48,9 +52,15 @@ const ExpertLayoutContent = () => {
     }
   }, [isMobile]);
 
-  const handleLogout = () => {
-    // TODO: Implement logout functionality
-    console.log("Logging out...");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Failed to logout");
+    }
   };
 
   return (

@@ -198,10 +198,25 @@ class UserService {
         variables: { input }
       });
 
-      return (result as any).data.updateUser;
-    } catch (error) {
+      if (!result.data?.updateUser) {
+        throw new Error('Failed to update user role: No data returned');
+      }
+
+      return result.data.updateUser;
+    } catch (error: any) {
       console.error('Error updating user role:', error);
-      throw error;
+      
+      // Provide more specific error messages
+      if (error.errors && error.errors.length > 0) {
+        const errorMessage = error.errors[0].message;
+        throw new Error(`Failed to update user role: ${errorMessage}`);
+      }
+      
+      if (error.message) {
+        throw new Error(`Failed to update user role: ${error.message}`);
+      }
+      
+      throw new Error('Failed to update user role: Unknown error occurred');
     }
   }
 
