@@ -2,6 +2,7 @@ import { generateClient } from 'aws-amplify/api';
 import { 
   createUser, 
   updateUser, 
+  updateUserRole,
   getUser, 
   listUsers,
   deleteUser 
@@ -194,7 +195,7 @@ class UserService {
       };
 
       const result = await client.graphql({
-        query: updateUser,
+        query: updateUserRole,
         variables: { input }
       });
 

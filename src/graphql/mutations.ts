@@ -8,6 +8,26 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
+// Custom mutation for role updates only
+export const updateUserRole = /* GraphQL */ `mutation UpdateUserRole(
+  $input: UpdateUserInput!
+) {
+  updateUser(input: $input) {
+    id
+    email
+    firstName
+    lastName
+    role
+    isActive
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateUserMutationVariables,
+  APITypes.UpdateUserMutation
+>;
+
 export const createUser = /* GraphQL */ `mutation CreateUser(
   $input: CreateUserInput!
   $condition: ModelUserConditionInput
