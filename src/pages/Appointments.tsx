@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { 
   Calendar,
   Clock, 
@@ -13,11 +14,17 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAudit } from '@/hooks/useAudit';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { generateClient } from 'aws-amplify/api';
 import { createAppointment, updateAppointment } from '../graphql/mutations';
 import { listAppointments } from '../graphql/queries';
 import { Appointment } from '../API';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 const client = generateClient();
 
@@ -32,10 +39,33 @@ interface AppointmentType {
 }
 
 const Appointments = () => {
+  const location = useLocation();
+  const { user } = useAuth();
   const [filter, setFilter] = useState("all");
   const [appointments, setAppointments] = useState<AppointmentType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [bookingData, setBookingData] = useState({
+    expertId: '',
+    expert: null,
+    date: '',
+    time: '',
+    type: 'consultation',
+    notes: ''
+  });
   const { logAction } = useAudit();
+
+  // Check if we have new appointment data from navigation
+  useEffect(() => {
+    if (location.state?.newAppointment) {
+      setBookingData(prev => ({
+        ...prev,
+        expertId: location.state.newAppointment.expertId || '',
+        expert: location.state.newAppointment.expert || null
+      }));
+      setShowBookingDialog(true);
+    }
+  }, [location.state]);
 
   const fetchAppointments = async () => {
     setIsLoading(true);
@@ -48,8 +78,8 @@ const Appointments = () => {
         setAppointments(response.data.listAppointments.items.map((item: any) => ({
           id: item.id,
           title: item.type || 'Consultation',
-          doctor: item.doctor?.name || 'Unknown Doctor',
-          location: item.location || 'Virtual',
+          doctor: item.expert?.user ? `${item.expert.user.firstName} ${item.expert.user.lastName}` : item.expert?.specialization || 'Unknown Expert',
+          location: item.expert?.practiceName || 'Virtual',
           date: new Date(item.date).toLocaleDateString(),
           time: new Date(item.date).toLocaleTimeString(),
           status: item.status
@@ -168,14 +198,87 @@ const Appointments = () => {
     }
   };
 
+  const handleBookNewAppointment = async () => {
+    if (!user || !bookingData.expertId || !bookingData.date || !bookingData.time) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const appointmentDateTime = new Date(bookingData.date);
+      const [hours, minutes] = bookingData.time.split(':');
+      appointmentDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      const appointmentData = {
+        id: `appointment_${user.id}_${bookingData.expertId}_${Date.now()}`,
+        userId: user.id,
+        expertId: bookingData.expertId,
+        date: appointmentDateTime.toISOString(),
+        status: 'SCHEDULED',
+        type: bookingData.type,
+        duration: 30,
+        notes: bookingData.notes
+      };
+
+      const response = await client.graphql({
+        query: createAppointment,
+        variables: { input: appointmentData }
+      });
+
+      if (response.data?.createAppointment) {
+        toast.success("Appointment booked successfully");
+        
+        // Log the appointment creation
+        await logAction(
+          'APPOINTMENT_CREATE',
+          response.data.createAppointment.id,
+          {
+            expertId: bookingData.expertId,
+            date: appointmentData.date,
+            timestamp: new Date().toISOString()
+          }
+        );
+
+        // Reset booking data and close dialog
+        setBookingData({
+          expertId: '',
+          expert: null,
+          date: '',
+          time: '',
+          type: 'consultation',
+          notes: ''
+        });
+        setShowBookingDialog(false);
+        
+        // Refresh appointments list
+        fetchAppointments();
+      }
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      toast.error("Failed to book appointment");
+    }
+  };
+
+  const availableTimes = [
+    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
+  ];
+
+  const appointmentTypes = [
+    { value: 'consultation', label: 'General Consultation' },
+    { value: 'followup', label: 'Follow-up Visit' },
+    { value: 'emergency', label: 'Emergency Consultation' },
+    { value: 'specialist', label: 'Specialist Consultation' }
+  ];
+
   return (
     <div className="space-y-6 px-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Appointments</h1>
-        <Button>
+        {/* <Button onClick={() => setShowBookingDialog(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Schedule New
-        </Button>
+        </Button> */}
       </div>
       
       <div className="flex items-center space-x-2">
@@ -281,6 +384,91 @@ const Appointments = () => {
           ))
         )}
       </div>
+
+      {/* Booking Dialog */}
+      <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Book New Appointment</DialogTitle>
+            <DialogDescription>
+              {bookingData.expert ? `Schedule an appointment with ${bookingData.expert.user ? `${bookingData.expert.user.firstName} ${bookingData.expert.user.lastName}` : 'this expert'}` : 'Schedule a new appointment'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="appointment-type">Appointment Type</Label>
+              <Select value={bookingData.type} onValueChange={(value) => setBookingData(prev => ({ ...prev, type: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {appointmentTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="appointment-date">Date</Label>
+              <Input
+                id="appointment-date"
+                type="date"
+                value={bookingData.date}
+                onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="appointment-time">Time</Label>
+              <Select value={bookingData.time} onValueChange={(value) => setBookingData(prev => ({ ...prev, time: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTimes.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="appointment-notes">Notes (Optional)</Label>
+              <Textarea
+                id="appointment-notes"
+                placeholder="Any specific concerns or questions..."
+                value={bookingData.notes}
+                onChange={(e) => setBookingData(prev => ({ ...prev, notes: e.target.value }))}
+                rows={3}
+              />
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleBookNewAppointment}
+                disabled={!bookingData.expertId || !bookingData.date || !bookingData.time}
+                className="flex-1"
+              >
+                Book Appointment
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowBookingDialog(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

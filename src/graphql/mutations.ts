@@ -1991,22 +1991,3 @@ export const deleteHAICReward = /* GraphQL */ `mutation DeleteHAICReward(
   APITypes.DeleteHAICRewardMutationVariables,
   APITypes.DeleteHAICRewardMutation
 >;
-
-export const updateUserRole = /* GraphQL */ `mutation UpdateUserRole(
-  $input: UpdateUserInput!
-) {
-  updateUser(input: $input) {
-    id
-    email
-    firstName
-    lastName
-    role
-    isActive
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.UpdateUserMutationVariables,
-  APITypes.UpdateUserMutation
->;

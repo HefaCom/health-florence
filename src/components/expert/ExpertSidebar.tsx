@@ -25,7 +25,7 @@ import {
 
 export const ExpertSidebar = () => {
   const { isCollapsed, setIsCollapsed } = useExpertSidebar();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
   
   const navigationItems = [
@@ -33,6 +33,11 @@ export const ExpertSidebar = () => {
       name: "Dashboard",
       path: "/expert/dashboard",
       icon: <LayoutDashboard className="h-5 w-5" />
+    },
+    {
+      name: "My Profile",
+      path: "/expert/dashboard/profile",
+      icon: <Shield className="h-5 w-5" />
     },
     {
       name: "Florence AI",
@@ -124,10 +129,17 @@ export const ExpertSidebar = () => {
           </div>
           {!isCollapsed && (
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">Dr. Sarah Johnson</p>
-              <p className="text-xs text-gray-500">Cardiologist</p>
+              <p className="text-sm font-medium text-gray-900">
+                {user?.firstName && user?.lastName 
+                  ? `${user.firstName} ${user.lastName}`
+                  : user?.email || 'Expert User'
+                }
+              </p>
+              <p className="text-xs text-gray-500">
+                {user?.role === 'expert' ? 'Healthcare Professional' : user?.role || 'User'}
+              </p>
               <Badge variant="secondary" className="text-xs mt-1">
-                Verified
+                {user?.isActive ? 'Active' : 'Inactive'}
               </Badge>
             </div>
           )}

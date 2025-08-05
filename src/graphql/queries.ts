@@ -193,6 +193,41 @@ export const listExperts = /* GraphQL */ `query ListExperts(
     items {
       id
       userId
+      
+      user {
+        id
+        email
+        firstName
+        lastName
+        phoneNumber
+        dateOfBirth
+        address
+        city
+        state
+        zipCode
+        emergencyContactName
+        emergencyContactPhone
+        allergies
+        medicalConditions
+        currentMedications
+        height
+        weight
+        gender
+        bloodType
+        role
+        isActive
+        lastLoginAt
+        loginCount
+        preferences
+        notificationSettings
+        privacySettings
+        subscriptionTier
+        subscriptionExpiresAt
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
       specialization
       subSpecializations
       licenseNumber
@@ -333,6 +368,104 @@ export const listAppointments = /* GraphQL */ `query ListAppointments(
       diagnosis
       prescription
       followUpDate
+      
+      user {
+        id
+        email
+        firstName
+        lastName
+        phoneNumber
+        dateOfBirth
+        address
+        city
+        state
+        zipCode
+        emergencyContactName
+        emergencyContactPhone
+        allergies
+        medicalConditions
+        currentMedications
+        height
+        weight
+        gender
+        bloodType
+        role
+        isActive
+        lastLoginAt
+        loginCount
+        preferences
+        notificationSettings
+        privacySettings
+        subscriptionTier
+        subscriptionExpiresAt
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      expert {
+        id
+        userId
+        user {
+          id
+          email
+          firstName
+          lastName
+          phoneNumber
+          dateOfBirth
+          address
+          city
+          state
+          zipCode
+          emergencyContactName
+          emergencyContactPhone
+          allergies
+          medicalConditions
+          currentMedications
+          height
+          weight
+          gender
+          bloodType
+          role
+          isActive
+          lastLoginAt
+          loginCount
+          preferences
+          notificationSettings
+          privacySettings
+          subscriptionTier
+          subscriptionExpiresAt
+          createdAt
+          updatedAt
+          owner
+          __typename
+        }
+        specialization
+        subSpecializations
+        licenseNumber
+        yearsOfExperience
+        education
+        certifications
+        languages
+        practiceName
+        practiceAddress
+        practicePhone
+        practiceEmail
+        practiceWebsite
+        availability
+        consultationFee
+        services
+        bio
+        profileImage
+        coverImage
+        isVerified
+        isActive
+        verificationStatus
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
       createdAt
       updatedAt
       owner

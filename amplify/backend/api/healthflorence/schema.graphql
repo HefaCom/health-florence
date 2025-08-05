@@ -93,7 +93,8 @@ type Expert @model @auth(rules: [
 
 type Appointment @model @auth(rules: [
   { allow: owner, operations: [create, read, update, delete] },
-  { allow: private, operations: [read] }
+  { allow: private, operations: [read] },
+  { allow: public, provider: apiKey, operations: [read, create, update, delete] }
 ]) {
   id: ID!
   userId: ID!
@@ -117,7 +118,8 @@ type Appointment @model @auth(rules: [
 
 # Relationship between Users and Experts (when users add experts as their specialists)
 type ExpertPatient @model @auth(rules: [
-  { allow: owner, operations: [create, read, update, delete] }
+  { allow: owner, operations: [create, read, update, delete] },
+  { allow: public, provider: apiKey, operations: [read, create, update, delete] }
 ]) {
   id: ID!
   userId: ID!

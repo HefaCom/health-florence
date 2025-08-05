@@ -1,5 +1,5 @@
 import { generateClient } from 'aws-amplify/api';
-import { 
+import {
   createExpert as createExpertMutation,
   updateExpert as updateExpertMutation,
   deleteExpert as deleteExpertMutation
@@ -74,6 +74,7 @@ export interface CreateExpertInput {
 
 export interface UpdateExpertInput {
   id: string;
+  userId?: string;
   specialization?: string;
   subSpecializations?: string[];
   licenseNumber?: string;

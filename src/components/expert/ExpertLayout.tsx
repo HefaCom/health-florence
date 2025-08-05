@@ -30,7 +30,7 @@ const ExpertLayoutContent = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isCollapsed } = useExpertSidebar();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   // Check if mobile
@@ -113,6 +113,7 @@ const ExpertLayoutContent = () => {
               <nav className="space-y-2">
                 {[
                   { name: "Dashboard", path: "/expert/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+                  { name: "My Profile", path: "/expert/dashboard/profile", icon: <User className="h-5 w-5" /> },
                   { name: "Florence AI", path: "/expert/dashboard/florence", icon: <Bot className="h-5 w-5" /> },
                   { name: "Patients", path: "/expert/dashboard/patients", icon: <Users className="h-5 w-5" /> },
                   { name: "Appointments", path: "/expert/dashboard/appointments", icon: <Calendar className="h-5 w-5" /> },
@@ -148,8 +149,15 @@ const ExpertLayoutContent = () => {
                   <User className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Dr. Sarah Johnson</p>
-                  <p className="text-xs text-gray-500">Cardiologist</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.firstName && user?.lastName 
+                      ? `${user.firstName} ${user.lastName}`
+                      : user?.email || 'Expert User'
+                    }
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {user?.role === 'expert' ? 'Healthcare Professional' : user?.role || 'User'}
+                  </p>
                 </div>
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
@@ -221,8 +229,15 @@ const ExpertLayoutContent = () => {
               {/* User Menu */}
               <div className="flex items-center space-x-3">
                 <div className="hidden md:block text-right">
-                  <p className="text-sm font-medium text-gray-900">Dr. Sarah Johnson</p>
-                  <p className="text-xs text-gray-500">Cardiologist</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {user?.firstName && user?.lastName 
+                      ? `${user.firstName} ${user.lastName}`
+                      : user?.email || 'Expert User'
+                    }
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {user?.role === 'expert' ? 'Healthcare Professional' : user?.role || 'User'}
+                  </p>
                 </div>
                 
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">

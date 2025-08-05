@@ -28,25 +28,7 @@ import {
   Loader2
 } from 'lucide-react';
 
-const SPECIALIZATIONS = [
-  'All Specializations',
-  'Cardiology',
-  'Dermatology',
-  'Endocrinology',
-  'Gastroenterology',
-  'General Practice',
-  'Gynecology',
-  'Neurology',
-  'Oncology',
-  'Ophthalmology',
-  'Orthopedics',
-  'Pediatrics',
-  'Psychiatry',
-  'Pulmonology',
-  'Radiology',
-  'Surgery',
-  'Urology'
-];
+
 
 export default function FindExpert() {
   const { user } = useAuth();
@@ -55,6 +37,7 @@ export default function FindExpert() {
   const [filteredExperts, setFilteredExperts] = useState<Expert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [specializations, setSpecializations] = useState<string[]>(['All Specializations']);
   const [selectedSpecialization, setSelectedSpecialization] = useState('All Specializations');
   const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
   const [addingExpert, setAddingExpert] = useState<string | null>(null);
@@ -72,6 +55,14 @@ export default function FindExpert() {
       setIsLoading(true);
       const allExperts = await expertService.getAllExperts();
       setExperts(allExperts);
+      
+      // Generate specialties from actual data
+      const uniqueSpecializations = [...new Set(allExperts.map(expert => expert.specialization))];
+      setSpecializations(['All Specializations', ...uniqueSpecializations]);
+      
+      if (allExperts.length === 0) {
+        toast.info('No experts found in the database. Please check back later.');
+      }
     } catch (error) {
       console.error('Error loading experts:', error);
       toast.error('Failed to load experts');
@@ -85,13 +76,23 @@ export default function FindExpert() {
 
     // Filter by search term
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase().trim();
       filtered = filtered.filter(expert => 
-        expert.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        expert.practiceName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        expert.bio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        expert.specialization.toLowerCase().includes(searchLower) ||
+        expert.practiceName?.toLowerCase().includes(searchLower) ||
+        expert.practiceAddress?.toLowerCase().includes(searchLower) ||
+        expert.bio?.toLowerCase().includes(searchLower) ||
         expert.subSpecializations?.some(spec => 
-          spec.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+          spec.toLowerCase().includes(searchLower)
+        ) ||
+        expert.languages?.some(lang => 
+          lang.toLowerCase().includes(searchLower)
+        ) ||
+        (expert.user && (
+          expert.user.firstName.toLowerCase().includes(searchLower) ||
+          expert.user.lastName.toLowerCase().includes(searchLower) ||
+          expert.user.email.toLowerCase().includes(searchLower)
+        ))
       );
     }
 
@@ -137,18 +138,58 @@ export default function FindExpert() {
       toast.success('Expert added to your specialists!');
     } catch (error: any) {
       console.error('Error adding expert:', error);
-      toast.error(error.message || 'Failed to add expert');
+      
+      // Check if the expert was actually added despite errors
+      if (error.data?.createExpertPatient) {
+        toast.success('Expert added to your specialists!');
+        return;
+      }
+      
+      // Provide more specific error messages
+      if (error.errors && error.errors.length > 0) {
+        const errorMessage = error.errors[0].message;
+        if (errorMessage.includes('Not Authorized')) {
+          toast.error('Permission denied. Please try again or contact support.');
+        } else {
+          toast.error(`Failed to add expert: ${errorMessage}`);
+        }
+      } else {
+        toast.error('Failed to add expert. Please try again.');
+      }
     } finally {
       setAddingExpert(null);
     }
   };
 
-  const handleBookAppointment = (expertId: string) => {
-    navigate(`/appointments/new?expertId=${expertId}`);
+  const handleViewProfile = (expertId: string) => {
+    const expert = experts.find(e => e.id === expertId);
+    if (!expert) {
+      toast.error('Expert not found');
+      return;
+    }
+    
+    // Navigate to expert profile page with expert data
+    navigate(`/expert-profile/${expertId}`, { 
+      state: { expert } 
+    });
   };
 
-  const handleViewProfile = (expertId: string) => {
-    navigate(`/expert/${expertId}`);
+  const handleBookAppointment = (expertId: string) => {
+    const expert = experts.find(e => e.id === expertId);
+    if (!expert) {
+      toast.error('Expert not found');
+      return;
+    }
+    
+    // Navigate to appointments page with expert data for booking
+    navigate(`/appointments`, { 
+      state: { 
+        newAppointment: {
+          expertId: expert.id,
+          expert: expert
+        }
+      } 
+    });
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -172,7 +213,7 @@ export default function FindExpert() {
               </Avatar>
               <div>
                 <CardTitle className="text-xl">
-                  {expert.user ? `${expert.user.firstName} ${expert.user.lastName}` : 'Expert'}
+                  {expert.user ? `${expert.user.firstName} ${expert.user.lastName}` : `Dr. ${expert.specialization}`}
                 </CardTitle>
                 <CardDescription className="text-base font-medium">
                   {expert.specialization}
@@ -242,7 +283,8 @@ export default function FindExpert() {
           {expert.practiceName && (
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <MapPin className="h-4 w-4" />
-              <span>{expert.practiceName}</span>
+              {/* <span>Practice Name: {expert.practiceName}</span> */}
+              <span>{expert.practiceAddress}</span>
             </div>
           )}
 
@@ -302,8 +344,8 @@ export default function FindExpert() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Your Expert</h1>
-          <p className="text-gray-600">Discover and connect with healthcare specialists</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Healthcare Experts</h1>
+          <p className="text-gray-600">Discover and connect with doctors, specialists, and healthcare professionals</p>
         </div>
 
         {/* Search and Filters */}
@@ -324,7 +366,7 @@ export default function FindExpert() {
                 <SelectValue placeholder="Specialization" />
               </SelectTrigger>
               <SelectContent>
-                {SPECIALIZATIONS.map((spec) => (
+                {specializations.map((spec) => (
                   <SelectItem key={spec} value={spec}>{spec}</SelectItem>
                 ))}
               </SelectContent>

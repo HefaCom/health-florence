@@ -16,7 +16,6 @@ import DietaryPlan from "./pages/DietaryPlan";
 import HealthGoals from "./pages/HealthGoals";
 import HealthProfile from "./pages/HealthProfile";
 import Appointments from "./pages/Appointments";
-import FindDoctor from "./pages/FindDoctor";
 import FindExpert from "./pages/FindExpert";
 import Insurance from "./pages/Insurance";
 import Profile from "./pages/Profile";
@@ -33,6 +32,8 @@ import ExpertMessages from "./pages/expert/ExpertMessages";
 import ExpertActivity from "./pages/expert/ExpertActivity";
 import ExpertFlorence from "./pages/expert/ExpertFlorence";
 import ExpertProfileSetup from "./pages/expert/ExpertProfileSetup";
+import ExpertProfile from "./pages/expert/ExpertProfile";
+import ExpertProfileView from "./pages/ExpertProfileView";
 import { ExpertLayout } from "./components/expert/ExpertLayout";
 
 // Auth pages
@@ -80,8 +81,11 @@ const App = () => (
                   <Route path="health-goals" element={<HealthGoals />} />
                   <Route path="health-profile" element={<HealthProfile />} />
                   <Route path="appointments" element={<Appointments />} />
-                  <Route path="find-doctor" element={<FindDoctor />} />
+                  <Route path="find-doctor" element={<FindExpert />} />
                   <Route path="find-expert" element={<FindExpert />} />
+                  <Route path="expert/:expertId" element={<FindExpert />} />
+                  <Route path="expert-profile/:expertId" element={<ExpertProfileView />} />
+                  <Route path="appointments/new" element={<Appointments />} />
                   <Route path="insurance" element={<Insurance />} />
                   <Route path="profile" element={<Profile />} />
                 </Route>
@@ -114,6 +118,7 @@ const App = () => (
                   </ProtectedRoute>
                 }>
                   <Route index element={<ExpertDashboard />} />
+                  <Route path="profile" element={<ExpertProfile />} />
                   <Route path="florence" element={<ExpertFlorence />} />
                   <Route path="patients" element={<ExpertPatients />} />
                   <Route path="appointments" element={<ExpertAppointments />} />

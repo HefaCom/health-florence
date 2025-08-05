@@ -56,8 +56,8 @@ export const MobileSidebar = ({ open, onClose }: MobileSidebarProps) => {
       icon: <Calendar className="h-5 w-5" />
     },
     {
-      name: "Find Doctor",
-      path: "/find-doctor",
+      name: "Find Expert",
+      path: "/find-expert",
       icon: <SearchCheck className="h-5 w-5" />
     },
     {

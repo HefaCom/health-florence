@@ -50,8 +50,8 @@ export const DesktopSidebar = () => {
       icon: <Calendar className="h-5 w-5" />
     },
     {
-      name: "Find Doctor",
-      path: "/find-doctor",
+      name: "Find Expert",
+      path: "/find-expert",
       icon: <SearchCheck className="h-5 w-5" />
     },
     {
@@ -77,14 +77,14 @@ export const DesktopSidebar = () => {
         )}
       </Button>
 
-      <div className={`p-4 flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
+      {/* <div className={`p-4 flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
         <FloLogo className="w-10 h-10 mr-2" />
         {!isCollapsed && (
           <span className="font-bold text-xl neon-text">
             Health AI<span className="text-primary">.</span>
           </span>
         )}
-      </div>
+      </div> */}
       
       <Separator />
       
@@ -96,10 +96,10 @@ export const DesktopSidebar = () => {
             </div>
             {!isCollapsed && (
               <div className="ml-3">
-                <p className="text-sm font-medium truncate">{user.email}</p>
+                <p className="text-sm font-medium truncate">Hello, {user.firstName} {user.lastName }!</p>
                 <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
               </div>
-            )}
+            )}  
           </div>
         </div>
       )}

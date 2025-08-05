@@ -200,7 +200,7 @@ class UserService {
         throw new Error('Failed to update user role: No data returned');
       }
 
-      return result.data.updateUser;
+      return result.data.updateUser as User;
     } catch (error: any) {
       console.error('Error updating user role:', error);
       

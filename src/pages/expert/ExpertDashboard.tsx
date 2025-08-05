@@ -200,6 +200,30 @@ export default function ExpertDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Profile Management
+            </CardTitle>
+            <CardDescription>
+              Update your professional profile and information
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center py-4">
+              <User className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-600 mb-4">Keep your profile up to date</p>
+              <Button 
+                onClick={() => navigate('/expert/dashboard/profile')}
+                className="w-full"
+              >
+                Manage Profile
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Recent Activity */}

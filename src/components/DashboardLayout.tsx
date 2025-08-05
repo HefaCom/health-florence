@@ -132,7 +132,7 @@ export const DashboardLayout = () => {
           
           {/* Desktop Sidebar - Fixed Position */}
           {!isMobile && (
-            <div className="fixed left-0 top-[138px] bottom-0 z-20">
+            <div className="fixed left-0 top-[90px] bottom-0 z-20">
               <DesktopSidebar />
             </div>
           )}
@@ -140,7 +140,7 @@ export const DashboardLayout = () => {
           {/* Main Content - With dynamic margin for fixed sidebar */}
           <main className={`flex-1 overflow-auto transition-all duration-300 ${!isMobile ? (isCollapsed ? 'ml-16' : 'ml-64') : ''}`}>
           {/* Personalized Greeting */}
-          <div className="bg-card/50 backdrop-blur-sm border-b p-4">
+          {/* <div className="bg-card/50 backdrop-blur-sm border-b p-4">
             <div className="container mx-auto">
               <h2 className="text-2xl font-bold">
                 {getGreeting()}, {getUserName()}!
@@ -149,7 +149,7 @@ export const DashboardLayout = () => {
                 Welcome to your health dashboard
               </p>
             </div>
-          </div>
+          </div> */}
           
           <Outlet />
         </main>

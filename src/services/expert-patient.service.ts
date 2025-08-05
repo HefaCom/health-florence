@@ -63,7 +63,18 @@ class ExpertPatientService {
         variables: { input }
       });
 
-      return (result as any).data.createExpertPatient;
+      // Check if the mutation succeeded but there are errors
+      if (result.data?.createExpertPatient && result.errors && result.errors.length > 0) {
+        console.warn('Expert patient created but with errors:', result.errors);
+        // Return the data even if there are errors, since the creation succeeded
+        return result.data.createExpertPatient;
+      }
+
+      if (!result.data?.createExpertPatient) {
+        throw new Error('Failed to create expert-patient relationship');
+      }
+
+      return result.data.createExpertPatient;
     } catch (error) {
       console.error('Error adding expert to patient:', error);
       throw error;
@@ -150,22 +161,21 @@ class ExpertPatientService {
    */
   async hasExpert(userId: string, expertId: string): Promise<boolean> {
     try {
+      // Try to get all expert patients for the user first
       const result = await client.graphql({
-        query: listExpertPatientsQuery,
-        variables: {
-          filter: { 
-            and: [
-              { userId: { eq: userId } },
-              { expertId: { eq: expertId } }
-            ]
-          }
-        }
+        query: listExpertPatientsQuery
       });
 
       const relationships = (result as any).data.listExpertPatients.items;
-      return relationships.length > 0;
+      // Filter client-side to check if the relationship exists
+      const hasRelationship = relationships.some((rel: ExpertPatient) => 
+        rel.userId === userId && rel.expertId === expertId
+      );
+      
+      return hasRelationship;
     } catch (error) {
       console.error('Error checking expert relationship:', error);
+      // If we can't check, assume they don't have the expert to avoid duplicates
       return false;
     }
   }
