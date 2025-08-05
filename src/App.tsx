@@ -12,10 +12,26 @@ import { AdminLayout } from "@/components/AdminLayout";
 
 // User pages
 import Index from "./pages/Index";
+import DietaryPlan from "./pages/DietaryPlan";
+import HealthGoals from "./pages/HealthGoals";
+import HealthProfile from "./pages/HealthProfile";
 import Appointments from "./pages/Appointments";
 import FindDoctor from "./pages/FindDoctor";
 import Insurance from "./pages/Insurance";
 import Profile from "./pages/Profile";
+
+// Expert portal pages
+import ExpertLogin from "./pages/expert/ExpertLogin";
+import ExpertDashboard from "./pages/expert/ExpertDashboard";
+import ExpertPatients from "./pages/expert/ExpertPatients";
+import ExpertAppointments from "./pages/expert/ExpertAppointments";
+import ExpertRecords from "./pages/expert/ExpertRecords";
+import ExpertConsultations from "./pages/expert/ExpertConsultations";
+import ExpertAnalytics from "./pages/expert/ExpertAnalytics";
+import ExpertMessages from "./pages/expert/ExpertMessages";
+import ExpertActivity from "./pages/expert/ExpertActivity";
+import ExpertFlorence from "./pages/expert/ExpertFlorence";
+import { ExpertLayout } from "./components/expert/ExpertLayout";
 
 // Auth pages
 import Login from "./pages/Login";
@@ -58,6 +74,9 @@ const App = () => (
                   </ProtectedRoute>
                 }>
                   <Route index element={<Index />} />
+                  <Route path="dietary-plan" element={<DietaryPlan />} />
+                  <Route path="health-goals" element={<HealthGoals />} />
+                  <Route path="health-profile" element={<HealthProfile />} />
                   <Route path="appointments" element={<Appointments />} />
                   <Route path="find-doctor" element={<FindDoctor />} />
                   <Route path="insurance" element={<Insurance />} />
@@ -78,6 +97,20 @@ const App = () => (
                   <Route path="audit-trails" element={<AdminAuditTrails />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>
+
+                {/* Expert Portal Routes */}
+                <Route path="/expert" element={<ExpertLogin />} />
+                        <Route path="/expert/dashboard" element={<ExpertLayout />}>
+          <Route index element={<ExpertDashboard />} />
+          <Route path="florence" element={<ExpertFlorence />} />
+          <Route path="patients" element={<ExpertPatients />} />
+          <Route path="appointments" element={<ExpertAppointments />} />
+          <Route path="records" element={<ExpertRecords />} />
+          <Route path="consultations" element={<ExpertConsultations />} />
+          <Route path="analytics" element={<ExpertAnalytics />} />
+          <Route path="messages" element={<ExpertMessages />} />
+          <Route path="activity" element={<ExpertActivity />} />
+        </Route>
                 
                 {/* 404 Route */}
                 <Route path="*" element={<NotFound />} />

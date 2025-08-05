@@ -4,7 +4,8 @@ import { HealthMetric } from "@/components/dashboard/HealthMetric";
 import { MedicationReminder } from "@/components/dashboard/MedicationReminder";
 import { TokenRewards } from "@/components/dashboard/TokenRewards";
 import { AppointmentCard } from "@/components/dashboard/AppointmentCard";
-import { Activity, Footprints, Heart, Timer } from "lucide-react";
+
+import { Activity, Footprints, Heart, Timer, Apple, Target, UserCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { FloLogo } from "@/components/FloLogo";
 
@@ -122,6 +123,45 @@ const Index = () => {
                 onMarkTaken={handleMarkTaken}
               />
               <AppointmentCard appointments={appointments} />
+              
+              {/* Quick Access to New Features */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <Card className="p-4 rounded-florence card-glow hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/dietary-plan'}>
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <Apple className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Dietary Plan</h3>
+                      <p className="text-sm text-muted-foreground">AI-powered nutrition recommendations</p>
+                    </div>
+                  </div>
+                </Card>
+                
+                <Card className="p-4 rounded-florence card-glow hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/health-goals'}>
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Target className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Health Goals</h3>
+                      <p className="text-sm text-muted-foreground">Track progress and earn HAIC rewards</p>
+                    </div>
+                  </div>
+                </Card>
+                
+                <Card className="p-4 rounded-florence card-glow hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/health-profile'}>
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <UserCheck className="h-6 w-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Health Profile</h3>
+                      <p className="text-sm text-muted-foreground">Manage your health information</p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </div>
           </div>
 

@@ -87,8 +87,10 @@ class XRPLService {
     return hex.padEnd(40, '0');
   }
 
-  // Submit audit trail to XRPL
-  async submitAuditTrail(merkleRoot: string) {
+  // Submit audit trail to XRPL with retry mechanism
+  async submitAuditTrail(merkleRoot: string, retryCount: number = 0) {
+    const maxRetries = 3;
+    
     try {
       // Ensure connection and wallet
       if (!this.client || !this.wallet) {
@@ -126,11 +128,39 @@ class XRPLService {
       
       if (submitResult.result.engine_result === 'tesSUCCESS' ||
           submitResult.result.engine_result === 'terQUEUED') {
-        return {
-          success: true,
-          hash: submitResult.result.tx_json.hash,
-          status: submitResult.result.engine_result
-        };
+        
+        // Validate the transaction hash format
+        const hash = submitResult.result.tx_json?.hash;
+        if (hash && this.isValidXRPLHash(hash)) {
+          return {
+            success: true,
+            hash: hash,
+            status: submitResult.result.engine_result
+          };
+        } else {
+          console.warn('Invalid transaction hash format:', hash);
+          
+          // Retry if we have attempts left
+          if (retryCount < maxRetries) {
+            console.log(`Retrying XRPL submission (attempt ${retryCount + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+            return this.submitAuditTrail(merkleRoot, retryCount + 1);
+          }
+          
+          return {
+            success: false,
+            hash: undefined,
+            error: 'Invalid transaction hash format after retries'
+          };
+        }
+      }
+
+      // Handle specific error cases
+      if (submitResult.result.engine_result === 'terPRE_SEQ' && retryCount < maxRetries) {
+        // Sequence number too low, retry
+        console.log(`Sequence number too low, retrying (attempt ${retryCount + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+        return this.submitAuditTrail(merkleRoot, retryCount + 1);
       }
 
       return {
@@ -140,12 +170,81 @@ class XRPLService {
       };
     } catch (error) {
       console.error('Failed to submit audit trail:', error);
+      
+      // Retry on connection errors
+      if (retryCount < maxRetries && this.isRetryableError(error)) {
+        console.log(`Retrying due to error (attempt ${retryCount + 1}/${maxRetries}):`, error);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+        return this.submitAuditTrail(merkleRoot, retryCount + 1);
+      }
+      
       return {
         success: false,
         hash: undefined,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
+  }
+
+  // Validate XRPL transaction hash format
+  private isValidXRPLHash(hash: string): boolean {
+    // XRPL transaction hashes should be 64-character hexadecimal strings
+    const hashRegex = /^[A-Fa-f0-9]{64}$/;
+    return hashRegex.test(hash);
+  }
+
+  // Public method to validate transaction hash format
+  public validateTransactionHash(hash: string): { isValid: boolean; error?: string } {
+    if (!hash) {
+      return { isValid: false, error: 'Transaction hash is required' };
+    }
+    
+    if (typeof hash !== 'string') {
+      return { isValid: false, error: 'Transaction hash must be a string' };
+    }
+    
+    if (hash.length !== 64) {
+      return { isValid: false, error: `Transaction hash must be 64 characters long, got ${hash.length}` };
+    }
+    
+    if (!this.isValidXRPLHash(hash)) {
+      return { isValid: false, error: 'Transaction hash must contain only hexadecimal characters (0-9, A-F)' };
+    }
+    
+    return { isValid: true };
+  }
+
+  // Get detailed error information for debugging
+  public getTransactionErrorDetails(error: any): string {
+    if (error instanceof Error) {
+      return `${error.name}: ${error.message}`;
+    }
+    
+    if (typeof error === 'string') {
+      return error;
+    }
+    
+    if (error && typeof error === 'object') {
+      return JSON.stringify(error, null, 2);
+    }
+    
+    return 'Unknown error';
+  }
+
+  // Check if an error is retryable
+  private isRetryableError(error: any): boolean {
+    const retryableErrors = [
+      'Connection failed',
+      'Network error',
+      'Timeout',
+      'ECONNRESET',
+      'ENOTFOUND'
+    ];
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return retryableErrors.some(retryableError => 
+      errorMessage.toLowerCase().includes(retryableError.toLowerCase())
+    );
   }
 
   // Issue HAIC tokens

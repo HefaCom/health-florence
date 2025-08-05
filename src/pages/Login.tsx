@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FloLogo } from "@/components/FloLogo";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,25 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { login, user, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
 
   // Get the redirect path from location state or default to home
   const from = (location.state as any)?.from?.pathname || "/";
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user) {
+      // Redirect to appropriate dashboard based on user role
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate(from);
+      }
+    }
+  }, [isAuthenticated, user, isLoading, navigate, from]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,12 +40,8 @@ const Login = () => {
     const success = await login(email, password);
 
     if (success) {
-      // Redirect to the appropriate dashboard based on user role
-      if (email === "admin@florence.com") {
-        navigate("/admin");
-      } else {
-        navigate(from);
-      }
+      // The redirect will be handled by the useEffect above
+      // based on the user's role
     }
 
     setIsSubmitting(false);
@@ -42,14 +50,30 @@ const Login = () => {
   const handleDemoLogin = async (role: "user" | "admin") => {
     setIsSubmitting(true);
     if (role === "admin") {
-      await login("admin@florence.com", "admin123");
-      navigate("/admin");
+      await login("toptutor0001@gmail.com", "admin123");
+      // Navigation will be handled by useEffect
     } else {
       await login("user@florence.com", "password123");
-      navigate("/");
+      // Navigation will be handled by useEffect
     }
     setIsSubmitting(false);
   };
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden flex flex-col">
+        <div className="flex flex-col items-center justify-center flex-1 px-4 py-12">
+          <div className="w-full max-w-md bg-card/95 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden">
+            <div className="p-8 text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+              <p className="text-muted-foreground">Checking authentication...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden flex flex-col">

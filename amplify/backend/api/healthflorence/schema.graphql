@@ -19,9 +19,16 @@ type User @model @auth(rules: [
   allergies: String
   medicalConditions: String
   currentMedications: String
+  height: Float
+  weight: Float
+  gender: String
+  bloodType: String
   role: String! @default(value: "user")
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
+  dietaryPlans: [DietaryPlan] @hasMany(fields: ["id"])
+  healthGoals: [HealthGoal] @hasMany(fields: ["id"])
+  healthConditions: [HealthCondition] @hasMany(fields: ["id"])
 }
 
 type Doctor @model @auth(rules: [
@@ -78,6 +85,79 @@ type AuditBatch @model @auth(rules: [
   merkleRoot: String!
   transactionHash: String!
   events: [AuditEvent] @hasMany
+}
+
+type DietaryPlan @model @auth(rules: [
+  { allow: owner, operations: [create, read, update, delete] }
+]) {
+  id: ID!
+  userId: ID!
+  name: String!
+  category: String! # breakfast, lunch, dinner, snack
+  calories: Int!
+  protein: Float!
+  carbs: Float!
+  fat: Float!
+  fiber: Float!
+  isRecommended: Boolean!
+  isCompleted: Boolean!
+  time: String
+  reason: String
+  user: User @belongsTo(fields: ["userId"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type HealthGoal @model @auth(rules: [
+  { allow: owner, operations: [create, read, update, delete] }
+]) {
+  id: ID!
+  userId: ID!
+  title: String!
+  description: String!
+  category: String! # fitness, nutrition, mental, medical, lifestyle
+  target: Float!
+  current: Float!
+  unit: String!
+  deadline: AWSDate!
+  isCompleted: Boolean!
+  isRecommended: Boolean!
+  priority: String! # low, medium, high
+  reward: Int! # HAIC tokens
+  reason: String
+  user: User @belongsTo(fields: ["userId"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type HealthCondition @model @auth(rules: [
+  { allow: owner, operations: [create, read, update, delete] }
+]) {
+  id: ID!
+  userId: ID!
+  name: String!
+  severity: String! # mild, moderate, severe
+  status: String! # active, managed, resolved
+  diagnosedDate: AWSDate!
+  description: String!
+  medications: [String]
+  user: User @belongsTo(fields: ["userId"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type HAICReward @model @auth(rules: [
+  { allow: owner, operations: [create, read, update] }
+]) {
+  id: ID!
+  userId: ID!
+  amount: Int!
+  reason: String!
+  category: String! # goal_completion, dietary_adherence, appointment_attendance, health_checkin
+  transactionHash: String
+  user: User @belongsTo(fields: ["userId"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
 }
 
 input CreateUserInput {

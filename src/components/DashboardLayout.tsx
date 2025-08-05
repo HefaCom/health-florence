@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { Outlet } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NavigationBar } from "@/components/NavigationBar";
@@ -10,6 +10,22 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { generateClient } from "aws-amplify/api";
 import { GraphQLResult } from '@aws-amplify/api';
+
+// Create a context to share sidebar state
+interface SidebarContextType {
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
+}
+
+const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
+
+export const useSidebar = () => {
+  const context = useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider");
+  }
+  return context;
+};
 
 interface UserData {
   listUsers: {
@@ -25,6 +41,7 @@ const client = generateClient();
 export const DashboardLayout = () => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { user, logout } = useAuth();
   const [userData, setUserData] = useState<{ firstName: string; lastName: string; } | null>(null);
   
@@ -99,24 +116,29 @@ export const DashboardLayout = () => {
   }, [isMobile]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <NavigationBar 
-        showSidebarTrigger={isMobile} 
-        onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
-        isSidebarOpen={sidebarOpen}
-      />
-      
-      <div className="flex flex-1 overflow-hidden">
-        {/* Mobile Sidebar */}
-        {isMobile && (
-          <MobileSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        )}
+    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed }}>
+      <div className="min-h-screen flex flex-col bg-background">
+        <NavigationBar 
+          showSidebarTrigger={isMobile} 
+          onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
+          isSidebarOpen={sidebarOpen}
+        />
         
-        {/* Desktop Sidebar */}
-        {!isMobile && <DesktopSidebar />}
-        
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto">
+        <div className="flex flex-1 relative">
+          {/* Mobile Sidebar */}
+          {isMobile && (
+            <MobileSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          )}
+          
+          {/* Desktop Sidebar - Fixed Position */}
+          {!isMobile && (
+            <div className="fixed left-0 top-[138px] bottom-0 z-20">
+              <DesktopSidebar />
+            </div>
+          )}
+          
+          {/* Main Content - With dynamic margin for fixed sidebar */}
+          <main className={`flex-1 overflow-auto transition-all duration-300 ${!isMobile ? (isCollapsed ? 'ml-16' : 'ml-64') : ''}`}>
           {/* Personalized Greeting */}
           <div className="bg-card/50 backdrop-blur-sm border-b p-4">
             <div className="container mx-auto">
@@ -144,6 +166,7 @@ export const DashboardLayout = () => {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </SidebarContext.Provider>
   );
 };

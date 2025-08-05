@@ -1,5 +1,5 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "help-me-nurse",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -18,6 +18,7 @@
     "@aws-sdk/client-dynamodb": "^3.788.0",
     "@aws-sdk/client-lambda": "^3.787.0",
     "@aws-sdk/client-s3": "^3.787.0",
+    "@google/genai": "^1.12.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",

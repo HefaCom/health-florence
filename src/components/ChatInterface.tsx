@@ -6,6 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { FloLogoSmall } from "@/components/FloLogo";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { florenceService } from "@/services/florence.service";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 type Message = {
   id: string;
@@ -30,9 +32,11 @@ export function ChatInterface({ onClose }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState("");
   const { toast } = useToast();
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim()) return;
 
+    const userMessage = inputValue;
+    
     // Add user message
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -43,16 +47,78 @@ export function ChatInterface({ onClose }: ChatInterfaceProps) {
     setMessages((prev) => [...prev, newMessage]);
     setInputValue("");
 
-    // Simulate Florence response
-    setTimeout(() => {
-      const florenceResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "I'm processing your request. As a demo, I can simulate responses to common health questions.",
-        sender: "florence",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, florenceResponse]);
-    }, 1000);
+    // Add loading message
+    const loadingMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: "Florence is thinking...",
+      sender: "florence",
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, loadingMessage]);
+
+    try {
+      // Get AI response from Florence service
+      const florenceResponse = await florenceService.processUserRequest(userMessage, {
+        // Add context here if needed
+        dietaryItems: [],
+        healthGoals: [],
+        healthProfile: {},
+        userPreferences: {}
+      });
+
+      // Remove loading message and add AI response
+      setMessages((prev) => {
+        const withoutLoading = prev.filter(msg => msg.id !== loadingMessage.id);
+        return [...withoutLoading, {
+          id: (Date.now() + 2).toString(),
+          text: florenceResponse.text,
+          sender: "florence",
+          timestamp: new Date(),
+        }];
+      });
+
+      // Handle any actions from Florence
+      if (florenceResponse.action) {
+        handleFlorenceAction(florenceResponse.action);
+      }
+
+    } catch (error) {
+      console.error('Error getting Florence response:', error);
+      
+      // Remove loading message and add error response
+      setMessages((prev) => {
+        const withoutLoading = prev.filter(msg => msg.id !== loadingMessage.id);
+        return [...withoutLoading, {
+          id: (Date.now() + 2).toString(),
+          text: "I'm having trouble processing your request right now. Please try again.",
+          sender: "florence",
+          timestamp: new Date(),
+        }];
+      });
+    }
+  };
+
+  const handleFlorenceAction = (action: any) => {
+    switch (action.type) {
+      case 'update_dietary':
+        console.log('Florence wants to update dietary plan:', action.data);
+        // Trigger dietary plan update
+        break;
+      case 'update_goals':
+        console.log('Florence wants to update health goals:', action.data);
+        // Trigger health goals update
+        break;
+      case 'update_profile':
+        console.log('Florence wants to update health profile:', action.data);
+        // Trigger health profile update
+        break;
+      case 'award_tokens':
+        console.log('Florence wants to award tokens:', action.data);
+        // Trigger token award
+        break;
+      default:
+        console.log('Unknown Florence action:', action);
+    }
   };
 
   const handleVoice = () => {
@@ -99,7 +165,14 @@ export function ChatInterface({ onClose }: ChatInterfaceProps) {
                     : "bg-muted"
                 }`}
               >
-                <p className="text-sm">{message.text}</p>
+                {message.sender === "florence" ? (
+                  <MarkdownRenderer 
+                    content={message.text} 
+                    className="text-sm"
+                  />
+                ) : (
+                  <p className="text-sm">{message.text}</p>
+                )}
                 <p className="text-xs opacity-70 mt-1">
                   {message.timestamp.toLocaleTimeString([], {
                     hour: "2-digit",

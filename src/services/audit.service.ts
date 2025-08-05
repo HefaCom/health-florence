@@ -118,40 +118,65 @@ class AuditService {
       }
 
       let transactionHash: string | null = null;
+      let xrplError: string | null = null;
 
       // Try to submit to XRPL
       try {
         if (TESTING_MODE) {
           console.log(`📤 Submitting to XRPL with merkle root: ${merkleRoot}`);
         }
+        
+        const startTime = Date.now();
         const xrplResult = await xrplService.submitAuditTrail(merkleRoot);
-        if (xrplResult.success) {
-          transactionHash = xrplResult.hash;
-          if (TESTING_MODE) {
-            console.log(`✅ XRPL submission successful. Hash: ${transactionHash}`);
+        const endTime = Date.now();
+        
+        if (TESTING_MODE) {
+          console.log(`⏱️ XRPL submission took ${endTime - startTime}ms`);
+          console.log(`📊 XRPL Result:`, JSON.stringify(xrplResult, null, 2));
+        }
+        
+        if (xrplResult.success && xrplResult.hash) {
+          // Validate the hash format
+          const hashValidation = xrplService.validateTransactionHash(xrplResult.hash);
+          if (hashValidation.isValid) {
+            transactionHash = xrplResult.hash;
+            if (TESTING_MODE) {
+              console.log(`✅ XRPL submission successful. Hash: ${transactionHash}`);
+            }
+          } else {
+            xrplError = `Invalid hash format: ${hashValidation.error}`;
+            if (TESTING_MODE) {
+              console.error(`❌ Hash validation failed:`, hashValidation.error);
+            }
           }
         } else if (xrplResult.error === 'The transaction is redundant.') {
           // If the transaction is redundant, it means it was already submitted successfully
           if (TESTING_MODE) {
             console.log('ℹ️ XRPL submission was redundant (already submitted)');
           }
-          // Use a placeholder hash for redundant transactions
-          transactionHash = `redundant-${merkleRoot.substring(0, 8)}`;
+          // Don't create a placeholder hash for redundant transactions
+          // Instead, we'll handle this case differently
         } else {
-          console.warn('❌ XRPL submission failed:', xrplResult.error);
+          xrplError = xrplResult.error || 'Unknown XRPL error';
+          console.warn('❌ XRPL submission failed:', xrplError);
         }
       } catch (error) {
-        console.warn('❌ XRPL submission failed with error:', error);
+        xrplError = xrplService.getTransactionErrorDetails(error);
+        console.warn('❌ XRPL submission failed with error:', xrplError);
       }
 
       // Create audit batch regardless of XRPL status
       try {
         if (TESTING_MODE) {
           console.log(`📝 Creating audit batch with merkle root: ${merkleRoot}`);
+          console.log(`🔗 Transaction hash: ${transactionHash || 'null'}`);
+          if (xrplError) {
+            console.log(`⚠️ XRPL Error: ${xrplError}`);
+          }
         }
 
-        // If XRPL submission failed, use a placeholder transaction hash
-        const finalTransactionHash = transactionHash || `pending-${merkleRoot.substring(0, 8)}`;
+        // Only use valid transaction hashes, otherwise leave as null
+        const finalTransactionHash = transactionHash || 'pending';
 
         const batchResponse = await client.graphql({
           query: createAuditBatch,
@@ -190,6 +215,9 @@ class AuditService {
         }
       } catch (error) {
         console.error('❌ Failed to create audit batch:', error);
+        if (TESTING_MODE) {
+          console.error('Error details:', xrplService.getTransactionErrorDetails(error));
+        }
       }
 
       // Clear processed events
@@ -266,7 +294,7 @@ class AuditService {
             id: eventId,
             batchId,
             merkleRoot,
-            transactionHash
+            transactionHash: transactionHash || 'pending' // Use 'pending' for null hashes
           }
         },
         authMode: 'apiKey'

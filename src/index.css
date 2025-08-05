@@ -101,4 +101,41 @@
   .float-animation {
     @apply animate-float;
   }
+  
+  /* Markdown Styles for Florence Responses */
+  .florence-markdown h2 {
+    @apply text-lg font-bold text-foreground mt-4 mb-2;
+  }
+  
+  .florence-markdown h3 {
+    @apply text-base font-semibold text-foreground mt-3 mb-2;
+  }
+  
+  .florence-markdown p {
+    @apply text-sm text-foreground leading-relaxed mb-2;
+  }
+  
+  .florence-markdown strong {
+    @apply font-semibold text-foreground;
+  }
+  
+  .florence-markdown em {
+    @apply italic text-foreground;
+  }
+  
+  .florence-markdown ul {
+    @apply space-y-1 mb-3;
+  }
+  
+  .florence-markdown li {
+    @apply flex items-start;
+  }
+  
+  .florence-markdown .bullet {
+    @apply text-primary mr-2 mt-1 text-sm;
+  }
+  
+  .florence-markdown .list-content {
+    @apply flex-1 text-sm leading-relaxed;
+  }
 }

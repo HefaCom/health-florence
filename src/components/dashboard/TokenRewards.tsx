@@ -97,7 +97,7 @@ export function TokenRewards({ className }: TokenRewardsProps) {
       </div>
       
       <div className="p-4 bg-card">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2 mb-4">
           <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline" className="rounded-full text-xs">
@@ -157,9 +157,39 @@ export function TokenRewards({ className }: TokenRewardsProps) {
               </div>
             </DialogContent>
           </Dialog>
-          <Button size="sm" className="rounded-full text-xs">
+          <Button 
+            size="sm" 
+            className="rounded-full text-xs"
+            onClick={() => {
+              // This would show ways to earn HAIC tokens
+              console.log("Show earning opportunities");
+            }}
+          >
             Earn More
           </Button>
+        </div>
+
+        {/* Earning Opportunities */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-muted-foreground">Earn HAIC Tokens</h4>
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center justify-between p-2 bg-green-50 rounded">
+              <span>Complete Health Goals</span>
+              <span className="font-medium text-green-600">+25-100 HAIC</span>
+            </div>
+            <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
+              <span>Follow Dietary Plan</span>
+              <span className="font-medium text-blue-600">+10-50 HAIC</span>
+            </div>
+            <div className="flex items-center justify-between p-2 bg-purple-50 rounded">
+              <span>Attend Appointments</span>
+              <span className="font-medium text-purple-600">+30-75 HAIC</span>
+            </div>
+            <div className="flex items-center justify-between p-2 bg-orange-50 rounded">
+              <span>Daily Health Check-ins</span>
+              <span className="font-medium text-orange-600">+5-15 HAIC</span>
+            </div>
+          </div>
         </div>
       </div>
     </Card>

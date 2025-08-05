@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let role: UserRole = "user";
       
       // Check for admin role
-      if (attributes === "toptutor0001@gmail.com" ||  email === "trillo3@outlook.com" || email === "rightangletechbusinesssolution@gmail.com") {
+      if (attributes === "toptutor0001@gmail.com" || attributes === "trillo3@outlook.com" || attributes === "rightangletechbusinesssolution@gmail.com") {
         role = "admin";
       }
       // You can add more role checks here for nurse/doctor in the future
@@ -88,6 +88,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
+      // First check if user is already authenticated
+      try {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          // User is already authenticated, determine role and redirect
+          let role: UserRole = "user";
+          
+          // Check for admin role
+          if (email === "toptutor0001@gmail.com" || email === "trillo3@outlook.com" || email === "rightangletechbusinesssolution@gmail.com") {
+            role = "admin";
+          }
+          
+          const userData: User = {
+            email,
+            role,
+            attributes: { email }
+          };
+          
+          setUser(userData);
+          toast.success("Already signed in!");
+          setIsLoading(false);
+          return true;
+        }
+      } catch (authError) {
+        // User is not authenticated, proceed with sign in
+        console.log("No current user, proceeding with sign in");
+      }
+
       const { isSignedIn } = await signIn({ username: email, password });
       
       if (isSignedIn) {
@@ -95,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         let role: UserRole = "user";
         
         // Check for admin role
-        if (email === "toptutor0001@gmail.com" ||  email === "trillo3@outlook.com" || email === "rightangletechbusinesssolution@gmail.com") {
+        if (email === "toptutor0001@gmail.com" || email === "trillo3@outlook.com" || email === "rightangletechbusinesssolution@gmail.com") {
           role = "admin";
         }
         // You can add more role checks here for nurse/doctor in the future
@@ -117,6 +145,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } catch (error: any) {
       console.error("Login error:", error);
+      
+      // Handle specific error for already authenticated user
+      if (error.name === 'UserAlreadyAuthenticatedException') {
+        // User is already authenticated, get current user info
+        try {
+          const currentUser = await getCurrentUser();
+          let role: UserRole = "user";
+          
+          // Check for admin role
+          if (email === "toptutor0001@gmail.com" || email === "trillo3@outlook.com" || email === "rightangletechbusinesssolution@gmail.com") {
+            role = "admin";
+          }
+          
+          const userData: User = {
+            email,
+            role,
+            attributes: { email }
+          };
+          
+          setUser(userData);
+          toast.success("Already signed in!");
+          setIsLoading(false);
+          return true;
+        } catch (getUserError) {
+          console.error("Error getting current user:", getUserError);
+          toast.error("Authentication error");
+          setIsLoading(false);
+          return false;
+        }
+      }
+      
       toast.error(error.message || "Failed to login");
       setIsLoading(false);
       return false;

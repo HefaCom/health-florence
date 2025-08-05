@@ -10,7 +10,10 @@ import {
   SearchCheck, 
   Shield, 
   ChevronRight,
-  LogOut
+  LogOut,
+  Apple,
+  Target,
+  UserCheck
 } from "lucide-react";
 
 interface MobileSidebarProps {
@@ -31,6 +34,21 @@ export const MobileSidebar = ({ open, onClose }: MobileSidebarProps) => {
       name: "Dashboard",
       path: "/",
       icon: <LayoutDashboard className="h-5 w-5" />
+    },
+    {
+      name: "Dietary Plan",
+      path: "/dietary-plan",
+      icon: <Apple className="h-5 w-5" />
+    },
+    {
+      name: "Health Goals",
+      path: "/health-goals",
+      icon: <Target className="h-5 w-5" />
+    },
+    {
+      name: "Health Profile",
+      path: "/health-profile",
+      icon: <UserCheck className="h-5 w-5" />
     },
     {
       name: "Appointments",

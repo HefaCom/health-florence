@@ -27,6 +27,7 @@ import { Search, Filter, Clock, User, FileText } from "lucide-react";
 import { generateClient } from 'aws-amplify/api';
 import { listAuditEvents } from '../../graphql/queries';
 import { GraphQLResult } from '@aws-amplify/api';
+import { xrplService } from '../../services/xrpl.service';
 
 const client = generateClient();
 
@@ -167,6 +168,49 @@ const AdminAuditTrails = () => {
     }
   };
 
+  // Validate transaction hash format
+  const validateTransactionHash = (hash: string) => {
+    if (!hash || hash === 'pending') {
+      return { isValid: false, status: 'pending' };
+    }
+    
+    const validation = xrplService.validateTransactionHash(hash);
+    return {
+      isValid: validation.isValid,
+      status: validation.isValid ? 'valid' : 'invalid',
+      error: validation.error
+    };
+  };
+
+  const getTransactionHashDisplay = (hash: string) => {
+    const validation = validateTransactionHash(hash);
+    
+    if (validation.status === 'pending') {
+      return <span className="text-yellow-600">Pending</span>;
+    }
+    
+    if (validation.status === 'invalid') {
+      return (
+        <span className="text-red-600" title={validation.error}>
+          Invalid Hash
+        </span>
+      );
+    }
+    
+    // Valid hash - show as link to XRPL explorer
+    return (
+      <a
+        href={`https://testnet.xrpl.org/transactions/${hash}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary hover:underline"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {hash.slice(0, 8)}...
+      </a>
+    );
+  };
+
   const filteredEvents = auditEvents.filter(event => 
     searchQuery === "" || 
     event.userId.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -274,15 +318,7 @@ const AdminAuditTrails = () => {
                     <TableCell>{event.resourceId}</TableCell>
                     <TableCell className="font-mono text-xs">
                       {event.transactionHash ? (
-                        <a
-                          href={`https://testnet.xrpl.org/transactions/${event.transactionHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {event.transactionHash.slice(0, 8)}...
-                        </a>
+                        getTransactionHashDisplay(event.transactionHash)
                       ) : (
                         "Pending"
                       )}
@@ -322,14 +358,7 @@ const AdminAuditTrails = () => {
                     <h4 className="font-semibold mb-1">XRPL Status</h4>
                     <p className="text-sm">
                       {selectedEvent.transactionHash ? (
-                        <a
-                          href={`https://testnet.xrpl.org/transactions/${selectedEvent.transactionHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          View on XRPL Explorer
-                        </a>
+                        getTransactionHashDisplay(selectedEvent.transactionHash)
                       ) : (
                         "Pending XRPL Confirmation"
                       )}
