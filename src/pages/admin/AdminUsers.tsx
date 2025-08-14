@@ -279,7 +279,7 @@ const AdminUsers = () => {
                           </div>
                           <div>
                             <div className="font-medium">
-                              {user.firstName} {user.lastName}
+                              {user.firstName?.trim()} {user.lastName?.trim()}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               ID: {user.id}
@@ -334,7 +334,7 @@ const AdminUsers = () => {
                               Set as Admin
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => handleDeleteUser(user.id, `${user.firstName} ${user.lastName}`)}
+                              onClick={() => handleDeleteUser(user.id, `${user.firstName?.trim()} ${user.lastName?.trim()}`)}
                               className="text-red-600"
                             >
                               Delete User

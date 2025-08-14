@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   Calendar, 
   Clock, 
@@ -13,62 +13,67 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { generateClient } from "aws-amplify/api";
+import { getAppointment } from "@/graphql/queries";
 
-// Mock appointment data
-const mockAppointments = [
-  {
-    id: "1",
-    patientName: "Sarah Johnson",
-    patientEmail: "sarah.j@example.com",
-    date: "2023-06-15",
-    time: "09:30 AM",
-    doctor: "Dr. Michael Chen",
-    specialty: "Cardiologist",
-    status: "upcoming",
-    notes: "Follow-up on recent test results"
-  },
-  {
-    id: "2",
-    patientName: "Robert Davis",
-    patientEmail: "robert.d@example.com",
-    date: "2023-06-15",
-    time: "11:00 AM",
-    doctor: "Dr. Emily Wong",
-    specialty: "Dermatologist",
-    status: "upcoming",
-    notes: "Annual skin checkup"
-  },
-  {
-    id: "3",
-    patientName: "James Wilson",
-    patientEmail: "james.w@example.com",
-    date: "2023-06-14",
-    time: "02:15 PM",
-    doctor: "Dr. Lisa Martinez",
-    specialty: "Neurologist",
-    status: "completed",
-    notes: "Headache assessment"
-  },
-  {
-    id: "4",
-    patientName: "Maria Garcia",
-    patientEmail: "maria.g@example.com",
-    date: "2023-06-14",
-    time: "04:00 PM",
-    doctor: "Dr. John Smith",
-    specialty: "General Practitioner",
-    status: "cancelled",
-    notes: "Rescheduled to next week"
+// Custom query to get appointments with expert user data
+const LIST_APPOINTMENTS_WITH_EXPERT_USER = /* GraphQL */ `
+  query ListAppointmentsWithExpertUser($filter: ModelAppointmentFilterInput, $limit: Int, $nextToken: String) {
+    listAppointments(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        userId
+        expertId
+        date
+        status
+        type
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
+        expert {
+          id
+          specialization
+          user {
+            id
+            email
+            firstName
+            lastName
+          }
+        }
+      }
+      nextToken
+    }
   }
-];
+`;
+import { updateAppointment } from "@/graphql/mutations";
+import { toast } from "sonner";
 
-const AppointmentCard = ({ appointment }: { appointment: typeof mockAppointments[0] }) => {
+const client = generateClient();
+
+type AppointmentStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
+
+interface AdminAppointment {
+  id: string;
+  patientName: string;
+  patientEmail?: string;
+  date: string; // formatted date
+  time: string; // formatted time
+  doctor: string;
+  specialty?: string;
+  status: AppointmentStatus;
+  notes?: string;
+}
+
+const AppointmentCard = ({ appointment }: { appointment: AdminAppointment }) => {
   const navigate = useNavigate();
   
   const statusColors = {
-    upcoming: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-    completed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-    cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+    SCHEDULED: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+    COMPLETED: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+    CANCELLED: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
   };
 
   return (
@@ -93,9 +98,9 @@ const AppointmentCard = ({ appointment }: { appointment: typeof mockAppointments
             
             <div className="mt-3">
               <Badge 
-                className={`${statusColors[appointment.status as keyof typeof statusColors]} bg-opacity-20`}
+                className={`${statusColors[appointment.status]} bg-opacity-20`}
               >
-                {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                {appointment.status}
               </Badge>
             </div>
           </div>
@@ -109,17 +114,6 @@ const AppointmentCard = ({ appointment }: { appointment: typeof mockAppointments
             >
               View <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
-            
-            {appointment.status === "upcoming" && (
-              <>
-                <Button size="sm" variant="default" className="flex items-center">
-                  <Check className="h-4 w-4 mr-1" /> Complete
-                </Button>
-                <Button size="sm" variant="destructive" className="flex items-center">
-                  <X className="h-4 w-4 mr-1" /> Cancel
-                </Button>
-              </>
-            )}
           </div>
         </div>
       </CardContent>
@@ -128,12 +122,49 @@ const AppointmentCard = ({ appointment }: { appointment: typeof mockAppointments
 };
 
 const AdminAppointments = () => {
-  const [activeTab, setActiveTab] = useState("all");
-  
-  const filteredAppointments = mockAppointments.filter(appointment => {
-    if (activeTab === "all") return true;
-    return appointment.status === activeTab;
-  });
+  const [activeTab, setActiveTab] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [appointments, setAppointments] = useState<AdminAppointment[]>([]);
+
+  const fetchAppointments = async () => {
+    setIsLoading(true);
+    try {
+      const res = await client.graphql({ query: LIST_APPOINTMENTS_WITH_EXPERT_USER });
+      const items = (res as any).data?.listAppointments?.items || [];
+      const mapped: AdminAppointment[] = items.map((a: any) => {
+        const patientName = a.user ? `${a.user.firstName} ${a.user.lastName}` : a.userId;
+        const patientEmail = a.user?.email;
+        const doctorName = a.expert?.user ? `${a.expert.user.firstName?.trim()} ${a.expert.user.lastName?.trim()}` : a.expert?.specialization || 'Expert';
+        const specialty = a.expert?.specialization;
+        const d = new Date(a.date);
+        return {
+          id: a.id,
+          patientName,
+          patientEmail,
+          date: d.toLocaleDateString(),
+          time: d.toLocaleTimeString(),
+          doctor: doctorName,
+          specialty,
+          status: (a.status as AppointmentStatus) || 'SCHEDULED',
+          notes: a.notes || ''
+        };
+      });
+      setAppointments(mapped);
+    } catch (e) {
+      console.error('Failed to load appointments', e);
+      toast.error('Failed to load appointments');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const filteredAppointments = activeTab === 'all' 
+    ? appointments 
+    : appointments.filter(a => a.status === activeTab);
 
   return (
     <div className="space-y-6">
@@ -145,13 +176,19 @@ const AdminAppointments = () => {
       <Tabs defaultValue="all" onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
+          <TabsTrigger value="SCHEDULED">Scheduled</TabsTrigger>
+          <TabsTrigger value="COMPLETED">Completed</TabsTrigger>
+          <TabsTrigger value="CANCELLED">Cancelled</TabsTrigger>
         </TabsList>
         
         <TabsContent value={activeTab} className="mt-6">
-          {filteredAppointments.length === 0 ? (
+          {isLoading ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-10">
+                <p className="text-center text-muted-foreground">Loading appointments...</p>
+              </CardContent>
+            </Card>
+          ) : filteredAppointments.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-10">
                 <p className="text-center text-muted-foreground">No appointments found</p>

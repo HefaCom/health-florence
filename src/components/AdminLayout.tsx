@@ -10,7 +10,9 @@ import {
   Bell, 
   LogOut,
   MessageCircle,
-  History
+  History,
+  Stethoscope,
+  Bot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -75,6 +77,11 @@ export const AdminLayout = () => {
       icon: <Users className="h-5 w-5" />
     },
     {
+      name: "Experts",
+      path: "/admin/experts",
+      icon: <Stethoscope className="h-5 w-5" />
+    },
+    {
       name: "Appointments",
       path: "/admin/appointments",
       icon: <Calendar className="h-5 w-5" />
@@ -88,6 +95,11 @@ export const AdminLayout = () => {
       name: "Audit Trails",
       path: "/admin/audit-trails",
       icon: <History className="h-5 w-5" />
+    },
+    {
+      name: "Florence AI",
+      path: "/admin/florence",
+      icon: <Bot className="h-5 w-5" />
     },
     {
       name: "Settings",

@@ -232,7 +232,7 @@ export default function ExpertProfile() {
                   <User className="h-12 w-12 text-blue-600" />
                 </div>
                 <h3 className="font-semibold text-lg">
-                  {expert.user?.firstName} {expert.user?.lastName}
+                  {expert.user?.firstName?.trim()} {expert.user?.lastName?.trim()}
                 </h3>
                 <p className="text-gray-600">{expert.user?.email}</p>
               </div>

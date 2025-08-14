@@ -12,6 +12,25 @@ import {
 // Generate API client
 const client = generateClient();
 
+// Custom query to get expert with user data by userId
+const GET_EXPERT_BY_USER_ID_WITH_USER = /* GraphQL */ `
+  query GetExpertByUserIdWithUser($userId: String!) {
+    listExperts(filter: { userId: { eq: $userId } }, limit: 1) {
+      items {
+        id
+        userId
+        specialization
+        user {
+          id
+          email
+          firstName
+          lastName
+        }
+      }
+    }
+  }
+`;
+
 export interface Expert {
   id: string;
   userId: string;
@@ -139,9 +158,9 @@ class ExpertService {
   async getExpertByUserId(userId: string): Promise<Expert | null> {
     try {
       const result = await client.graphql({
-        query: listExpertsQuery,
+        query: GET_EXPERT_BY_USER_ID_WITH_USER,
         variables: {
-          filter: { userId: { eq: userId } }
+          userId
         }
       });
 

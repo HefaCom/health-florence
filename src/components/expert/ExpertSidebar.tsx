@@ -59,26 +59,26 @@ export const ExpertSidebar = () => {
       path: "/expert/dashboard/records",
       icon: <FileText className="h-5 w-5" />
     },
-    {
-      name: "Consultations",
-      path: "/expert/dashboard/consultations",
-      icon: <Stethoscope className="h-5 w-5" />
-    },
-    {
-      name: "Health Analytics",
-      path: "/expert/dashboard/analytics",
-      icon: <BarChart3 className="h-5 w-5" />
-    },
+    // {
+    //   name: "Consultations",
+    //   path: "/expert/dashboard/consultations",
+    //   icon: <Stethoscope className="h-5 w-5" />
+    // },
+    // {
+    //   name: "Health Analytics",
+    //   path: "/expert/dashboard/analytics",
+    //   icon: <BarChart3 className="h-5 w-5" />
+    // },
     {
       name: "Messages",
       path: "/expert/dashboard/messages",
       icon: <MessageSquare className="h-5 w-5" />
     },
-    {
-      name: "Activity Log",
-      path: "/expert/dashboard/activity",
-      icon: <Activity className="h-5 w-5" />
-    }
+    // {
+    //   name: "Activity Log",
+    //   path: "/expert/dashboard/activity",
+    //   icon: <Activity className="h-5 w-5" />
+    // }
   ];
 
   const handleLogout = async () => {

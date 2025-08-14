@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, Plus, CheckCircle, XCircle, AlertCircle, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
-import { listAppointments } from "@/graphql/queries";
+import { listAppointments, listExperts } from "@/graphql/queries";
 import { updateAppointment } from "@/graphql/mutations";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AppointmentType {
   id: string;
@@ -40,28 +43,42 @@ export default function ExpertAppointments() {
   const [appointments, setAppointments] = useState<AppointmentType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [reschedule, setReschedule] = useState<{open: boolean; id: string; date: string; time: string}>({ open: false, id: '', date: '', time: '' });
+  const [expertId, setExpertId] = useState<string | null>(null);
   const client = generateClient();
 
   const fetchAppointments = async () => {
     if (!user) return;
-    
     setIsLoading(true);
     try {
+      // Resolve Expert.id for this user
+      let resolvedExpertId = expertId;
+      if (!resolvedExpertId) {
+        const expertsRes = await client.graphql({
+          query: listExperts,
+          variables: { filter: { userId: { eq: user.id } }, limit: 1 }
+        });
+        const expert = (expertsRes as any).data?.listExperts?.items?.[0];
+        resolvedExpertId = expert?.id || null;
+        setExpertId(resolvedExpertId);
+      }
+
+      if (!resolvedExpertId) {
+        setAppointments([]);
+        return;
+      }
+
       const response = await client.graphql({
         query: listAppointments,
-        variables: {
-          filter: {
-            expertId: { eq: user.id }
-          }
-        }
+        variables: { filter: { expertId: { eq: resolvedExpertId } }, limit: 500 }
       });
 
-      if (response.data?.listAppointments?.items) {
-        setAppointments(response.data.listAppointments.items as unknown as AppointmentType[]);
-      }
+      const items = (response as any).data?.listAppointments?.items || [];
+      setAppointments(items as AppointmentType[]);
     } catch (error) {
       console.error('Error fetching appointments:', error);
       toast.error("Failed to load appointments");
+      setAppointments([]);
     } finally {
       setIsLoading(false);
     }
@@ -91,9 +108,14 @@ export default function ExpertAppointments() {
     }
   };
 
+  const availableTimes = [
+    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
+  ];
+
   const filteredAppointments = filter === "all" 
     ? appointments 
-    : appointments.filter(app => app.status.toLowerCase() === filter);
+    : appointments.filter(app => (app.status || '').toLowerCase() === filter);
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
@@ -267,6 +289,13 @@ export default function ExpertAppointments() {
                       <XCircle className="h-4 w-4 mr-1" />
                       Cancel
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setReschedule({ open: true, id: appointment.id, date: '', time: '' })}
+                    >
+                      Reschedule
+                    </Button>
                   </div>
                 )}
               </CardContent>
@@ -274,6 +303,64 @@ export default function ExpertAppointments() {
           ))}
         </div>
       )}
+
+      {/* Reschedule Dialog */}
+      <Dialog open={reschedule.open} onOpenChange={(open) => setReschedule(prev => ({ ...prev, open }))}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reschedule Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Date</label>
+              <Input type="date" value={reschedule.date} onChange={(e) => setReschedule(prev => ({ ...prev, date: e.target.value }))} min={new Date().toISOString().split('T')[0]} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Time</label>
+              <Select value={reschedule.time} onValueChange={(v) => setReschedule(prev => ({ ...prev, time: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTimes.map(t => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                className="flex-1"
+                onClick={async () => {
+                  if (!reschedule.date || !reschedule.time) {
+                    toast.error('Select a date and time');
+                    return;
+                  }
+                  const d = new Date(reschedule.date);
+                  const [h, m] = reschedule.time.split(':');
+                  d.setHours(parseInt(h), parseInt(m), 0, 0);
+                  try {
+                    await client.graphql({
+                      query: /* GraphQL */ `mutation UpdateAppointment($input: UpdateAppointmentInput!, $condition: ModelAppointmentConditionInput) { updateAppointment(input: $input, condition: $condition) { id date status updatedAt } }`,
+                      variables: { input: { id: reschedule.id, date: d.toISOString() } }
+                    });
+                    toast.success('Appointment rescheduled');
+                    setReschedule({ open: false, id: '', date: '', time: '' });
+                    fetchAppointments();
+                  } catch (e) {
+                    console.error('Failed to reschedule', e);
+                    toast.error('Failed to reschedule');
+                  }
+                }}
+                disabled={!reschedule.date || !reschedule.time}
+              >
+                Save
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => setReschedule({ open: false, id: '', date: '', time: '' })}>Cancel</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

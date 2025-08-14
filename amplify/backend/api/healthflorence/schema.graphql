@@ -137,7 +137,9 @@ type ExpertPatient @model @auth(rules: [
 
 # Patient records for external patients (not platform users)
 type PatientRecord @model @auth(rules: [
-  { allow: owner, operations: [create, read, update, delete] }
+ { allow: owner, operations: [create, read, update, delete] },
+  { allow: groups, groups: ["expert", "admin"], operations: [create, read, update] }
+
 ]) {
   id: ID!
   expertId: ID!

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { expertService } from '@/services/expert.service';
@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import { generateClient } from 'aws-amplify/api';
+import { listAppointments, listExperts } from '@/graphql/queries';
 import { 
   User, 
   Calendar, 
@@ -27,6 +29,9 @@ export default function ExpertDashboard() {
   const navigate = useNavigate();
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [apps, setApps] = useState<any[]>([]);
+  const [expertId, setExpertId] = useState<string | null>(null);
+  const client = generateClient();
 
   useEffect(() => {
     checkProfileStatus();
@@ -45,6 +50,29 @@ export default function ExpertDashboard() {
         navigate('/expert/profile-setup');
         return;
       }
+
+      // Resolve Expert.id for this user, then load appointments for expert stats
+      try {
+        const expertsRes = await client.graphql({
+          query: listExperts,
+          variables: { filter: { userId: { eq: user.id } }, limit: 1 }
+        });
+        const expert = (expertsRes as any).data?.listExperts?.items?.[0];
+        if (expert?.id) {
+          setExpertId(expert.id);
+          const res = await client.graphql({
+            query: listAppointments,
+            variables: { filter: { expertId: { eq: expert.id } }, limit: 500 }
+          });
+          setApps((res as any).data?.listAppointments?.items || []);
+        } else {
+          setExpertId(null);
+          setApps([]);
+        }
+      } catch (e) {
+        console.warn('Failed to load expert or appointments', e);
+        setApps([]);
+      }
     } catch (error) {
       console.error('Error checking profile status:', error);
       toast.error('Failed to check profile status');
@@ -52,6 +80,14 @@ export default function ExpertDashboard() {
       setIsLoading(false);
     }
   };
+
+  const todayStats = useMemo(() => {
+    const today = new Date();
+    const dayKey = today.toDateString();
+    const todays = apps.filter(a => new Date(a.date).toDateString() === dayKey);
+    const upcoming = todays.filter(a => (a.status || '').toUpperCase() === 'SCHEDULED').length;
+    return { todayCount: todays.length, upcoming };
+  }, [apps]);
 
   if (isLoading) {
     return (
@@ -98,10 +134,8 @@ export default function ExpertDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              +0% from last month
-            </p>
+            <div className="text-2xl font-bold">{new Set(apps.map(a => a.userId)).size}</div>
+            <p className="text-xs text-muted-foreground">Unique patients</p>
           </CardContent>
         </Card>
 
@@ -111,10 +145,8 @@ export default function ExpertDashboard() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              No upcoming appointments
-            </p>
+            <div className="text-2xl font-bold">{todayStats.todayCount}</div>
+            <p className="text-xs text-muted-foreground">{todayStats.upcoming} scheduled</p>
           </CardContent>
         </Card>
 
@@ -124,10 +156,8 @@ export default function ExpertDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$0</div>
-            <p className="text-xs text-muted-foreground">
-              +0% from last month
-            </p>
+            <div className="text-2xl font-bold">—</div>
+            <p className="text-xs text-muted-foreground">Coming soon</p>
           </CardContent>
         </Card>
 
@@ -137,10 +167,8 @@ export default function ExpertDashboard() {
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">
-              No reviews yet
-            </p>
+            <div className="text-2xl font-bold">—</div>
+            <p className="text-xs text-muted-foreground">No reviews yet</p>
           </CardContent>
         </Card>
       </div>

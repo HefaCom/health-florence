@@ -49,6 +49,8 @@ import AppointmentDetail from "./pages/admin/AppointmentDetail";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminAuditTrails from "./pages/admin/AdminAuditTrails";
+import AdminExperts from "./pages/admin/AdminExperts";
+import AdminFlorence from "./pages/admin/AdminFlorence";
 
 // Error pages
 import NotFound from "./pages/NotFound";
@@ -98,10 +100,12 @@ const App = () => (
                 }>
                   <Route index element={<AdminDashboard />} />
                   <Route path="users" element={<AdminUsers />} />
+                  <Route path="experts" element={<AdminExperts />} />
                   <Route path="appointments" element={<AdminAppointments />} />
                   <Route path="appointments/:id" element={<AppointmentDetail />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
                   <Route path="audit-trails" element={<AdminAuditTrails />} />
+                  <Route path="florence" element={<AdminFlorence />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>
 

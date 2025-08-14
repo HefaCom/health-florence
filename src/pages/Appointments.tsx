@@ -17,7 +17,6 @@ import { useAudit } from '@/hooks/useAudit';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { generateClient } from 'aws-amplify/api';
-import { createAppointment, updateAppointment } from '../graphql/mutations';
 import { listAppointments } from '../graphql/queries';
 import { Appointment } from '../API';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -27,6 +26,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 
 const client = generateClient();
+
+// Use minimal selection sets to avoid nested nulls causing GraphQL non-null errors
+const CREATE_APPOINTMENT_MIN = /* GraphQL */ `mutation CreateAppointment($input: CreateAppointmentInput!, $condition: ModelAppointmentConditionInput) {
+  createAppointment(input: $input, condition: $condition) {
+    id
+    userId
+    expertId
+    date
+    status
+    type
+    duration
+    notes
+    createdAt
+    updatedAt
+  }
+}`;
+
+const UPDATE_APPOINTMENT_MIN = /* GraphQL */ `mutation UpdateAppointment($input: UpdateAppointmentInput!, $condition: ModelAppointmentConditionInput) {
+  updateAppointment(input: $input, condition: $condition) {
+    id
+    userId
+    expertId
+    date
+    status
+    type
+    duration
+    notes
+    createdAt
+    updatedAt
+  }
+}`;
 
 interface AppointmentType {
   id: string;
@@ -45,6 +75,7 @@ const Appointments = () => {
   const [appointments, setAppointments] = useState<AppointmentType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [rescheduleDialog, setRescheduleDialog] = useState({ open: false, appointmentId: '', date: '', time: '' });
   const [bookingData, setBookingData] = useState({
     expertId: '',
     expert: null,
@@ -97,24 +128,31 @@ const Appointments = () => {
     fetchAppointments();
   }, []);
   
-  const filteredAppointments = filter === "all" 
-    ? appointments 
-    : appointments.filter(app => app.status.toLowerCase() === filter);
+  const filteredAppointments = filter === "all"
+    ? appointments
+    : appointments.filter(app => {
+        const status = (app.status || '').toLowerCase();
+        const f = (filter || '').toLowerCase();
+        if (f === 'upcoming') {
+          return status === 'upcoming' || status === 'scheduled';
+        }
+        return status === f;
+      });
 
   const handleScheduleAppointment = async (appointmentData: any) => {
     try {
       const response = await client.graphql({
-        query: createAppointment,
+        query: CREATE_APPOINTMENT_MIN,
         variables: { input: appointmentData }
       });
 
-      if (response.data?.createAppointment) {
+      if ((response as any).data?.createAppointment) {
         toast.success("Appointment scheduled successfully");
         
         // Log the appointment creation
         await logAction(
           'APPOINTMENT_CREATE',
-          response.data.createAppointment.id,
+          (response as any).data.createAppointment.id,
           {
             doctorId: appointmentData.doctorId,
             date: appointmentData.date,
@@ -134,7 +172,7 @@ const Appointments = () => {
   const handleCancelAppointment = async (appointmentId: string) => {
     try {
       const response = await client.graphql({
-        query: updateAppointment,
+        query: UPDATE_APPOINTMENT_MIN,
         variables: {
           input: {
             id: appointmentId,
@@ -143,7 +181,7 @@ const Appointments = () => {
         }
       });
 
-      if (response.data?.updateAppointment) {
+      if ((response as any).data?.updateAppointment) {
         toast.success("Appointment cancelled successfully");
         
         // Log the appointment cancellation
@@ -167,7 +205,7 @@ const Appointments = () => {
   const handleRescheduleAppointment = async (appointmentId: string, newDate: string) => {
     try {
       const response = await client.graphql({
-        query: updateAppointment,
+        query: UPDATE_APPOINTMENT_MIN,
         variables: {
           input: {
             id: appointmentId,
@@ -176,7 +214,7 @@ const Appointments = () => {
         }
       });
 
-      if (response.data?.updateAppointment) {
+      if ((response as any).data?.updateAppointment) {
         toast.success("Appointment rescheduled successfully");
         
         // Log the appointment reschedule
@@ -221,17 +259,17 @@ const Appointments = () => {
       };
 
       const response = await client.graphql({
-        query: createAppointment,
+        query: CREATE_APPOINTMENT_MIN,
         variables: { input: appointmentData }
       });
 
-      if (response.data?.createAppointment) {
+      if ((response as any).data?.createAppointment) {
         toast.success("Appointment booked successfully");
         
         // Log the appointment creation
         await logAction(
           'APPOINTMENT_CREATE',
-          response.data.createAppointment.id,
+          (response as any).data.createAppointment.id,
           {
             expertId: bookingData.expertId,
             date: appointmentData.date,
@@ -265,10 +303,10 @@ const Appointments = () => {
   ];
 
   const appointmentTypes = [
-    { value: 'consultation', label: 'General Consultation' },
-    { value: 'followup', label: 'Follow-up Visit' },
-    { value: 'emergency', label: 'Emergency Consultation' },
-    { value: 'specialist', label: 'Specialist Consultation' }
+    { value: 'Consultation', label: 'General Consultation' },
+    { value: 'Follow-up', label: 'Follow-up Visit' },
+    { value: 'Emergency', label: 'Emergency Consultation' },
+    { value: 'Specialist', label: 'Specialist Consultation' }
   ];
 
   return (
@@ -349,12 +387,12 @@ const Appointments = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {appointment.status === 'upcoming' && (
+                {(['UPCOMING','SCHEDULED','Scheduled','upcoming'].includes((appointment.status || '').toUpperCase())) && (
                   <>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleRescheduleAppointment(appointment.id, new Date().toISOString())}
+                      onClick={() => setRescheduleDialog({ open: true, appointmentId: appointment.id, date: '', time: '' })}
                     >
                       Reschedule
                     </Button>
@@ -368,15 +406,15 @@ const Appointments = () => {
                   </>
                 )}
                 <div className={`flex items-center px-2 py-1 rounded-full text-xs ${
-                  appointment.status === 'completed'
+                  ((appointment.status || '').toUpperCase()) === 'COMPLETED'
                     ? 'bg-green-100 text-green-700'
-                    : appointment.status === 'cancelled'
+                    : ((appointment.status || '').toUpperCase()) === 'CANCELLED'
                     ? 'bg-red-100 text-red-700'
                     : 'bg-blue-100 text-blue-700'
                 }`}>
-                  {appointment.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
-                  {appointment.status === 'cancelled' && <XCircle className="h-3 w-3 mr-1" />}
-                  {appointment.status === 'upcoming' && <AlertCircle className="h-3 w-3 mr-1" />}
+                  {((appointment.status || '').toUpperCase()) === 'COMPLETED' && <CheckCircle className="h-3 w-3 mr-1" />}
+                  {((appointment.status || '').toUpperCase()) === 'CANCELLED' && <XCircle className="h-3 w-3 mr-1" />}
+                  {(['UPCOMING','SCHEDULED'].includes(((appointment.status || '').toUpperCase()))) && <AlertCircle className="h-3 w-3 mr-1" />}
                   {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
                 </div>
               </div>
@@ -461,6 +499,74 @@ const Appointments = () => {
               <Button 
                 variant="outline" 
                 onClick={() => setShowBookingDialog(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reschedule Dialog */}
+      <Dialog open={rescheduleDialog.open} onOpenChange={(open) => setRescheduleDialog(prev => ({ ...prev, open }))}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reschedule Appointment</DialogTitle>
+            <DialogDescription>
+              Pick a new date and time for your appointment
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="reschedule-date">Date</Label>
+              <Input
+                id="reschedule-date"
+                type="date"
+                value={rescheduleDialog.date}
+                onChange={(e) => setRescheduleDialog(prev => ({ ...prev, date: e.target.value }))}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="reschedule-time">Time</Label>
+              <Select value={rescheduleDialog.time} onValueChange={(value) => setRescheduleDialog(prev => ({ ...prev, time: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTimes.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                onClick={async () => {
+                  if (!rescheduleDialog.date || !rescheduleDialog.time) {
+                    toast.error('Select a date and time');
+                    return;
+                  }
+                  const d = new Date(rescheduleDialog.date);
+                  const [h, m] = rescheduleDialog.time.split(':');
+                  d.setHours(parseInt(h), parseInt(m), 0, 0);
+                  await handleRescheduleAppointment(rescheduleDialog.appointmentId, d.toISOString());
+                  setRescheduleDialog({ open: false, appointmentId: '', date: '', time: '' });
+                }}
+                disabled={!rescheduleDialog.date || !rescheduleDialog.time}
+                className="flex-1"
+              >
+                Save
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setRescheduleDialog({ open: false, appointmentId: '', date: '', time: '' })}
                 className="flex-1"
               >
                 Cancel

@@ -1,23 +1,13 @@
 
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
+import { generateClient } from "aws-amplify/api";
+import { listAppointments } from "@/graphql/queries";
+import { toast } from "sonner";
 
-// Mock data for charts
-const appointmentData = [
-  { month: "Jan", appointments: 45 },
-  { month: "Feb", appointments: 52 },
-  { month: "Mar", appointments: 49 },
-  { month: "Apr", appointments: 62 },
-  { month: "May", appointments: 58 },
-  { month: "Jun", appointments: 65 },
-  { month: "Jul", appointments: 68 },
-  { month: "Aug", appointments: 72 },
-  { month: "Sep", appointments: 64 },
-  { month: "Oct", appointments: 59 },
-  { month: "Nov", appointments: 68 },
-  { month: "Dec", appointments: 54 },
-];
+const client = generateClient();
 
 const patientTypeData = [
   { name: "New Patients", value: 35 },
@@ -34,19 +24,58 @@ const departmentData = [
   { name: "Ophthalmology", count: 68 },
 ];
 
-const weeklyPatients = [
-  { day: "Mon", patients: 24 },
-  { day: "Tue", patients: 32 },
-  { day: "Wed", patients: 28 },
-  { day: "Thu", patients: 36 },
-  { day: "Fri", patients: 30 },
-  { day: "Sat", patients: 18 },
-  { day: "Sun", patients: 12 },
-];
+const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"] as const;
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82CA9D", "#FCBBA1"];
 
 const AdminAnalytics = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [apps, setApps] = useState<any[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        const res = await client.graphql({ query: listAppointments });
+        setApps((res as any).data?.listAppointments?.items || []);
+      } catch (e) {
+        console.error('Failed to load analytics data', e);
+        toast.error('Failed to load analytics data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const appointmentData = useMemo(() => {
+    const months = Array.from({ length: 12 }, (_, i) => ({ month: new Date(0, i).toLocaleString('en', { month: 'short' }), appointments: 0 }));
+    apps.forEach(a => {
+      const d = new Date(a.date);
+      const m = d.getMonth();
+      months[m].appointments += 1;
+    });
+    return months;
+  }, [apps]);
+
+  const weeklyPatients = useMemo(() => {
+    const counts: Record<string, number> = { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 };
+    apps.forEach(a => {
+      const d = new Date(a.date);
+      counts[dayNames[d.getDay()]] += 1;
+    });
+    return dayNames.map(day => ({ day, patients: counts[day] }));
+  }, [apps]);
+
+  const departmentData = useMemo(() => {
+    const map: Record<string, number> = {};
+    apps.forEach(a => {
+      const dept = a.expert?.specialization || 'General';
+      map[dept] = (map[dept] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, count]) => ({ name, count }));
+  }, [apps]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -60,8 +89,8 @@ const AdminAnalytics = () => {
             <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">2,854</div>
-            <p className="text-xs text-muted-foreground mt-1">+12.5% from last month</p>
+            <div className="text-3xl font-bold">{isLoading ? '—' : new Set(apps.map(a => a.userId)).size}</div>
+            <p className="text-xs text-muted-foreground mt-1">Unique users with appointments</p>
           </CardContent>
         </Card>
         
@@ -70,8 +99,8 @@ const AdminAnalytics = () => {
             <CardTitle className="text-sm font-medium">Appointments</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">716</div>
-            <p className="text-xs text-muted-foreground mt-1">+5.2% from last month</p>
+            <div className="text-3xl font-bold">{isLoading ? '—' : apps.length}</div>
+            <p className="text-xs text-muted-foreground mt-1">Total appointments</p>
           </CardContent>
         </Card>
         
@@ -80,8 +109,8 @@ const AdminAnalytics = () => {
             <CardTitle className="text-sm font-medium">Active Doctors</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">42</div>
-            <p className="text-xs text-muted-foreground mt-1">+2 new since last month</p>
+            <div className="text-3xl font-bold">{isLoading ? '—' : new Set(apps.map(a => a.expertId)).size}</div>
+            <p className="text-xs text-muted-foreground mt-1">Experts with appointments</p>
           </CardContent>
         </Card>
         
@@ -90,8 +119,8 @@ const AdminAnalytics = () => {
             <CardTitle className="text-sm font-medium">Satisfaction Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">94.8%</div>
-            <p className="text-xs text-muted-foreground mt-1">+1.2% from last month</p>
+            <div className="text-3xl font-bold">—</div>
+            <p className="text-xs text-muted-foreground mt-1">Coming soon</p>
           </CardContent>
         </Card>
       </div>
@@ -152,7 +181,7 @@ const AdminAnalytics = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={patientTypeData}
+                      data={[{ name: 'New Patients', value: 0 }, { name: 'Returning Patients', value: apps.length }]}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -161,7 +190,7 @@ const AdminAnalytics = () => {
                       dataKey="value"
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      {patientTypeData.map((entry, index) => (
+                      {[{ name: 'New Patients', value: 0 }, { name: 'Returning Patients', value: apps.length }].map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
