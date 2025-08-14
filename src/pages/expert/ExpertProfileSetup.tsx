@@ -98,7 +98,11 @@ export default function ExpertProfileSetup() {
     // Check if user already has an expert profile
     const checkExistingProfile = async () => {
       try {
+        // First, clean up any duplicate profiles
+        await expertService.cleanupDuplicateProfiles(user.id);
+        
         const hasProfile = await expertService.hasExpertProfile(user.id);
+        
         if (hasProfile) {
           toast.info('You already have an expert profile');
           navigate('/expert/dashboard');

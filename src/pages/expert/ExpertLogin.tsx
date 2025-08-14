@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -13,21 +14,33 @@ export default function ExpertLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login, user } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'expert') {
+        navigate('/expert/dashboard');
+      } else {
+        toast.error('This portal is only for healthcare experts');
+        navigate('/login');
+      }
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Simulate login process
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Use the real authentication system
+      await login(email, password);
       
-      // For now, just navigate to expert dashboard
-      // TODO: Implement proper authentication
+      // The useEffect will handle the redirect based on user role
       toast.success("Welcome to the Expert Portal!");
-      navigate("/expert/dashboard");
-    } catch (error) {
-      toast.error("Login failed. Please try again.");
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast.error(error.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

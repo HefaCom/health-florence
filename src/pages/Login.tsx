@@ -27,6 +27,8 @@ const Login = () => {
       // Redirect to appropriate dashboard based on user role
       if (user.role === "admin") {
         navigate("/admin");
+      } else if (user.role === "expert") {
+        navigate("/expert/dashboard");
       } else {
         navigate(from);
       }
@@ -47,13 +49,16 @@ const Login = () => {
     setIsSubmitting(false);
   };
 
-  const handleDemoLogin = async (role: "user" | "admin") => {
+  const handleDemoLogin = async (role: "user" | "admin" | "expert") => {
     setIsSubmitting(true);
     if (role === "admin") {
-      await login("toptutor0001@gmail.com", "admin123");
+      await login("abrahammirambeaux@gmail.com", "password123");
+      // Navigation will be handled by useEffect
+    } else if (role === "expert") {
+      await login("nerdexpert1@gmail.com", "password123");
       // Navigation will be handled by useEffect
     } else {
-      await login("user@florence.com", "password123");
+      await login("mrstrillo@icloud.com", "password123");
       // Navigation will be handled by useEffect
     }
     setIsSubmitting(false);
@@ -94,13 +99,30 @@ const Login = () => {
               <FloLogo className="w-24 h-24" />
             </div>
 
-            <h1 className="text-3xl font-bold text-center mb-2">Nurse Help Me</h1>
+            <h1 className="text-3xl font-bold text-center mb-2">Health AI Portal</h1>
+            <p className="text-center text-muted-foreground mb-6">
+              Access your personalized healthcare dashboard
+            </p>
+            {/* <div className="flex justify-center space-x-4 mb-6">
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-xs text-muted-foreground">Patients</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-xs text-muted-foreground">Experts</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span className="text-xs text-muted-foreground">Admins</span>
+              </div>
+            </div> */}
 
             <form onSubmit={handleLogin} className="space-y-4 mt-8">
               <div className="space-y-2">
                 <Input
                   type="email"
-                  placeholder="User Email"
+                  placeholder="Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -166,29 +188,41 @@ const Login = () => {
             </div>
 
             {/* Demo Credentials - for development only */}
-            <div className="mt-8 border-t border-border pt-4">
-              <p className="text-xs text-center text-muted-foreground mb-2">Demo Credentials</p>
+            {/* <div className="mt-8 border-t border-border pt-4">
+              <p className="text-xs text-center text-muted-foreground mb-2">Quick Access (Demo)</p>
               <div className="flex space-x-2">
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="flex-1 h-8 text-xs"
+                  className="flex-1 h-8 text-xs border-blue-200 hover:bg-blue-50 hover:border-blue-300"
                   onClick={() => handleDemoLogin("user")}
                   disabled={isSubmitting}
                 >
-                  User Demo
+                  Patient
                 </Button>
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="flex-1 h-8 text-xs"
+                  className="flex-1 h-8 text-xs border-green-200 hover:bg-green-50 hover:border-green-300"
+                  onClick={() => handleDemoLogin("expert")}
+                  disabled={isSubmitting}
+                >
+                  Expert
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1 h-8 text-xs border-purple-200 hover:bg-purple-50 hover:border-purple-300"
                   onClick={() => handleDemoLogin("admin")}
                   disabled={isSubmitting}
                 >
-                  Admin Demo
+                  Admin
                 </Button>
               </div>
-            </div>
+              <p className="text-xs text-center text-muted-foreground mt-2">
+                Patient • Expert • Admin
+              </p>
+            </div> */}
           </div>
 
           {/* Footer */}

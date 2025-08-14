@@ -15,11 +15,12 @@ const client = generateClient();
 // Custom query to get expert with user data by userId
 const GET_EXPERT_BY_USER_ID_WITH_USER = /* GraphQL */ `
   query GetExpertByUserIdWithUser($userId: String!) {
-    listExperts(filter: { userId: { eq: $userId } }, limit: 1) {
+    listExperts(filter: { userId: { eq: $userId } }, limit: 10) {
       items {
         id
         userId
         specialization
+        createdAt
         user {
           id
           email
@@ -157,15 +158,28 @@ class ExpertService {
    */
   async getExpertByUserId(userId: string): Promise<Expert | null> {
     try {
+      console.log('getExpertByUserId called for userId:', userId);
+      
+      // Use the original listExperts query for basic profile detection
       const result = await client.graphql({
-        query: GET_EXPERT_BY_USER_ID_WITH_USER,
+        query: listExpertsQuery,
         variables: {
-          userId
+          filter: { userId: { eq: userId } }
         }
       });
 
       const experts = (result as any).data.listExperts.items;
-      return experts.length > 0 ? experts[0] : null;
+      console.log('Experts found:', experts.length, experts);
+      
+      if (experts.length === 0) return null;
+      
+      // Sort by createdAt and return the most recent
+      const sortedExperts = experts.sort((a: any, b: any) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      console.log('Most recent expert:', sortedExperts[0]);
+      return sortedExperts[0];
     } catch (error) {
       console.error('Error getting expert by user ID:', error);
       return null;
@@ -278,11 +292,79 @@ class ExpertService {
    */
   async hasExpertProfile(userId: string): Promise<boolean> {
     try {
+      console.log('hasExpertProfile called for userId:', userId);
       const expert = await this.getExpertByUserId(userId);
+      console.log('Expert found:', expert);
       return !!expert;
     } catch (error) {
       console.error('Error checking expert profile:', error);
       return false;
+    }
+  }
+
+  /**
+   * Get the most recent expert profile for a user (handles duplicates)
+   */
+  async getMostRecentExpertByUserId(userId: string): Promise<Expert | null> {
+    try {
+      const result = await client.graphql({
+        query: listExpertsQuery,
+        variables: {
+          filter: { userId: { eq: userId } }
+        }
+      });
+
+      const experts = (result as any).data.listExperts.items;
+      if (experts.length === 0) return null;
+      
+      // Sort by createdAt and return the most recent
+      const sortedExperts = experts.sort((a: any, b: any) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      return sortedExperts[0];
+    } catch (error) {
+      console.error('Error getting most recent expert by user ID:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Clean up duplicate expert profiles for a user (keeps the most recent)
+   */
+  async cleanupDuplicateProfiles(userId: string): Promise<void> {
+    try {
+      const result = await client.graphql({
+        query: listExpertsQuery,
+        variables: {
+          filter: { userId: { eq: userId } }
+        }
+      });
+
+      const experts = (result as any).data.listExperts.items;
+      
+      if (experts.length <= 1) {
+        return; // No duplicates to clean up
+      }
+      
+      // Sort by createdAt and keep the most recent
+      const sortedExperts = experts.sort((a: any, b: any) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      // Delete all except the most recent
+      const toDelete = sortedExperts.slice(1);
+      
+      for (const expert of toDelete) {
+        try {
+          await this.deleteExpert(expert.id);
+          console.log(`Deleted duplicate expert profile: ${expert.id}`);
+        } catch (error) {
+          console.error(`Failed to delete duplicate expert profile ${expert.id}:`, error);
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up duplicate profiles:', error);
     }
   }
 

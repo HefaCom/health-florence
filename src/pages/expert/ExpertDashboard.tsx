@@ -42,10 +42,17 @@ export default function ExpertDashboard() {
 
     try {
       setIsLoading(true);
+      console.log('ExpertDashboard: Checking profile for user:', user.id, user.email);
+      
+      // First, clean up any duplicate profiles
+      await expertService.cleanupDuplicateProfiles(user.id);
+      
       const hasExpertProfile = await expertService.hasExpertProfile(user.id);
+      console.log('ExpertDashboard: Has profile:', hasExpertProfile);
       setHasProfile(hasExpertProfile);
 
       if (!hasExpertProfile) {
+        console.log('ExpertDashboard: No profile found, redirecting to setup');
         toast.info('Please complete your expert profile to get started');
         navigate('/expert/profile-setup');
         return;

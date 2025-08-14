@@ -21,7 +21,6 @@ import Insurance from "./pages/Insurance";
 import Profile from "./pages/Profile";
 
 // Expert portal pages
-import ExpertLogin from "./pages/expert/ExpertLogin";
 import ExpertDashboard from "./pages/expert/ExpertDashboard";
 import ExpertPatients from "./pages/expert/ExpertPatients";
 import ExpertAppointments from "./pages/expert/ExpertAppointments";
@@ -110,7 +109,7 @@ const App = () => (
                 </Route>
 
                 {/* Expert Portal Routes */}
-                <Route path="/expert" element={<ExpertLogin />} />
+                <Route path="/expert" element={<Navigate to="/login" replace />} />
                 <Route path="/expert/profile-setup" element={
                   <ProtectedRoute allowedRoles={["expert"]}>
                     <ExpertProfileSetup />
