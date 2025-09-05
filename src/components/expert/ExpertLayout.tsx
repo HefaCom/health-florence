@@ -117,11 +117,11 @@ const ExpertLayoutContent = () => {
                   { name: "Florence AI", path: "/expert/dashboard/florence", icon: <Bot className="h-5 w-5" /> },
                   { name: "Patients", path: "/expert/dashboard/patients", icon: <Users className="h-5 w-5" /> },
                   { name: "Appointments", path: "/expert/dashboard/appointments", icon: <Calendar className="h-5 w-5" /> },
-                  { name: "Medical Records", path: "/expert/dashboard/records", icon: <FileText className="h-5 w-5" /> },
-                  { name: "Consultations", path: "/expert/dashboard/consultations", icon: <Stethoscope className="h-5 w-5" /> },
-                  { name: "Health Analytics", path: "/expert/dashboard/analytics", icon: <BarChart3 className="h-5 w-5" /> },
-                  { name: "Messages", path: "/expert/dashboard/messages", icon: <MessageSquare className="h-5 w-5" /> },
-                  { name: "Activity Log", path: "/expert/dashboard/activity", icon: <Activity className="h-5 w-5" /> }
+                  // { name: "Medical Records", path: "/expert/dashboard/records", icon: <FileText className="h-5 w-5" /> },
+                  // { name: "Consultations", path: "/expert/dashboard/consultations", icon: <Stethoscope className="h-5 w-5" /> },
+                  // { name: "Health Analytics", path: "/expert/dashboard/analytics", icon: <BarChart3 className="h-5 w-5" /> },
+                  // { name: "Messages", path: "/expert/dashboard/messages", icon: <MessageSquare className="h-5 w-5" /> },
+                  // { name: "Activity Log", path: "/expert/dashboard/activity", icon: <Activity className="h-5 w-5" /> }
                 ].map((item) => (
                   <NavLink
                     key={item.path}

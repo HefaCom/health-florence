@@ -78,9 +78,9 @@ export function NavigationBar({
                           <a href="/find-expert" className="font-medium hover:text-primary transition-colors">
                   Find Expert
                 </a>
-          <a href="/insurance" className="font-medium hover:text-primary transition-colors">
+          {/* <a href="/insurance" className="font-medium hover:text-primary transition-colors">
             Insurance
-          </a>
+          </a> */}
         </nav>
 
         <div className="flex items-center gap-2">

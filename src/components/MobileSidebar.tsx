@@ -60,11 +60,11 @@ export const MobileSidebar = ({ open, onClose }: MobileSidebarProps) => {
       path: "/find-expert",
       icon: <SearchCheck className="h-5 w-5" />
     },
-    {
-      name: "Insurance",
-      path: "/insurance",
-      icon: <Shield className="h-5 w-5" />
-    }
+    // {
+    //   name: "Insurance",
+    //   path: "/insurance",
+    //   icon: <Shield className="h-5 w-5" />
+    // }
   ];
 
   return (

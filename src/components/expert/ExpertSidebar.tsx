@@ -54,11 +54,11 @@ export const ExpertSidebar = () => {
       path: "/expert/dashboard/appointments",
       icon: <Calendar className="h-5 w-5" />
     },
-    {
-      name: "Medical Records",
-      path: "/expert/dashboard/records",
-      icon: <FileText className="h-5 w-5" />
-    },
+    // {
+    //   name: "Medical Records",
+    //   path: "/expert/dashboard/records",
+    //   icon: <FileText className="h-5 w-5" />
+    // },
     // {
     //   name: "Consultations",
     //   path: "/expert/dashboard/consultations",
@@ -69,11 +69,11 @@ export const ExpertSidebar = () => {
     //   path: "/expert/dashboard/analytics",
     //   icon: <BarChart3 className="h-5 w-5" />
     // },
-    {
-      name: "Messages",
-      path: "/expert/dashboard/messages",
-      icon: <MessageSquare className="h-5 w-5" />
-    },
+    // {
+    //   name: "Messages",
+    //   path: "/expert/dashboard/messages",
+    //   icon: <MessageSquare className="h-5 w-5" />
+    // },
     // {
     //   name: "Activity Log",
     //   path: "/expert/dashboard/activity",
