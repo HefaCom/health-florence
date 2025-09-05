@@ -319,14 +319,85 @@ class ExpertService {
    */
   async getAllExperts(): Promise<Expert[]> {
     try {
+      // Create a query that includes user data
+      const listExpertsWithUser = /* GraphQL */ `
+        query ListExpertsWithUser($filter: ModelExpertFilterInput, $limit: Int) {
+          listExperts(filter: $filter, limit: $limit) {
+            items {
+              id
+              userId
+              specialization
+              subSpecializations
+              licenseNumber
+              yearsOfExperience
+              education
+              certifications
+              languages
+              practiceName
+              practiceAddress
+              practicePhone
+              practiceEmail
+              practiceWebsite
+              availability
+              consultationFee
+              services
+              bio
+              profileImage
+              coverImage
+              isVerified
+              isActive
+              verificationStatus
+              createdAt
+              updatedAt
+              user {
+                id
+                firstName
+                lastName
+                email
+              }
+            }
+          }
+        }
+      `;
+
       const result = await client.graphql({
-        query: listExpertsQuery,
+        query: listExpertsWithUser,
         variables: {
-          filter: { isActive: { eq: true } }
+          filter: { isActive: { eq: true } },
+          limit: 100
         }
       });
 
-      return (result as any).data.listExperts.items;
+      const experts = (result as any).data.listExperts.items;
+      
+      // If any experts are missing user data, fetch it separately
+      const expertsWithUserData = await Promise.all(
+        experts.map(async (expert: Expert) => {
+          if (!expert.user && expert.userId) {
+            try {
+              const userResponse = await client.graphql({
+                query: /* GraphQL */ `
+                  query GetUser($id: ID!) {
+                    getUser(id: $id) {
+                      id
+                      firstName
+                      lastName
+                      email
+                    }
+                  }
+                `,
+                variables: { id: expert.userId }
+              });
+              expert.user = (userResponse as any).data?.getUser;
+            } catch (error) {
+              console.warn('Failed to fetch user data for expert:', expert.id, error);
+            }
+          }
+          return expert;
+        })
+      );
+
+      return expertsWithUserData;
     } catch (error) {
       console.error('Error getting all experts:', error);
       throw error;
@@ -338,19 +409,90 @@ class ExpertService {
    */
   async searchExpertsBySpecialization(specialization: string): Promise<Expert[]> {
     try {
+      // Use the same enhanced query as getAllExperts
+      const listExpertsWithUser = /* GraphQL */ `
+        query ListExpertsWithUser($filter: ModelExpertFilterInput, $limit: Int) {
+          listExperts(filter: $filter, limit: $limit) {
+            items {
+              id
+              userId
+              specialization
+              subSpecializations
+              licenseNumber
+              yearsOfExperience
+              education
+              certifications
+              languages
+              practiceName
+              practiceAddress
+              practicePhone
+              practiceEmail
+              practiceWebsite
+              availability
+              consultationFee
+              services
+              bio
+              profileImage
+              coverImage
+              isVerified
+              isActive
+              verificationStatus
+              createdAt
+              updatedAt
+              user {
+                id
+                firstName
+                lastName
+                email
+              }
+            }
+          }
+        }
+      `;
+
       const result = await client.graphql({
-        query: listExpertsQuery,
+        query: listExpertsWithUser,
         variables: {
           filter: { 
             and: [
               { isActive: { eq: true } },
               { specialization: { contains: specialization } }
             ]
-          }
+          },
+          limit: 100
         }
       });
 
-      return (result as any).data.listExperts.items;
+      const experts = (result as any).data.listExperts.items;
+      
+      // If any experts are missing user data, fetch it separately
+      const expertsWithUserData = await Promise.all(
+        experts.map(async (expert: Expert) => {
+          if (!expert.user && expert.userId) {
+            try {
+              const userResponse = await client.graphql({
+                query: /* GraphQL */ `
+                  query GetUser($id: ID!) {
+                    getUser(id: $id) {
+                      id
+                      firstName
+                      lastName
+                      email
+                    }
+                  }
+                `,
+                variables: { id: expert.userId }
+              });
+              expert.user = (userResponse as any).data?.getUser;
+            } catch (error) {
+              console.warn('Failed to fetch user data for expert:', expert.id, error);
+            }
+          }
+          return expert;
+        })
+      );
+
+      return expertsWithUserData;
     } catch (error) {
       console.error('Error searching experts by specialization:', error);
       throw error;
@@ -362,19 +504,90 @@ class ExpertService {
    */
   async getVerifiedExperts(): Promise<Expert[]> {
     try {
+      // Use the same enhanced query as getAllExperts
+      const listExpertsWithUser = /* GraphQL */ `
+        query ListExpertsWithUser($filter: ModelExpertFilterInput, $limit: Int) {
+          listExperts(filter: $filter, limit: $limit) {
+            items {
+              id
+              userId
+              specialization
+              subSpecializations
+              licenseNumber
+              yearsOfExperience
+              education
+              certifications
+              languages
+              practiceName
+              practiceAddress
+              practicePhone
+              practiceEmail
+              practiceWebsite
+              availability
+              consultationFee
+              services
+              bio
+              profileImage
+              coverImage
+              isVerified
+              isActive
+              verificationStatus
+              createdAt
+              updatedAt
+              user {
+                id
+                firstName
+                lastName
+                email
+              }
+            }
+          }
+        }
+      `;
+
       const result = await client.graphql({
-        query: listExpertsQuery,
+        query: listExpertsWithUser,
         variables: {
           filter: { 
             and: [
               { isActive: { eq: true } },
               { isVerified: { eq: true } }
             ]
-          }
+          },
+          limit: 100
         }
       });
 
-      return (result as any).data.listExperts.items;
+      const experts = (result as any).data.listExperts.items;
+      
+      // If any experts are missing user data, fetch it separately
+      const expertsWithUserData = await Promise.all(
+        experts.map(async (expert: Expert) => {
+          if (!expert.user && expert.userId) {
+            try {
+              const userResponse = await client.graphql({
+                query: /* GraphQL */ `
+                  query GetUser($id: ID!) {
+                    getUser(id: $id) {
+                      id
+                      firstName
+                      lastName
+                      email
+                    }
+                  }
+                `,
+                variables: { id: expert.userId }
+              });
+              expert.user = (userResponse as any).data?.getUser;
+            } catch (error) {
+              console.warn('Failed to fetch user data for expert:', expert.id, error);
+            }
+          }
+          return expert;
+        })
+      );
+
+      return expertsWithUserData;
     } catch (error) {
       console.error('Error getting verified experts:', error);
       throw error;
