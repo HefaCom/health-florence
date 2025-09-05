@@ -235,15 +235,46 @@ class UserService {
         privacySettings: input.privacySettings ? (typeof input.privacySettings === 'string' ? input.privacySettings : JSON.stringify(input.privacySettings)) : undefined
       };
 
+      // Create a simplified mutation for user updates
+      const updateUserSimple = /* GraphQL */ `
+        mutation UpdateUserSimple($input: UpdateUserInput!) {
+          updateUser(input: $input) {
+            id
+            email
+            firstName
+            lastName
+            phoneNumber
+            role
+            isActive
+            preferences
+            notificationSettings
+            privacySettings
+            updatedAt
+          }
+        }
+      `;
+
       const result = await client.graphql({
-        query: updateUser,
+        query: updateUserSimple,
         variables: { input: updateInput }
       });
 
       const updatedUser = (result as any).data.updateUser;
+      console.log('User updated successfully:', {
+        userId: updatedUser.id,
+        updatedAt: updatedUser.updatedAt
+      });
+      
       return this.parseUserFromDB(updatedUser);
     } catch (error) {
       console.error('Error updating user:', error);
+      
+      // Check if update was successful despite errors
+      if (error.data && error.data.updateUser && error.data.updateUser.id) {
+        console.log('User updated successfully despite some errors');
+        return this.parseUserFromDB(error.data.updateUser);
+      }
+      
       throw error;
     }
   }
@@ -258,18 +289,42 @@ class UserService {
         role
       };
 
+      // Create a simplified mutation for role updates
+      const updateUserRoleSimple = /* GraphQL */ `
+        mutation UpdateUserRoleSimple($input: UpdateUserInput!) {
+          updateUser(input: $input) {
+            id
+            email
+            firstName
+            lastName
+            role
+            isActive
+            updatedAt
+          }
+        }
+      `;
+
       const result = await client.graphql({
-        query: updateUser,
+        query: updateUserRoleSimple,
         variables: { input }
       });
 
-      if (!result.data?.updateUser) {
-        throw new Error('Failed to update user role: No data returned');
-      }
+      const updatedUser = (result as any).data.updateUser;
+      console.log('User role updated successfully:', {
+        userId,
+        newRole: updatedUser.role,
+        updatedAt: updatedUser.updatedAt
+      });
 
-      return result.data.updateUser as User;
+      return this.parseUserFromDB(updatedUser);
     } catch (error: any) {
       console.error('Error updating user role:', error);
+      
+      // Check if update was successful despite errors
+      if (error.data && error.data.updateUser && error.data.updateUser.id) {
+        console.log('User role updated successfully despite some errors');
+        return this.parseUserFromDB(error.data.updateUser);
+      }
       
       // Provide more specific error messages
       if (error.errors && error.errors.length > 0) {
