@@ -101,12 +101,83 @@ const Appointments = () => {
   const fetchAppointments = async () => {
     setIsLoading(true);
     try {
+      // Create a query that includes expert data
+      const listAppointmentsWithExpert = /* GraphQL */ `
+        query ListAppointmentsWithExpert($filter: ModelAppointmentFilterInput, $limit: Int) {
+          listAppointments(filter: $filter, limit: $limit) {
+            items {
+              id
+              userId
+              expertId
+              date
+              status
+              type
+              duration
+              notes
+              symptoms
+              diagnosis
+              prescription
+              followUpDate
+              expert {
+                id
+                specialization
+                practiceName
+                practiceAddress
+                user {
+                  id
+                  firstName
+                  lastName
+                  email
+                }
+              }
+            }
+          }
+        }
+      `;
+
       const response = await client.graphql({
-        query: listAppointments
-      });
+        query: listAppointmentsWithExpert,
+        variables: { 
+          filter: { userId: { eq: user?.id } },
+          limit: 500 
+        }
+      }) as any;
 
       if (response.data?.listAppointments?.items) {
-        setAppointments(response.data.listAppointments.items.map((item: any) => ({
+        const appointmentsWithExpertData = await Promise.all(
+          response.data.listAppointments.items.map(async (item: any) => {
+            // If expert data is missing, fetch it separately
+            if (!item.expert && item.expertId) {
+              try {
+                const expertResponse = await client.graphql({
+                  query: /* GraphQL */ `
+                    query GetExpert($id: ID!) {
+                      getExpert(id: $id) {
+                        id
+                        specialization
+                        practiceName
+                        practiceAddress
+                        user {
+                          id
+                          firstName
+                          lastName
+                          email
+                        }
+                      }
+                    }
+                  `,
+                  variables: { id: item.expertId }
+                }) as any;
+                item.expert = expertResponse.data?.getExpert;
+              } catch (error) {
+                console.warn('Failed to fetch expert data for appointment:', item.id, error);
+              }
+            }
+            return item;
+          })
+        );
+
+        setAppointments(appointmentsWithExpertData.map((item: any) => ({
           id: item.id,
           title: item.type || 'Consultation',
           doctor: item.expert?.user ? `${item.expert.user.firstName} ${item.expert.user.lastName}` : item.expert?.specialization || 'Unknown Expert',
@@ -125,8 +196,10 @@ const Appointments = () => {
   };
 
   useEffect(() => {
-    fetchAppointments();
-  }, []);
+    if (user) {
+      fetchAppointments();
+    }
+  }, [user]);
   
   const filteredAppointments = filter === "all"
     ? appointments

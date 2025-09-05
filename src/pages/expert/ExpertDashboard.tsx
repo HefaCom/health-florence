@@ -64,8 +64,31 @@ export default function ExpertDashboard() {
         if (expert?.id) {
           setExpertId(expert.id);
           console.log('[ExpertDashboard] resolvedExpertId via service:', expert.id);
+          // Create a simplified query that includes user data
+          const listAppointmentsWithUser = /* GraphQL */ `
+            query ListAppointmentsWithUser($filter: ModelAppointmentFilterInput, $limit: Int) {
+              listAppointments(filter: $filter, limit: $limit) {
+                items {
+                  id
+                  userId
+                  expertId
+                  date
+                  status
+                  type
+                  duration
+                  user {
+                    id
+                    firstName
+                    lastName
+                    email
+                  }
+                }
+              }
+            }
+          `;
+
           const res = await client.graphql({
-            query: listAppointments,
+            query: listAppointmentsWithUser,
             variables: { filter: { expertId: { eq: expert.id } }, limit: 500 }
           });
           const appointments = (res as any).data?.listAppointments?.items || [];

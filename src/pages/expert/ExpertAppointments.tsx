@@ -73,14 +73,75 @@ export default function ExpertAppointments() {
       }
 
       console.log('[ExpertAppointments] Fetching appointments for expertId:', resolvedExpertId);
+      
+      // Create a simplified query that includes user data
+      const listAppointmentsWithUser = /* GraphQL */ `
+        query ListAppointmentsWithUser($filter: ModelAppointmentFilterInput, $limit: Int) {
+          listAppointments(filter: $filter, limit: $limit) {
+            items {
+              id
+              userId
+              expertId
+              date
+              status
+              type
+              duration
+              notes
+              symptoms
+              diagnosis
+              prescription
+              followUpDate
+              createdAt
+              updatedAt
+              user {
+                id
+                firstName
+                lastName
+                email
+                phoneNumber
+              }
+            }
+          }
+        }
+      `;
+
       const response = await client.graphql({
-        query: listAppointments,
+        query: listAppointmentsWithUser,
         variables: { filter: { expertId: { eq: resolvedExpertId } }, limit: 500 }
       });
 
       const items = (response as any).data?.listAppointments?.items || [];
       console.log('[ExpertAppointments] Found appointments:', items.length);
-      setAppointments(items as AppointmentType[]);
+      
+      // If user data is missing, fetch it separately
+      const appointmentsWithUserData = await Promise.all(
+        items.map(async (appointment: any) => {
+          if (!appointment.user && appointment.userId) {
+            try {
+              const userResponse = await client.graphql({
+                query: /* GraphQL */ `
+                  query GetUser($id: ID!) {
+                    getUser(id: $id) {
+                      id
+                      firstName
+                      lastName
+                      email
+                      phoneNumber
+                    }
+                  }
+                `,
+                variables: { id: appointment.userId }
+              });
+              appointment.user = userResponse.data?.getUser;
+            } catch (error) {
+              console.warn('Failed to fetch user data for appointment:', appointment.id, error);
+            }
+          }
+          return appointment;
+        })
+      );
+      
+      setAppointments(appointmentsWithUserData as AppointmentType[]);
     } catch (error) {
       console.error('Error fetching appointments:', error);
       toast.error("Failed to load appointments");
