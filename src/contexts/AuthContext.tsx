@@ -94,37 +94,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } else {
           // User not found in database but authenticated in Cognito
-          // Try to create the user in database with default values
-          try {
-            console.log('Creating user in database:', email);
-            const nameParts = email.split('@')[0].split('.');
-            const firstName = nameParts[0] || 'User';
-            const lastName = nameParts.slice(1).join(' ') || 'Account';
-            
-            const userData = await userService.createUser({
-              email,
-              firstName,
-              lastName,
-              role: 'user'
-            });
-            
-            const user: User = {
-              email: userData.email,
-              role: userData.role as UserRole,
-              id: userData.id,
-              firstName: userData.firstName,
-              lastName: userData.lastName,
-              isActive: userData.isActive,
-              attributes: { email: userData.email }
-            };
-            
-            setUser(user);
-            toast.success("Account synced successfully!");
-          } catch (createError) {
-            console.error('Failed to create user in database:', createError);
-            setUser(null);
-            await signOut();
-          }
+          // This should not happen in normal flow, but handle gracefully
+          console.warn('User authenticated in Cognito but not found in database:', email);
+          setUser(null);
+          await signOut();
         }
       } else {
         setUser(null);

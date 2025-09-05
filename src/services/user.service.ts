@@ -107,6 +107,13 @@ class UserService {
    */
   async createUser(input: CreateUserInput): Promise<User> {
     try {
+      // Check if user already exists to prevent duplicates
+      const existingUser = await this.getUserByEmail(input.email);
+      if (existingUser) {
+        console.log('User already exists, returning existing user:', existingUser.id);
+        return existingUser;
+      }
+
       // Generate a unique UUID for the user ID
       const userId = crypto.randomUUID();
       
