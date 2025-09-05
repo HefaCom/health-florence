@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { HealthAICoin } from "@/components/FloLogo";
 import { ArrowUpRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useXRPL } from "@/contexts/XRPLContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { haicRewardService } from "@/services/haic-reward.service";
 import {
   Dialog,
   DialogContent,
@@ -22,11 +24,32 @@ interface TokenRewardsProps {
 }
 
 export function TokenRewards({ className }: TokenRewardsProps) {
+  const { user } = useAuth();
   const { balance, isConnected, walletAddress, transferHAIC } = useXRPL();
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [transferAmount, setTransferAmount] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
   const [isTransferring, setIsTransferring] = useState(false);
+  const [totalEarned, setTotalEarned] = useState(0);
+  const [recentRewards, setRecentRewards] = useState<any[]>([]);
+
+  // Fetch HAIC rewards from database
+  useEffect(() => {
+    const fetchHAICRewards = async () => {
+      if (user?.id) {
+        try {
+          const total = await haicRewardService.getTotalHAICBalance(user.id);
+          const recent = await haicRewardService.getRecentHAICRewards(user.id, 5);
+          setTotalEarned(total);
+          setRecentRewards(recent);
+        } catch (error) {
+          console.error('Error fetching HAIC rewards:', error);
+        }
+      }
+    };
+
+    fetchHAICRewards();
+  }, [user?.id]);
 
   const formatBalance = (value: string) => {
     return parseFloat(value).toLocaleString(undefined, {
@@ -71,12 +94,22 @@ export function TokenRewards({ className }: TokenRewardsProps) {
         </div>
         
         <div className="mb-2">
-          <div className="text-sm text-blue-200">Current Balance</div>
+          <div className="text-sm text-blue-200">XRPL Balance</div>
           <div className="text-3xl font-bold text-white">
             {formatBalance(balance.haic)} <span className="text-sm font-normal">HAIC</span>
           </div>
           <div className="text-xs text-blue-200 mt-1">
             {formatBalance(balance.xrp)} XRP Available
+          </div>
+        </div>
+        
+        <div className="mb-2">
+          <div className="text-sm text-blue-200">Total Earned</div>
+          <div className="text-2xl font-bold text-green-400">
+            {totalEarned.toLocaleString()} <span className="text-sm font-normal">HAIC</span>
+          </div>
+          <div className="text-xs text-blue-200 mt-1">
+            From health activities
           </div>
         </div>
         
@@ -168,6 +201,21 @@ export function TokenRewards({ className }: TokenRewardsProps) {
             Earn More
           </Button>
         </div>
+
+        {/* Recent Rewards */}
+        {recentRewards.length > 0 && (
+          <div className="space-y-2 mb-4">
+            <h4 className="text-sm font-medium text-muted-foreground">Recent Rewards</h4>
+            <div className="space-y-1 text-xs max-h-32 overflow-y-auto">
+              {recentRewards.slice(0, 3).map((reward, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded">
+                  <span className="truncate">{reward.reason}</span>
+                  <span className="font-medium text-green-600">+{reward.amount} HAIC</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Earning Opportunities */}
         <div className="space-y-2">

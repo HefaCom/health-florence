@@ -235,7 +235,7 @@ export type HealthCondition = {
   status: string,
   diagnosedDate: string,
   description: string,
-  medications?: Array< string | null > | null,
+  medications?: string | null,
   user?: User | null,
   createdAt: string,
   updatedAt: string,
@@ -902,7 +902,7 @@ export type CreateHealthConditionInput = {
   status: string,
   diagnosedDate: string,
   description: string,
-  medications?: Array< string | null > | null,
+  medications?: string | null,
 };
 
 export type ModelHealthConditionConditionInput = {
@@ -929,7 +929,7 @@ export type UpdateHealthConditionInput = {
   status?: string | null,
   diagnosedDate?: string | null,
   description?: string | null,
-  medications?: Array< string | null > | null,
+  medications?: string | null,
 };
 
 export type DeleteHealthConditionInput = {
@@ -3149,7 +3149,7 @@ export type CreateHealthConditionMutation = {
     status: string,
     diagnosedDate: string,
     description: string,
-    medications?: Array< string | null > | null,
+    medications?: string | null,
     user?:  {
       __typename: "User",
       id: string,
@@ -3205,7 +3205,7 @@ export type UpdateHealthConditionMutation = {
     status: string,
     diagnosedDate: string,
     description: string,
-    medications?: Array< string | null > | null,
+    medications?: string | null,
     user?:  {
       __typename: "User",
       id: string,
@@ -3261,7 +3261,7 @@ export type DeleteHealthConditionMutation = {
     status: string,
     diagnosedDate: string,
     description: string,
-    medications?: Array< string | null > | null,
+    medications?: string | null,
     user?:  {
       __typename: "User",
       id: string,
@@ -4305,7 +4305,7 @@ export type GetHealthConditionQuery = {
     status: string,
     diagnosedDate: string,
     description: string,
-    medications?: Array< string | null > | null,
+    medications?: string | null,
     user?:  {
       __typename: "User",
       id: string,
@@ -4364,7 +4364,7 @@ export type ListHealthConditionsQuery = {
       status: string,
       diagnosedDate: string,
       description: string,
-      medications?: Array< string | null > | null,
+      medications?: string | null,
       createdAt: string,
       updatedAt: string,
       owner?: string | null,
@@ -6077,7 +6077,7 @@ export type OnCreateHealthConditionSubscription = {
     status: string,
     diagnosedDate: string,
     description: string,
-    medications?: Array< string | null > | null,
+    medications?: string | null,
     user?:  {
       __typename: "User",
       id: string,
@@ -6133,7 +6133,7 @@ export type OnUpdateHealthConditionSubscription = {
     status: string,
     diagnosedDate: string,
     description: string,
-    medications?: Array< string | null > | null,
+    medications?: string | null,
     user?:  {
       __typename: "User",
       id: string,
@@ -6189,7 +6189,7 @@ export type OnDeleteHealthConditionSubscription = {
     status: string,
     diagnosedDate: string,
     description: string,
-    medications?: Array< string | null > | null,
+    medications?: string | null,
     user?:  {
       __typename: "User",
       id: string,

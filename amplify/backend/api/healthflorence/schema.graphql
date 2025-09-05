@@ -196,6 +196,7 @@ type AuditBatch @model @auth(rules: [
 }
 
 type DietaryPlan @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update, delete] },
   { allow: owner, operations: [create, read, update, delete] }
 ]) {
   id: ID!
@@ -217,6 +218,7 @@ type DietaryPlan @model @auth(rules: [
 }
 
 type HealthGoal @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update, delete] },
   { allow: owner, operations: [create, read, update, delete] }
 ]) {
   id: ID!
@@ -239,6 +241,7 @@ type HealthGoal @model @auth(rules: [
 }
 
 type HealthCondition @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update, delete] },
   { allow: owner, operations: [create, read, update, delete] }
 ]) {
   id: ID!
@@ -248,14 +251,15 @@ type HealthCondition @model @auth(rules: [
   status: String! # active, managed, resolved
   diagnosedDate: AWSDate!
   description: String!
-  medications: [String]
+  medications: String
   user: User @belongsTo(fields: ["userId"])
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
 }
 
 type HAICReward @model @auth(rules: [
-  { allow: owner, operations: [create, read, update] }
+  { allow: public, provider: apiKey, operations: [create, read, update, delete] },
+  { allow: owner, operations: [create, read, update, delete] }
 ]) {
   id: ID!
   userId: ID!
@@ -400,7 +404,7 @@ input CreateHealthConditionInput {
   status: String!
   diagnosedDate: AWSDate!
   description: String!
-  medications: [String]
+  medications: String
 }
 
 input UpdateHealthConditionInput {
@@ -411,7 +415,7 @@ input UpdateHealthConditionInput {
   status: String
   diagnosedDate: AWSDate
   description: String
-  medications: [String]
+  medications: String
 }
 
 input DeleteHealthConditionInput {

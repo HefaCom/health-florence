@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,8 @@ import {
   MoreHorizontal,
   Users,
   Phone,
-  Mail
+  Mail,
+  Eye
 } from "lucide-react";
 import { generateClient } from 'aws-amplify/api';
 import { listPatientRecords, listExperts, listAppointments, listExpertPatients, getUser, listUsers } from '@/graphql/queries';
@@ -23,6 +25,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 export default function ExpertPatients() {
+  const navigate = useNavigate();
   const client = generateClient({ authMode: 'apiKey' });
   // Minimal mutation to avoid nested expert selection which can fail auth
   const CREATE_PATIENT_RECORD_MIN = /* GraphQL */ `mutation CreatePatientRecordMin($input: CreatePatientRecordInput!, $condition: ModelPatientRecordConditionInput) {
@@ -319,9 +322,20 @@ export default function ExpertPatients() {
                     <span className="text-sm text-gray-500">{patient.lastVisit}</span>
                   </td>
                   <td className="py-4 px-4">
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => navigate(`/expert/dashboard/patient/${patient.id}`)}
+                        className="flex items-center space-x-1"
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span>View Details</span>
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

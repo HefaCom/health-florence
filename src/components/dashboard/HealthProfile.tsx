@@ -3,6 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   User, 
   Shield, 
@@ -16,11 +20,15 @@ import {
   Ruler,
   AlertTriangle,
   CheckCircle,
-  Plus
+  Plus,
+  Trash2,
+  Save,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { userService } from "@/services/user.service";
+import { healthConditionService, HealthCondition as HealthConditionType } from "@/services/health-condition.service";
 import { toast } from "sonner";
 
 interface HealthCondition {
@@ -42,6 +50,16 @@ export function HealthProfile({ className }: HealthProfileProps) {
   const [isPrivate, setIsPrivate] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingCondition, setEditingCondition] = useState<string | null>(null);
+  const [showAddCondition, setShowAddCondition] = useState(false);
+  const [newCondition, setNewCondition] = useState({
+    name: "",
+    severity: "mild",
+    status: "active",
+    diagnosedDate: "",
+    description: "",
+    medications: ""
+  });
   
   // Basic health information from database
   const [healthData, setHealthData] = useState({
@@ -58,12 +76,12 @@ export function HealthProfile({ className }: HealthProfileProps) {
     }
   });
 
-  const [healthConditions, setHealthConditions] = useState<HealthCondition[]>([]);
+  const [healthConditions, setHealthConditions] = useState<HealthConditionType[]>([]);
 
   // Fetch user health data from database
   useEffect(() => {
     const fetchHealthData = async () => {
-      if (user?.email) {
+      if (user?.email && user?.id) {
         try {
           setIsLoading(true);
           const userData = await userService.getUserByEmail(user.email);
@@ -71,8 +89,6 @@ export function HealthProfile({ className }: HealthProfileProps) {
           if (userData) {
             // Parse health data from user record
             const allergies = userData.allergies ? userData.allergies.split(',').map(a => a.trim()).filter(a => a) : [];
-            const medicalConditions = userData.medicalConditions ? userData.medicalConditions.split(',').map(c => c.trim()).filter(c => c) : [];
-            const currentMedications = userData.currentMedications ? userData.currentMedications.split(',').map(m => m.trim()).filter(m => m) : [];
 
             setHealthData({
               height: userData.height || 0,
@@ -87,20 +103,11 @@ export function HealthProfile({ className }: HealthProfileProps) {
                 phone: userData.emergencyContactPhone || ""
               }
             });
-
-            // Convert medical conditions to health conditions format
-            const conditions: HealthCondition[] = medicalConditions.map((condition, index) => ({
-              id: `condition_${index}`,
-              name: condition,
-              severity: "moderate" as const,
-              status: "active" as const,
-              diagnosedDate: userData.createdAt || new Date().toISOString(),
-              description: `Medical condition: ${condition}`,
-              medications: currentMedications
-            }));
-
-            setHealthConditions(conditions);
           }
+
+          // Fetch health conditions from the dedicated table
+          const conditions = await healthConditionService.getHealthConditionsByUserId(user.id);
+          setHealthConditions(conditions);
         } catch (error) {
           console.error('Error fetching health data:', error);
           toast.error("Failed to load health profile data");
@@ -111,7 +118,7 @@ export function HealthProfile({ className }: HealthProfileProps) {
     };
 
     fetchHealthData();
-  }, [user?.email]);
+  }, [user?.email, user?.id]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -151,6 +158,99 @@ export function HealthProfile({ className }: HealthProfileProps) {
     if (bmi < 25) return { category: "Normal", color: "text-green-600 dark:text-green-400" };
     if (bmi < 30) return { category: "Overweight", color: "text-yellow-600 dark:text-yellow-400" };
     return { category: "Obese", color: "text-red-600 dark:text-red-400" };
+  };
+
+  const handleEditCondition = (condition: HealthConditionType) => {
+    setEditingCondition(condition.id);
+  };
+
+  const handleSaveCondition = async (condition: HealthConditionType) => {
+    try {
+      await healthConditionService.updateHealthCondition({
+        id: condition.id,
+        name: condition.name,
+        severity: condition.severity,
+        status: condition.status,
+        diagnosedDate: condition.diagnosedDate,
+        description: condition.description,
+        medications: condition.medications
+      });
+      
+      setHealthConditions(prev => 
+        prev.map(c => c.id === condition.id ? condition : c)
+      );
+      setEditingCondition(null);
+      toast.success("Health condition updated successfully!");
+    } catch (error) {
+      console.error('Error updating health condition:', error);
+      toast.error("Failed to update health condition");
+    }
+  };
+
+  const handleDeleteCondition = async (id: string) => {
+    try {
+      await healthConditionService.deleteHealthCondition(id);
+      setHealthConditions(prev => prev.filter(condition => condition.id !== id));
+      toast.success("Health condition deleted successfully!");
+    } catch (error) {
+      console.error('Error deleting health condition:', error);
+      toast.error("Failed to delete health condition");
+    }
+  };
+
+  const handleAddCondition = async () => {
+    if (!user?.id) return;
+
+    try {
+      const newConditionData = await healthConditionService.createHealthCondition({
+        userId: user.id,
+        name: newCondition.name,
+        severity: newCondition.severity,
+        status: newCondition.status,
+        diagnosedDate: newCondition.diagnosedDate,
+        description: newCondition.description,
+        medications: newCondition.medications
+      });
+
+      setHealthConditions(prev => [...prev, newConditionData]);
+      setShowAddCondition(false);
+      setNewCondition({
+        name: "",
+        severity: "mild",
+        status: "active",
+        diagnosedDate: "",
+        description: "",
+        medications: ""
+      });
+      toast.success("New health condition added successfully!");
+    } catch (error) {
+      console.error('Error adding health condition:', error);
+      toast.error("Failed to add health condition");
+    }
+  };
+
+  const handleSaveHealthData = async () => {
+    if (!user?.id) return;
+
+    try {
+      await userService.updateUser({
+        id: user.id,
+        height: healthData.height,
+        weight: healthData.weight,
+        gender: healthData.gender,
+        dateOfBirth: healthData.dateOfBirth,
+        bloodType: healthData.bloodType,
+        allergies: healthData.allergies.join(', '),
+        emergencyContactName: healthData.emergencyContact.name,
+        emergencyContactPhone: healthData.emergencyContact.phone
+      });
+      
+      setIsEditing(false);
+      toast.success("Health profile updated successfully!");
+    } catch (error) {
+      console.error('Error updating health profile:', error);
+      toast.error("Failed to update health profile");
+    }
   };
 
   const bmi = calculateBMI();
@@ -299,53 +399,314 @@ export function HealthProfile({ className }: HealthProfileProps) {
 
           {/* Health Conditions */}
           <div className="p-4 rounded-lg border bg-white dark:bg-card">
-            <h4 className="font-medium mb-3">Health Conditions</h4>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium">Health Conditions</h4>
+              {isEditing && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAddCondition(!showAddCondition)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  {showAddCondition ? "Cancel" : "Add Condition"}
+                </Button>
+              )}
+            </div>
+            
             <div className="space-y-3">
               {healthConditions.map((condition) => (
                 <div key={condition.id} className="p-3 rounded-lg border bg-gray-50 dark:bg-muted/50">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center space-x-2">
-                      <h5 className="font-medium">{condition.name}</h5>
-                      <Badge 
-                        variant="secondary" 
-                        className={cn("text-xs", getSeverityColor(condition.severity))}
-                      >
-                        {condition.severity}
-                      </Badge>
-                      <Badge 
-                        variant="outline" 
-                        className={cn("text-xs", getStatusColor(condition.status))}
-                      >
-                        {getStatusIcon(condition.status)}
-                        <span className="ml-1">{condition.status}</span>
-                      </Badge>
+                  {editingCondition === condition.id ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor={`condition-name-${condition.id}`}>Condition Name</Label>
+                          <Input
+                            id={`condition-name-${condition.id}`}
+                            value={condition.name}
+                            onChange={(e) => {
+                              const updatedCondition = { ...condition, name: e.target.value };
+                              setHealthConditions(prev => 
+                                prev.map(c => c.id === condition.id ? updatedCondition : c)
+                              );
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`condition-severity-${condition.id}`}>Severity</Label>
+                          <Select
+                            value={condition.severity}
+                            onValueChange={(value) => {
+                              const updatedCondition = { ...condition, severity: value as "mild" | "moderate" | "severe" };
+                              setHealthConditions(prev => 
+                                prev.map(c => c.id === condition.id ? updatedCondition : c)
+                              );
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="mild">Mild</SelectItem>
+                              <SelectItem value="moderate">Moderate</SelectItem>
+                              <SelectItem value="severe">Severe</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor={`condition-status-${condition.id}`}>Status</Label>
+                          <Select
+                            value={condition.status}
+                            onValueChange={(value) => {
+                              const updatedCondition = { ...condition, status: value as "active" | "managed" | "resolved" };
+                              setHealthConditions(prev => 
+                                prev.map(c => c.id === condition.id ? updatedCondition : c)
+                              );
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="managed">Managed</SelectItem>
+                              <SelectItem value="resolved">Resolved</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor={`condition-date-${condition.id}`}>Diagnosed Date</Label>
+                          <Input
+                            id={`condition-date-${condition.id}`}
+                            type="date"
+                            value={condition.diagnosedDate}
+                            onChange={(e) => {
+                              const updatedCondition = { ...condition, diagnosedDate: e.target.value };
+                              setHealthConditions(prev => 
+                                prev.map(c => c.id === condition.id ? updatedCondition : c)
+                              );
+                            }}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor={`condition-description-${condition.id}`}>Description</Label>
+                        <Textarea
+                          id={`condition-description-${condition.id}`}
+                          value={condition.description}
+                          onChange={(e) => {
+                            const updatedCondition = { ...condition, description: e.target.value };
+                            setHealthConditions(prev => 
+                              prev.map(c => c.id === condition.id ? updatedCondition : c)
+                            );
+                          }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor={`condition-medications-${condition.id}`}>Medications</Label>
+                        <Input
+                          id={`condition-medications-${condition.id}`}
+                          value={condition.medications || ""}
+                          onChange={(e) => {
+                            const updatedCondition = { ...condition, medications: e.target.value };
+                            setHealthConditions(prev => 
+                              prev.map(c => c.id === condition.id ? updatedCondition : c)
+                            );
+                          }}
+                          placeholder="List medications separated by commas"
+                        />
+                      </div>
+                      
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingCondition(null)}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleSaveCondition(condition)}
+                        >
+                          <Save className="h-4 w-4 mr-1" />
+                          Save
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {condition.description}
-                  </p>
-                  
-                  <div className="text-xs text-muted-foreground mb-2">
-                    Diagnosed: {new Date(condition.diagnosedDate).toLocaleDateString()}
-                  </div>
-                  
-                  {condition.medications && condition.medications.length > 0 && (
+                  ) : (
                     <div>
-                      <div className="text-xs font-medium text-muted-foreground mb-1">
-                        Medications:
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {condition.medications.map((med, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {med}
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <h5 className="font-medium">{condition.name}</h5>
+                          <Badge 
+                            variant="secondary" 
+                            className={cn("text-xs", getSeverityColor(condition.severity))}
+                          >
+                            {condition.severity}
                           </Badge>
-                        ))}
+                          <Badge 
+                            variant="outline" 
+                            className={cn("text-xs", getStatusColor(condition.status))}
+                          >
+                            {getStatusIcon(condition.status)}
+                            <span className="ml-1">{condition.status}</span>
+                          </Badge>
+                        </div>
+                        
+                        {isEditing && (
+                          <div className="flex space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditCondition(condition)}
+                              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                            >
+                              <Edit3 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteCondition(condition.id)}
+                              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
+                      
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {condition.description}
+                      </p>
+                      
+                      <div className="text-xs text-muted-foreground mb-2">
+                        Diagnosed: {new Date(condition.diagnosedDate).toLocaleDateString()}
+                      </div>
+                      
+                      {condition.medications && (
+                        <div>
+                          <div className="text-xs font-medium text-muted-foreground mb-1">
+                            Medications:
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {condition.medications}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               ))}
+              
+              {showAddCondition && (
+                <div className="p-3 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+                  <div className="space-y-3">
+                    <h5 className="font-medium">Add New Health Condition</h5>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="new-condition-name">Condition Name</Label>
+                        <Input
+                          id="new-condition-name"
+                          value={newCondition.name}
+                          onChange={(e) => setNewCondition(prev => ({ ...prev, name: e.target.value }))}
+                          placeholder="e.g., Diabetes Type 2"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="new-condition-severity">Severity</Label>
+                        <Select
+                          value={newCondition.severity}
+                          onValueChange={(value) => setNewCondition(prev => ({ ...prev, severity: value as "mild" | "moderate" | "severe" }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="mild">Mild</SelectItem>
+                            <SelectItem value="moderate">Moderate</SelectItem>
+                            <SelectItem value="severe">Severe</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="new-condition-status">Status</Label>
+                        <Select
+                          value={newCondition.status}
+                          onValueChange={(value) => setNewCondition(prev => ({ ...prev, status: value as "active" | "managed" | "resolved" }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="managed">Managed</SelectItem>
+                            <SelectItem value="resolved">Resolved</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="new-condition-date">Diagnosed Date</Label>
+                        <Input
+                          id="new-condition-date"
+                          type="date"
+                          value={newCondition.diagnosedDate}
+                          onChange={(e) => setNewCondition(prev => ({ ...prev, diagnosedDate: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="new-condition-description">Description</Label>
+                      <Textarea
+                        id="new-condition-description"
+                        value={newCondition.description}
+                        onChange={(e) => setNewCondition(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="Describe the condition..."
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="new-condition-medications">Medications</Label>
+                      <Input
+                        id="new-condition-medications"
+                        value={newCondition.medications}
+                        onChange={(e) => setNewCondition(prev => ({ ...prev, medications: e.target.value }))}
+                        placeholder="List medications separated by commas"
+                      />
+                    </div>
+                    
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddCondition(false)}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleAddCondition}
+                        disabled={!newCondition.name}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -373,18 +734,32 @@ export function HealthProfile({ className }: HealthProfileProps) {
       </ScrollArea>
 
       <div className="p-4 border-t bg-gray-50 dark:bg-muted/50">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full rounded-full"
-          onClick={() => {
-            // This would trigger Florence to update health profile
-            console.log("Requesting health profile updates from Florence");
-          }}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Ask Florence to Update Health Profile
-        </Button>
+        <div className="flex space-x-2">
+          {isEditing && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1 rounded-full"
+              onClick={handleSaveHealthData}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          )}
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1 rounded-full"
+            onClick={() => {
+              // This would trigger Florence to update health profile
+              console.log("Requesting health profile updates from Florence");
+            }}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Ask Florence to Update Health Profile
+          </Button>
+        </div>
       </div>
     </Card>
   );

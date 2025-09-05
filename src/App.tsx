@@ -23,6 +23,7 @@ import Profile from "./pages/Profile";
 // Expert portal pages
 import ExpertDashboard from "./pages/expert/ExpertDashboard";
 import ExpertPatients from "./pages/expert/ExpertPatients";
+import PatientDetails from "./pages/expert/PatientDetails";
 import ExpertAppointments from "./pages/expert/ExpertAppointments";
 import ExpertRecords from "./pages/expert/ExpertRecords";
 import ExpertConsultations from "./pages/expert/ExpertConsultations";
@@ -124,6 +125,7 @@ const App = () => (
                   <Route path="profile" element={<ExpertProfile />} />
                   <Route path="florence" element={<ExpertFlorence />} />
                   <Route path="patients" element={<ExpertPatients />} />
+                  <Route path="patient/:patientId" element={<PatientDetails />} />
                   <Route path="appointments" element={<ExpertAppointments />} />
                   <Route path="records" element={<ExpertRecords />} />
                   <Route path="consultations" element={<ExpertConsultations />} />
