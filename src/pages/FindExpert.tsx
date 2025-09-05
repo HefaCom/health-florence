@@ -233,25 +233,25 @@ export default function FindExpert() {
             </div>
             <div className="text-right">
               {expert.consultationFee && (
-                <div className="text-lg font-semibold text-green-600">
+                <div className="text-lg font-semibold text-green-600 dark:text-green-400">
                   ${expert.consultationFee}
                 </div>
               )}
-              <div className="text-sm text-gray-500">per consultation</div>
+              <div className="text-sm text-gray-500 dark:text-muted-foreground">per consultation</div>
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-4">
           {expert.bio && (
-            <p className="text-gray-600 line-clamp-3">
+            <p className="text-gray-600 dark:text-muted-foreground line-clamp-3">
               {expert.bio}
             </p>
           )}
 
           {expert.subSpecializations && expert.subSpecializations.length > 0 && (
             <div>
-              <h4 className="font-medium text-sm text-gray-700 mb-2">Sub-specializations:</h4>
+              <h4 className="font-medium text-sm text-gray-700 dark:text-foreground mb-2">Sub-specializations:</h4>
               <div className="flex flex-wrap gap-1">
                 {expert.subSpecializations.map((spec, index) => (
                   <Badge key={index} variant="secondary" className="text-xs">
@@ -264,7 +264,7 @@ export default function FindExpert() {
 
           {expert.languages && expert.languages.length > 0 && (
             <div>
-              <h4 className="font-medium text-sm text-gray-700 mb-2">Languages:</h4>
+              <h4 className="font-medium text-sm text-gray-700 dark:text-foreground mb-2">Languages:</h4>
               <div className="flex flex-wrap gap-1">
                 {expert.languages.slice(0, 3).map((lang, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
@@ -281,7 +281,7 @@ export default function FindExpert() {
           )}
 
           {expert.practiceName && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-muted-foreground">
               <MapPin className="h-4 w-4" />
               {/* <span>Practice Name: {expert.practiceName}</span> */}
               <span>{expert.practiceAddress}</span>
@@ -341,18 +341,18 @@ export default function FindExpert() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Find Healthcare Experts</h1>
-          <p className="text-gray-600">Discover and connect with doctors, specialists, and healthcare professionals</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2">Find Healthcare Experts</h1>
+          <p className="text-gray-600 dark:text-muted-foreground">Discover and connect with doctors, specialists, and healthcare professionals</p>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-white dark:bg-card rounded-lg shadow-sm p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-muted-foreground h-4 w-4" />
               <Input
                 placeholder="Search experts..."
                 value={searchTerm}
@@ -400,11 +400,11 @@ export default function FindExpert() {
         {/* Results */}
         <div className="mb-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-foreground">
               {isLoading ? 'Loading experts...' : `${filteredExperts.length} experts found`}
             </h2>
             {filteredExperts.length > 0 && (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-muted-foreground">
                 Showing {filteredExperts.length} of {experts.length} experts
               </div>
             )}
@@ -413,15 +413,15 @@ export default function FindExpert() {
 
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
           </div>
         ) : filteredExperts.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
+            <div className="text-gray-400 dark:text-muted-foreground mb-4">
               <Users className="h-16 w-16 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No experts found</h3>
-            <p className="text-gray-600 mb-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-foreground mb-2">No experts found</h3>
+            <p className="text-gray-600 dark:text-muted-foreground mb-4">
               Try adjusting your search criteria or filters
             </p>
             <Button onClick={() => {

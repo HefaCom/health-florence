@@ -85,19 +85,19 @@ export function HealthProfile({ className }: HealthProfileProps) {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case "mild": return "bg-green-100 text-green-800";
-      case "moderate": return "bg-yellow-100 text-yellow-800";
-      case "severe": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "mild": return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+      case "moderate": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
+      case "severe": return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active": return "bg-red-100 text-red-800";
-      case "managed": return "bg-blue-100 text-blue-800";
-      case "resolved": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "active": return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+      case "managed": return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
+      case "resolved": return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
     }
   };
 
@@ -117,10 +117,10 @@ export function HealthProfile({ className }: HealthProfileProps) {
   };
 
   const getBMICategory = (bmi: number) => {
-    if (bmi < 18.5) return { category: "Underweight", color: "text-blue-600" };
-    if (bmi < 25) return { category: "Normal", color: "text-green-600" };
-    if (bmi < 30) return { category: "Overweight", color: "text-yellow-600" };
-    return { category: "Obese", color: "text-red-600" };
+    if (bmi < 18.5) return { category: "Underweight", color: "text-blue-600 dark:text-blue-400" };
+    if (bmi < 25) return { category: "Normal", color: "text-green-600 dark:text-green-400" };
+    if (bmi < 30) return { category: "Overweight", color: "text-yellow-600 dark:text-yellow-400" };
+    return { category: "Obese", color: "text-red-600 dark:text-red-400" };
   };
 
   const bmi = calculateBMI();
@@ -128,11 +128,11 @@ export function HealthProfile({ className }: HealthProfileProps) {
 
   return (
     <Card className={cn("rounded-florence overflow-hidden card-glow", className)}>
-      <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-b">
+      <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Shield className="h-6 w-6 text-purple-600" />
+            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+              <Shield className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
               <h3 className="font-semibold text-lg">Health Profile</h3>
@@ -166,19 +166,19 @@ export function HealthProfile({ className }: HealthProfileProps) {
         {!isPrivate && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{healthData.height}cm</div>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{healthData.height}cm</div>
               <div className="text-xs text-muted-foreground">Height</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-pink-600">{healthData.weight}kg</div>
+              <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">{healthData.weight}kg</div>
               <div className="text-xs text-muted-foreground">Weight</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{bmi}</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{bmi}</div>
               <div className={cn("text-xs", bmiCategory.color)}>{bmiCategory.category}</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{healthConditions.length}</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{healthConditions.length}</div>
               <div className="text-xs text-muted-foreground">Conditions</div>
             </div>
           </div>
@@ -188,7 +188,7 @@ export function HealthProfile({ className }: HealthProfileProps) {
       <ScrollArea className="h-[400px] p-4">
         <div className="space-y-4">
           {/* Basic Information */}
-          <div className="p-4 rounded-lg border bg-white">
+          <div className="p-4 rounded-lg border bg-white dark:bg-card">
             <h4 className="font-medium mb-3 flex items-center">
               <User className="h-4 w-4 mr-2" />
               Basic Information
@@ -242,11 +242,11 @@ export function HealthProfile({ className }: HealthProfileProps) {
           </div>
 
           {/* Allergies */}
-          <div className="p-4 rounded-lg border bg-white">
+          <div className="p-4 rounded-lg border bg-white dark:bg-card">
             <h4 className="font-medium mb-3">Allergies</h4>
             <div className="flex flex-wrap gap-2">
               {healthData.allergies.map((allergy, index) => (
-                <Badge key={index} variant="outline" className="text-red-700 border-red-300">
+                <Badge key={index} variant="outline" className="text-red-700 border-red-300 dark:text-red-300 dark:border-red-600">
                   <AlertTriangle className="h-3 w-3 mr-1" />
                   {allergy}
                 </Badge>
@@ -255,11 +255,11 @@ export function HealthProfile({ className }: HealthProfileProps) {
           </div>
 
           {/* Health Conditions */}
-          <div className="p-4 rounded-lg border bg-white">
+          <div className="p-4 rounded-lg border bg-white dark:bg-card">
             <h4 className="font-medium mb-3">Health Conditions</h4>
             <div className="space-y-3">
               {healthConditions.map((condition) => (
-                <div key={condition.id} className="p-3 rounded-lg border bg-gray-50">
+                <div key={condition.id} className="p-3 rounded-lg border bg-gray-50 dark:bg-muted/50">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <h5 className="font-medium">{condition.name}</h5>
@@ -308,7 +308,7 @@ export function HealthProfile({ className }: HealthProfileProps) {
 
           {/* Emergency Contact */}
           {!isPrivate && (
-            <div className="p-4 rounded-lg border bg-white">
+            <div className="p-4 rounded-lg border bg-white dark:bg-card">
               <h4 className="font-medium mb-3">Emergency Contact</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -329,7 +329,7 @@ export function HealthProfile({ className }: HealthProfileProps) {
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t bg-gray-50">
+      <div className="p-4 border-t bg-gray-50 dark:bg-muted/50">
         <Button 
           variant="outline" 
           size="sm" 

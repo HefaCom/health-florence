@@ -183,10 +183,10 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading expert profile...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-muted-foreground">Loading expert profile...</p>
         </div>
       </div>
     );
@@ -194,10 +194,10 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
 
   if (!expert) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Expert Not Found</h2>
-          <p className="text-gray-600 mb-4">The expert you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Expert Not Found</h2>
+          <p className="text-gray-600 dark:text-muted-foreground mb-4">The expert you're looking for doesn't exist or has been removed.</p>
           <Button onClick={() => navigate('/find-expert')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Experts
@@ -208,7 +208,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -221,7 +221,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
             Back to Experts
           </Button>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white dark:bg-card rounded-lg shadow-sm p-6">
             <div className="flex items-start gap-6">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={expert.profileImage} />
@@ -233,14 +233,14 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">
                       {expert.user ? `${expert.user.firstName} ${expert.user.lastName}` : `Dr. ${expert.specialization}`}
                     </h1>
-                    <p className="text-xl text-gray-600 mb-2">{expert.specialization}</p>
+                    <p className="text-xl text-gray-600 dark:text-muted-foreground mb-2">{expert.specialization}</p>
                     
                     <div className="flex items-center gap-4 mb-4">
                       {expert.isVerified && (
-                        <Badge variant="default" className="bg-green-600">
+                        <Badge variant="default" className="bg-green-600 dark:bg-green-700">
                           <Check className="h-3 w-3 mr-1" />
                           Verified
                         </Badge>
@@ -265,7 +265,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                       disabled={isAddingExpert}
                     >
                       {isAddingExpert ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 dark:border-blue-400 mr-2"></div>
                       ) : (
                         <Plus className="h-4 w-4 mr-2" />
                       )}
@@ -289,7 +289,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                         
                         <div className="space-y-4">
                           <div>
-                            <label className="text-sm font-medium">Appointment Type</label>
+                            <label className="text-sm font-medium text-foreground">Appointment Type</label>
                             <Select value={appointmentType} onValueChange={setAppointmentType}>
                               <SelectTrigger>
                                 <SelectValue />
@@ -305,7 +305,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                           </div>
                           
                           <div>
-                            <label className="text-sm font-medium">Date</label>
+                            <label className="text-sm font-medium text-foreground">Date</label>
                             <Calendar
                               mode="single"
                               selected={selectedDate}
@@ -316,7 +316,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                           </div>
                           
                           <div>
-                            <label className="text-sm font-medium">Time</label>
+                            <label className="text-sm font-medium text-foreground">Time</label>
                             <Select value={selectedTime} onValueChange={setSelectedTime}>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select time" />
@@ -332,7 +332,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                           </div>
                           
                           <div>
-                            <label className="text-sm font-medium">Notes (Optional)</label>
+                            <label className="text-sm font-medium text-foreground">Notes (Optional)</label>
                             <Textarea
                               placeholder="Any specific concerns or questions..."
                               value={notes}
@@ -347,7 +347,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                             className="w-full"
                           >
                             {isBooking ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white dark:border-gray-900 mr-2"></div>
                             ) : (
                               <CalendarIcon className="h-4 w-4 mr-2" />
                             )}
@@ -374,7 +374,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                   <CardTitle>About</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 leading-relaxed">{expert.bio}</p>
+                  <p className="text-gray-700 dark:text-muted-foreground leading-relaxed">{expert.bio}</p>
                 </CardContent>
               </Card>
             )}
@@ -406,12 +406,12 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                 <CardContent className="space-y-4">
                   {expert.education && expert.education.length > 0 && (
                     <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Education</h4>
+                      <h4 className="font-medium text-sm text-gray-700 dark:text-foreground mb-2">Education</h4>
                       <ul className="space-y-2">
                         {expert.education.map((edu, index) => (
                           <li key={index} className="flex items-center gap-2">
-                            <GraduationCap className="h-4 w-4 text-blue-600" />
-                            <span className="text-gray-700">{edu}</span>
+                            <GraduationCap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <span className="text-gray-700 dark:text-muted-foreground">{edu}</span>
                           </li>
                         ))}
                       </ul>
@@ -420,12 +420,12 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                   
                   {expert.certifications && expert.certifications.length > 0 && (
                     <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-2">Certifications</h4>
+                      <h4 className="font-medium text-sm text-gray-700 dark:text-foreground mb-2">Certifications</h4>
                       <ul className="space-y-2">
                         {expert.certifications.map((cert, index) => (
                           <li key={index} className="flex items-center gap-2">
-                            <Award className="h-4 w-4 text-green-600" />
-                            <span className="text-gray-700">{cert}</span>
+                            <Award className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            <span className="text-gray-700 dark:text-muted-foreground">{cert}</span>
                           </li>
                         ))}
                       </ul>
@@ -464,8 +464,8 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {expert.services.map((service, index) => (
                       <div key={index} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-green-600" />
-                        <span className="text-gray-700">{service}</span>
+                        <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        <span className="text-gray-700 dark:text-muted-foreground">{service}</span>
                       </div>
                     ))}
                   </div>
@@ -484,40 +484,40 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
               <CardContent className="space-y-4">
                 {expert.practiceName && (
                   <div className="flex items-center gap-2">
-                    <Building className="h-4 w-4 text-gray-500" />
-                    <span className="text-gray-700">{expert.practiceName}</span>
+                    <Building className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
+                    <span className="text-gray-700 dark:text-muted-foreground">{expert.practiceName}</span>
                   </div>
                 )}
                 
                 {expert.practiceAddress && (
                   <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-gray-500 mt-0.5" />
-                    <span className="text-gray-700">{expert.practiceAddress}</span>
+                    <MapPin className="h-4 w-4 text-gray-500 dark:text-muted-foreground mt-0.5" />
+                    <span className="text-gray-700 dark:text-muted-foreground">{expert.practiceAddress}</span>
                   </div>
                 )}
                 
                 {expert.practicePhone && (
                   <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-gray-500" />
-                    <span className="text-gray-700">{expert.practicePhone}</span>
+                    <Phone className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
+                    <span className="text-gray-700 dark:text-muted-foreground">{expert.practicePhone}</span>
                   </div>
                 )}
                 
                 {expert.practiceEmail && (
                   <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-gray-500" />
-                    <span className="text-gray-700">{expert.practiceEmail}</span>
+                    <Mail className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
+                    <span className="text-gray-700 dark:text-muted-foreground">{expert.practiceEmail}</span>
                   </div>
                 )}
                 
                 {expert.practiceWebsite && (
                   <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-gray-500" />
+                    <Globe className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
                     <a 
                       href={expert.practiceWebsite} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
+                      className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       Visit Website
                     </a>
@@ -570,7 +570,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                   <CardTitle>License Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 dark:text-muted-foreground">
                     <p><strong>License Number:</strong> {expert.licenseNumber}</p>
                     <p><strong>Verification Status:</strong> {expert.verificationStatus}</p>
                   </div>
