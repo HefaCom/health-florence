@@ -15,7 +15,7 @@ import {
   Eye
 } from "lucide-react";
 import { generateClient } from 'aws-amplify/api';
-import { listPatientRecords, listExperts, listAppointments, listExpertPatients, getUser, listUsers } from '@/graphql/queries';
+import { listPatientRecords, listExperts, listAppointments, listExpertPatients, getUser, listUsers, listHealthConditions } from '@/graphql/queries';
 import { createPatientRecord } from '@/graphql/mutations';
 import { useAuth } from '@/contexts/AuthContext';
 import { expertService } from '@/services/expert.service';
@@ -166,17 +166,62 @@ export default function ExpertPatients() {
             }
             console.log('[ExpertPatients] fetched users from ExpertPatient:', users.length);
             if (users.length > 0) {
-              mapped = users.map((u) => {
+              // Fetch additional data for each patient
+              const enrichedPatients = await Promise.all(users.map(async (u) => {
                 const age = u.dateOfBirth ? (new Date().getFullYear() - new Date(u.dateOfBirth).getFullYear()) : undefined;
+                
+                // Fetch health conditions for this patient
+                let condition = 'No conditions recorded';
+                try {
+                  const conditionsRes = await client.graphql({
+                    query: listHealthConditions,
+                    variables: { filter: { userId: { eq: u.id } } },
+                    authMode: 'apiKey'
+                  });
+                  const conditions = conditionsRes.data?.listHealthConditions?.items || [];
+                  if (conditions.length > 0) {
+                    condition = conditions[0].name; // Show the first condition
+                    if (conditions.length > 1) {
+                      condition += ` (+${conditions.length - 1} more)`;
+                    }
+                  }
+                } catch (error) {
+                  console.warn('Failed to fetch health conditions for patient:', u.id, error);
+                }
+
+                // Fetch last appointment for this patient
+                let lastVisit = 'No visits';
+                try {
+                  const appointmentsRes = await client.graphql({
+                    query: listAppointments,
+                    variables: { 
+                      filter: { userId: { eq: u.id } },
+                      limit: 1
+                    },
+                    authMode: 'apiKey'
+                  });
+                  const appointments = appointmentsRes.data?.listAppointments?.items || [];
+                  if (appointments.length > 0) {
+                    const lastAppointment = appointments[0];
+                    lastVisit = new Date(lastAppointment.date).toLocaleDateString();
+                  }
+                } catch (error) {
+                  console.warn('Failed to fetch appointments for patient:', u.id, error);
+                }
+
                 return {
                   id: u.id,
                   name: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email || 'Unknown',
                   email: u.email,
                   phone: u.phoneNumber,
                   age,
+                  condition,
+                  lastVisit,
                   status: 'Active'
                 };
-              });
+              }));
+
+              mapped = enrichedPatients;
             } else {
               // If no expert-patient links, do not fallback to appointments. Show none per requirement.
               mapped = [];
@@ -311,7 +356,7 @@ export default function ExpertPatients() {
                     <span className="text-sm text-gray-900">{patient.age !== undefined ? `${patient.age} years` : 'N/A'}</span>
                   </td>
                   <td className="py-4 px-4">
-                    <span className="text-sm text-gray-900">{patient.condition}</span>
+                    <span className="text-sm text-gray-900">{patient.condition || 'No conditions recorded'}</span>
                   </td>
                   <td className="py-4 px-4">
                     <Badge className={getStatusColor(patient.status || 'active')}>
@@ -319,7 +364,7 @@ export default function ExpertPatients() {
                     </Badge>
                   </td>
                   <td className="py-4 px-4">
-                    <span className="text-sm text-gray-500">{patient.lastVisit}</span>
+                    <span className="text-sm text-gray-500">{patient.lastVisit || 'No visits'}</span>
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex space-x-2">

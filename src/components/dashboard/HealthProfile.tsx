@@ -336,33 +336,149 @@ export function HealthProfile({ className }: HealthProfileProps) {
               <User className="h-4 w-4 mr-2" />
               Basic Information
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <div className="text-sm text-muted-foreground">Height</div>
-                <div className="font-medium flex items-center">
-                  <Ruler className="h-3 w-3 mr-1" />
-                  {isPrivate ? "***" : `${healthData.height} cm`}
+            {isEditing ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="height">Height (cm)</Label>
+                    <Input
+                      id="height"
+                      type="number"
+                      value={healthData.height}
+                      onChange={(e) => setHealthData({ ...healthData, height: parseInt(e.target.value) || 0 })}
+                      placeholder="Enter height in cm"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="weight">Weight (kg)</Label>
+                    <Input
+                      id="weight"
+                      type="number"
+                      value={healthData.weight}
+                      onChange={(e) => setHealthData({ ...healthData, weight: parseInt(e.target.value) || 0 })}
+                      placeholder="Enter weight in kg"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="gender">Gender</Label>
+                    <Select
+                      value={healthData.gender}
+                      onValueChange={(value) => setHealthData({ ...healthData, gender: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      value={healthData.dateOfBirth}
+                      onChange={(e) => setHealthData({ ...healthData, dateOfBirth: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="bloodType">Blood Type</Label>
+                    <Select
+                      value={healthData.bloodType}
+                      onValueChange={(value) => setHealthData({ ...healthData, bloodType: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select blood type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="A+">A+</SelectItem>
+                        <SelectItem value="A-">A-</SelectItem>
+                        <SelectItem value="B+">B+</SelectItem>
+                        <SelectItem value="B-">B-</SelectItem>
+                        <SelectItem value="AB+">AB+</SelectItem>
+                        <SelectItem value="AB-">AB-</SelectItem>
+                        <SelectItem value="O+">O+</SelectItem>
+                        <SelectItem value="O-">O-</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="allergies">Allergies (comma-separated)</Label>
+                    <Input
+                      id="allergies"
+                      value={healthData.allergies.join(', ')}
+                      onChange={(e) => setHealthData({ 
+                        ...healthData, 
+                        allergies: e.target.value.split(',').map(a => a.trim()).filter(a => a) 
+                      })}
+                      placeholder="Enter allergies separated by commas"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
+                    <Input
+                      id="emergencyContactName"
+                      value={healthData.emergencyContact.name}
+                      onChange={(e) => setHealthData({ 
+                        ...healthData, 
+                        emergencyContact: { ...healthData.emergencyContact, name: e.target.value }
+                      })}
+                      placeholder="Emergency contact name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="emergencyContactPhone">Emergency Contact Phone</Label>
+                    <Input
+                      id="emergencyContactPhone"
+                      value={healthData.emergencyContact.phone}
+                      onChange={(e) => setHealthData({ 
+                        ...healthData, 
+                        emergencyContact: { ...healthData.emergencyContact, phone: e.target.value }
+                      })}
+                      placeholder="Emergency contact phone"
+                    />
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className="text-sm text-muted-foreground">Weight</div>
-                <div className="font-medium flex items-center">
-                  <Scale className="h-3 w-3 mr-1" />
-                  {isPrivate ? "***" : `${healthData.weight} kg`}
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-sm text-muted-foreground">Height</div>
+                  <div className="font-medium flex items-center">
+                    <Ruler className="h-3 w-3 mr-1" />
+                    {isPrivate ? "***" : `${healthData.height} cm`}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Weight</div>
+                  <div className="font-medium flex items-center">
+                    <Scale className="h-3 w-3 mr-1" />
+                    {isPrivate ? "***" : `${healthData.weight} kg`}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Gender</div>
+                  <div className="font-medium">{isPrivate ? "***" : healthData.gender}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Date of Birth</div>
+                  <div className="font-medium flex items-center">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    {isPrivate ? "***" : new Date(healthData.dateOfBirth).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className="text-sm text-muted-foreground">Gender</div>
-                <div className="font-medium">{isPrivate ? "***" : healthData.gender}</div>
-              </div>
-              <div>
-                <div className="text-sm text-muted-foreground">Date of Birth</div>
-                <div className="font-medium flex items-center">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  {isPrivate ? "***" : new Date(healthData.dateOfBirth).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
+            )}
             {!isPrivate && (
               <div className="mt-3 pt-3 border-t">
                 <div className="grid grid-cols-2 gap-4">

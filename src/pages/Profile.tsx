@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { 
@@ -54,6 +55,7 @@ interface ListUsersResponse {
       lastName: string;
       phoneNumber?: string;
       dateOfBirth?: string;
+      gender?: string;
       address?: string;
       city?: string;
       state?: string;
@@ -124,6 +126,7 @@ const Profile = () => {
     email: user?.email || "",
     phoneNumber: "",
     dateOfBirth: "",
+    gender: "",
     address: "",
     city: "",
     state: "",
@@ -161,6 +164,7 @@ const Profile = () => {
               email: userData.email || "",
               phoneNumber: userData.phoneNumber || "",
               dateOfBirth: userData.dateOfBirth || "",
+              gender: userData.gender || "",
               address: userData.address || "",
               city: userData.city || "",
               state: userData.state || "",
@@ -202,6 +206,10 @@ const Profile = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
   
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -220,6 +228,7 @@ const Profile = () => {
         lastName: formData.lastName || null,
         phoneNumber: formData.phoneNumber || null,
         dateOfBirth: formData.dateOfBirth || null,
+        gender: formData.gender || null,
         address: formData.address || null,
         city: formData.city || null,
         state: formData.state || null,
@@ -389,6 +398,23 @@ const Profile = () => {
                       onChange={handleChange}
                       className="rounded-md"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="gender">Gender</Label>
+                    <Select
+                      value={formData.gender}
+                      onValueChange={(value) => handleSelectChange('gender', value)}
+                    >
+                      <SelectTrigger className="rounded-md">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 
@@ -692,6 +718,16 @@ const Profile = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Email</p>
                     <p className="font-medium">{accountDetails?.email || "Not provided"}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-4">
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <UserIcon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Gender</p>
+                    <p className="font-medium">{accountDetails?.gender || "Not specified"}</p>
                   </div>
                 </div>
                 

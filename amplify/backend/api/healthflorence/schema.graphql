@@ -278,6 +278,20 @@ input CreateUserInput {
   firstName: String!
   lastName: String!
   phoneNumber: String
+  dateOfBirth: AWSDate
+  gender: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  allergies: String
+  medicalConditions: String
+  currentMedications: String
+  height: Float
+  weight: Float
+  bloodType: String
   role: String!
   isActive: Boolean
   lastLoginAt: AWSDateTime
@@ -296,6 +310,7 @@ input UpdateUserInput {
   lastName: String
   phoneNumber: String
   dateOfBirth: AWSDate
+  gender: String
   address: String
   city: String
   state: String
@@ -305,6 +320,9 @@ input UpdateUserInput {
   allergies: String
   medicalConditions: String
   currentMedications: String
+  height: Float
+  weight: Float
+  bloodType: String
   role: String
   isActive: Boolean
   lastLoginAt: AWSDateTime
