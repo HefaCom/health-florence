@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { generateClient } from 'aws-amplify/api';
-import { listAppointments, listExperts } from '@/graphql/queries';
+import { listAppointments } from '@/graphql/queries';
 import { 
   User, 
   Calendar, 
@@ -60,18 +60,17 @@ export default function ExpertDashboard() {
 
       // Resolve Expert.id for this user, then load appointments for expert stats
       try {
-        const expertsRes = await client.graphql({
-          query: listExperts,
-          variables: { filter: { userId: { eq: user.id } }, limit: 1 }
-        });
-        const expert = (expertsRes as any).data?.listExperts?.items?.[0];
+        const expert = await expertService.getExpertByUserId(user.id);
         if (expert?.id) {
           setExpertId(expert.id);
+          console.log('[ExpertDashboard] resolvedExpertId via service:', expert.id);
           const res = await client.graphql({
             query: listAppointments,
             variables: { filter: { expertId: { eq: expert.id } }, limit: 500 }
           });
-          setApps((res as any).data?.listAppointments?.items || []);
+          const appointments = (res as any).data?.listAppointments?.items || [];
+          console.log('[ExpertDashboard] Found appointments:', appointments.length);
+          setApps(appointments);
         } else {
           setExpertId(null);
           setApps([]);

@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { generateClient } from 'aws-amplify/api';
 import { useAuth } from "@/contexts/AuthContext";
+import { expertService } from "@/services/expert.service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, Plus, CheckCircle, XCircle, AlertCircle, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
-import { listAppointments, listExperts } from "@/graphql/queries";
+import { listAppointments } from "@/graphql/queries";
 import { updateAppointment } from "@/graphql/mutations";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -51,29 +52,34 @@ export default function ExpertAppointments() {
     if (!user) return;
     setIsLoading(true);
     try {
-      // Resolve Expert.id for this user
+      // Resolve Expert.id for this user using expert service
       let resolvedExpertId = expertId;
       if (!resolvedExpertId) {
-        const expertsRes = await client.graphql({
-          query: listExperts,
-          variables: { filter: { userId: { eq: user.id } }, limit: 1 }
-        });
-        const expert = (expertsRes as any).data?.listExperts?.items?.[0];
-        resolvedExpertId = expert?.id || null;
-        setExpertId(resolvedExpertId);
+        try {
+          const expert = await expertService.getExpertByUserId(user.id);
+          resolvedExpertId = expert?.id || null;
+          setExpertId(resolvedExpertId);
+          console.log('[ExpertAppointments] resolvedExpertId via service:', resolvedExpertId);
+        } catch (error) {
+          console.error('[ExpertAppointments] Failed to resolve expert ID:', error);
+          resolvedExpertId = null;
+        }
       }
 
       if (!resolvedExpertId) {
+        console.log('[ExpertAppointments] No expert ID found, setting empty appointments');
         setAppointments([]);
         return;
       }
 
+      console.log('[ExpertAppointments] Fetching appointments for expertId:', resolvedExpertId);
       const response = await client.graphql({
         query: listAppointments,
         variables: { filter: { expertId: { eq: resolvedExpertId } }, limit: 500 }
       });
 
       const items = (response as any).data?.listAppointments?.items || [];
+      console.log('[ExpertAppointments] Found appointments:', items.length);
       setAppointments(items as AppointmentType[]);
     } catch (error) {
       console.error('Error fetching appointments:', error);

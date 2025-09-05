@@ -16,6 +16,7 @@ import { generateClient } from 'aws-amplify/api';
 import { listPatientRecords, listExperts, listAppointments, listExpertPatients, getUser, listUsers } from '@/graphql/queries';
 import { createPatientRecord } from '@/graphql/mutations';
 import { useAuth } from '@/contexts/AuthContext';
+import { expertService } from '@/services/expert.service';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -73,43 +74,18 @@ export default function ExpertPatients() {
       setIsLoading(true);
       try {
         console.log('[ExpertPatients] start load, user.id:', user.id, 'email:', user.email);
-        // Resolve Expert.id for this user
+        // Resolve Expert.id for this user using expert service
         let resolvedExpertId = expertId;
         if (!resolvedExpertId) {
-          // Prefer public read via API key for Expert listing (schema permits apiKey for read)
-          let expertsRes: any;
           try {
-            expertsRes = await client.graphql({
-              query: listExperts,
-              variables: { filter: { userId: { eq: user.id } }, limit: 1 },
-              authMode: 'apiKey'
-            });
-          } catch (_e) {
-            expertsRes = await client.graphql({
-              query: listExperts,
-              variables: { filter: { userId: { eq: user.id } }, limit: 1 },
-              authMode: 'userPool'
-            });
+            const expert = await expertService.getExpertByUserId(user.id);
+            resolvedExpertId = expert?.id || null;
+            setExpertId(resolvedExpertId);
+            console.log('[ExpertPatients] resolvedExpertId via service:', resolvedExpertId);
+          } catch (error) {
+            console.error('[ExpertPatients] Failed to resolve expert ID:', error);
+            resolvedExpertId = null;
           }
-          const expert = (expertsRes as any).data?.listExperts?.items?.[0];
-          resolvedExpertId = expert?.id || null;
-          // If still not resolved, scan experts and match by email (older data may not have userId linked)
-          if (!resolvedExpertId && user?.email) {
-            try {
-              const scanRes: any = await client.graphql({
-                query: listExperts,
-                variables: { limit: 100 },
-                authMode: 'apiKey'
-              });
-              const all = scanRes?.data?.listExperts?.items || [];
-              const matched = all.find((ex: any) => ex?.user?.email === user.email);
-              if (matched?.id) {
-                resolvedExpertId = matched.id;
-              }
-            } catch (_) {}
-          }
-          setExpertId(resolvedExpertId);
-          console.log('[ExpertPatients] resolvedExpertId:', resolvedExpertId);
         }
 
         // For this view, ignore external PatientRecord list. Only show system users who added the expert.
@@ -257,10 +233,10 @@ export default function ExpertPatients() {
             Manage your patient records and information
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setAddOpen(true)}>
+        {/* <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setAddOpen(true)}>
           <UserPlus className="h-4 w-4 mr-2" />
           Add New Patient
-        </Button>
+        </Button> */}
       </div>
 
       {/* Search and Filters */}

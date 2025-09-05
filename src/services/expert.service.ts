@@ -124,14 +124,61 @@ class ExpertService {
    */
   async createExpert(input: CreateExpertInput): Promise<Expert> {
     try {
+      // Create a simplified mutation that doesn't fetch related fields
+      const createExpertSimple = /* GraphQL */ `
+        mutation CreateExpertSimple($input: CreateExpertInput!) {
+          createExpert(input: $input) {
+            id
+            userId
+            specialization
+            subSpecializations
+            licenseNumber
+            yearsOfExperience
+            bio
+            practiceName
+            practiceAddress
+            practicePhone
+            practiceEmail
+            practiceWebsite
+            consultationFee
+            services
+            languages
+            education
+            certifications
+            verificationStatus
+            isActive
+            isVerified
+            profileImage
+            coverImage
+            availability
+            createdAt
+            updatedAt
+          }
+        }
+      `;
+
       const result = await client.graphql({
-        query: createExpertMutation,
+        query: createExpertSimple,
         variables: { input }
       });
 
-      return (result as any).data.createExpert;
+      const createdExpert = (result as any).data.createExpert;
+      console.log('Expert created successfully:', {
+        expertId: createdExpert.id,
+        userId: createdExpert.userId,
+        specialization: createdExpert.specialization
+      });
+
+      return createdExpert;
     } catch (error) {
       console.error('Error creating expert:', error);
+      
+      // Check if expert was created successfully despite errors
+      if (error.data && error.data.createExpert && error.data.createExpert.id) {
+        console.log('Expert created successfully despite some errors');
+        return error.data.createExpert;
+      }
+      
       throw error;
     }
   }
@@ -160,9 +207,43 @@ class ExpertService {
     try {
       console.log('getExpertByUserId called for userId:', userId);
       
-      // Use the original listExperts query for basic profile detection
+      // Create a simplified query that doesn't fetch related fields
+      const listExpertsSimple = /* GraphQL */ `
+        query ListExpertsSimple($filter: ModelExpertFilterInput, $limit: Int) {
+          listExperts(filter: $filter, limit: $limit) {
+            items {
+              id
+              userId
+              specialization
+              subSpecializations
+              licenseNumber
+              yearsOfExperience
+              bio
+              practiceName
+              practiceAddress
+              practicePhone
+              practiceEmail
+              practiceWebsite
+              consultationFee
+              services
+              languages
+              education
+              certifications
+              verificationStatus
+              isActive
+              isVerified
+              profileImage
+              coverImage
+              availability
+              createdAt
+              updatedAt
+            }
+          }
+        }
+      `;
+      
       const result = await client.graphql({
-        query: listExpertsQuery,
+        query: listExpertsSimple,
         variables: {
           filter: { userId: { eq: userId } }
         }
@@ -182,6 +263,19 @@ class ExpertService {
       return sortedExperts[0];
     } catch (error) {
       console.error('Error getting expert by user ID:', error);
+      
+      // Check if we got data despite errors
+      if (error.data && error.data.listExperts && error.data.listExperts.items) {
+        const experts = error.data.listExperts.items;
+        if (experts.length > 0) {
+          const sortedExperts = experts.sort((a: any, b: any) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          console.log('Got expert data despite errors:', sortedExperts[0]);
+          return sortedExperts[0];
+        }
+      }
+      
       return null;
     }
   }
