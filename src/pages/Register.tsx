@@ -7,25 +7,6 @@ import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
-import { generateClient } from "aws-amplify/api";
-import { createUser } from '../graphql/mutations';
-import { getUser, listUsers } from '../graphql/queries';
-import { signIn } from 'aws-amplify/auth';
-import { GraphQLResult } from '@aws-amplify/api-graphql';
-import { CreateUserMutation, CreateUserMutationVariables } from '../API';
-import * as mutations from '../graphql/mutations';
-
-interface CreateUserResponse {
-  createUser: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
-}
-
-const client = generateClient();
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -37,40 +18,19 @@ const Register = () => {
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const navigate = useNavigate();
-  const { register, confirmRegistration } = useAuth();
+  const { register, confirmRegistration, resendVerificationCode } = useAuth();
 
-  const createUserInDynamoDB = async (userId: string, email: string, firstName: string, lastName: string) => {
-    try {
-      console.log(`Creating user with data: {id: '${userId}', email: '${email}', firstName: '${firstName}', lastName: '${lastName}', role: 'user'}`);
-      
-      const response = await client.graphql({
-        query: mutations.createUser,
-        variables: {
-          input: {
-            id: userId,
-            email: email,
-            firstName: firstName,
-            lastName: lastName,
-            role: 'user',
-            phoneNumber: null
-          }
-        },
-        authMode: 'apiKey'
-      }) as GraphQLResult<CreateUserMutation>;
-      
-      console.log('User created in DynamoDB:', response);
-      return response.data?.createUser;
-    } catch (error) {
-      console.error('Failed to create user in DynamoDB:', error);
-      throw error;
-    }
-  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
+      return;
+    }
+
+    if (!firstName.trim() || !lastName.trim()) {
+      toast.error("Please enter both first and last name");
       return;
     }
 
@@ -83,7 +43,9 @@ const Register = () => {
         setVerificationSent(true);
         toast.success("Please check your email for the verification code");
       } else if (result.error === "User already exists") {
-        toast.error("This email is already registered. Please login or use a different email.");
+        // User already exists - they might need to confirm their email
+        setVerificationSent(true);
+        toast.info("This email is already registered. Please check your email for the verification code or try logging in.");
       } else {
         toast.error(result.error || "Registration failed. Please try again.");
       }
@@ -98,10 +60,8 @@ const Register = () => {
   const handleResendVerification = async () => {
     setIsSubmitting(true);
     try {
-      const result = await register(email, password, `${firstName} ${lastName}`);
-      if (result.success) {
-        toast.success("Verification code resent. Please check your email.");
-      } else {
+      const success = await resendVerificationCode(email);
+      if (!success) {
         toast.error("Failed to resend verification code. Please try again.");
       }
     } catch (error) {
@@ -117,43 +77,11 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const success = await confirmRegistration(email, verificationCode);
+      const success = await confirmRegistration(email, verificationCode, firstName, lastName);
 
       if (success) {
-        // Generate a unique ID
-        const userId = crypto.randomUUID();
-        
-        try {
-          // Create user in DynamoDB
-          const userResponse = await client.graphql({
-            query: mutations.createUser,
-            variables: {
-              input: {
-                id: userId,
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                role: 'user'  // Required field
-              }
-            },
-            authMode: 'apiKey'
-          });
-
-          console.log('DynamoDB User Creation Response:', userResponse);
-
-          if (userResponse.data?.createUser) {
-            toast.success("Registration completed successfully! You can now login.");
-            navigate("/login");
-          } else {
-            console.error('Failed to create user in DynamoDB:', userResponse);
-            toast.error("Account verified but profile setup failed. Please contact support.");
-            navigate("/login");
-          }
-        } catch (error) {
-          console.error('Error creating user in DynamoDB:', error);
-          toast.error("Account verified but profile setup failed. Please contact support.");
-          navigate("/login");
-        }
+        toast.success("Registration completed successfully! You can now login.");
+        navigate("/login");
       } else {
         toast.error("Verification failed. Please check the code and try again.");
       }

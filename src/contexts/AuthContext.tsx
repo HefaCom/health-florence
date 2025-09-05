@@ -7,9 +7,11 @@ import {
   signOut, 
   signUp, 
   confirmSignUp, 
+  resendSignUpCode,
   getCurrentUser,
   resetPassword as initiateResetPassword,
-  confirmResetPassword
+  confirmResetPassword,
+  fetchUserAttributes
 } from 'aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import { userService, User as UserData } from '../services/user.service';
@@ -25,7 +27,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, fullName: string) => Promise<{ success: boolean; error?: string }>;
-  confirmRegistration: (email: string, code: string) => Promise<boolean>;
+  confirmRegistration: (email: string, code: string, firstName?: string, lastName?: string) => Promise<boolean>;
+  resendVerificationCode: (email: string) => Promise<boolean>;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (email: string, code: string, newPassword: string) => Promise<boolean>;
   logout: () => Promise<boolean>;
@@ -161,7 +164,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             // Update login information
             try {
+              console.log('Updating login information for already authenticated user:', userData.id);
               await userService.updateUserLogin(userData.id);
+              console.log('Login information updated successfully for already authenticated user');
             } catch (loginError) {
               console.warn('Failed to update login info:', loginError);
               // Don't fail authentication if login update fails
@@ -199,7 +204,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           // Update login information
           try {
+            console.log('Updating login information for user:', userData.id);
             await userService.updateUserLogin(userData.id);
+            console.log('Login information updated successfully');
           } catch (loginError) {
             console.warn('Failed to update login info:', loginError);
             // Don't fail authentication if login update fails
@@ -238,7 +245,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             // Update login information
             try {
+              console.log('Updating login information for newly created user:', userData.id);
               await userService.updateUserLogin(userData.id);
+              console.log('Login information updated successfully for newly created user');
             } catch (loginError) {
               console.warn('Failed to update login info:', loginError);
             }
@@ -274,6 +283,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
 
+      console.log('Attempting to register user:', { email, firstName, lastName });
+
       // Sign up with AWS Cognito
       const { isSignUpComplete } = await signUp({
         username: email,
@@ -286,7 +297,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
 
+      console.log('Sign up result:', { isSignUpComplete });
+
       if (isSignUpComplete) {
+        // User is immediately confirmed (shouldn't happen with email verification enabled)
         // Create user in database with default 'user' role
         await userService.createUser({
           email,
@@ -295,34 +309,181 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'user' // Default role
         });
 
-        toast.success("Registration successful! Please check your email for verification.");
+        toast.success("Registration successful!");
         return { success: true };
       } else {
-        return { success: false, error: "Registration failed" };
+        // User needs to confirm email - this is the expected flow
+        toast.success("Registration successful! Please check your email for verification.");
+        return { success: true };
       }
     } catch (error: any) {
       console.error("Registration error:", error);
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        code: error.code
+      });
+      
+      // Handle specific Cognito errors
+      if (error.name === 'UsernameExistsException') {
+        // User already exists - check if they're confirmed
+        console.log('User already exists, checking confirmation status...');
+        return { success: false, error: "User already exists" };
+      } else if (error.name === 'InvalidPasswordException') {
+        return { success: false, error: "Password does not meet requirements" };
+      } else if (error.name === 'InvalidParameterException') {
+        return { success: false, error: "Invalid email format" };
+      }
+      
       return { success: false, error: error.message || "Registration failed" };
     }
   };
 
-  const confirmRegistration = async (email: string, code: string): Promise<boolean> => {
+  // Helper function to create user in database
+  const createUserInDatabase = async (email: string, firstName?: string, lastName?: string): Promise<boolean> => {
     try {
+      // Use provided names or extract from email as fallback
+      let finalFirstName = firstName;
+      let finalLastName = lastName;
+      
+      if (!finalFirstName || !finalLastName) {
+        const nameParts = email.split('@')[0].split('.');
+        finalFirstName = finalFirstName || nameParts[0] || 'User';
+        finalLastName = finalLastName || nameParts.slice(1).join(' ') || 'Account';
+      }
+      
+      // Check if user already exists in database
+      const existingUser = await userService.getUserByEmail(email);
+      if (existingUser) {
+        console.log('User already exists in database:', existingUser);
+        return true; // User already exists, consider it successful
+      }
+      
+      console.log('Creating user in database:', {
+        email,
+        firstName: finalFirstName,
+        lastName: finalLastName
+      });
+      
+      const user = await userService.createUser({
+        email,
+        firstName: finalFirstName,
+        lastName: finalLastName,
+        role: 'user' // Default role
+      });
+      
+      console.log('User created successfully:', user);
+      return true;
+    } catch (dbError: any) {
+      console.error("Failed to create user in database:", dbError);
+      
+      // Check if user was actually created despite errors
+      if (dbError.data && dbError.data.createUser && dbError.data.createUser.id) {
+        console.log("User was created successfully despite some errors");
+        return true;
+      }
+      
+      throw dbError;
+    }
+  };
+
+  const confirmRegistration = async (email: string, code: string, firstName?: string, lastName?: string): Promise<boolean> => {
+    try {
+      console.log('Attempting to confirm registration for:', email);
+      
       const { isSignUpComplete } = await confirmSignUp({
         username: email,
         confirmationCode: code
       });
 
+      console.log('Confirmation result:', { isSignUpComplete });
+
       if (isSignUpComplete) {
-        toast.success("Email confirmed successfully!");
-        return true;
+        // Email confirmed successfully - now create user in database
+        try {
+          await createUserInDatabase(email, firstName, lastName);
+          toast.success("Email confirmed successfully! Account created.");
+          return true;
+        } catch (dbError: any) {
+          console.error("Failed to create user in database after confirmation:", dbError);
+          
+          // Check if user was actually created despite errors
+          if (dbError.data && dbError.data.createUser && dbError.data.createUser.id) {
+            console.log("User was created successfully despite some errors");
+            toast.success("Email confirmed successfully! Account created.");
+            return true;
+          }
+          
+          // Provide more specific error messages
+          if (dbError.errors && dbError.errors.length > 0) {
+            const errorMessage = dbError.errors[0].message;
+            toast.error(`Account setup failed: ${errorMessage}`);
+          } else if (dbError.message) {
+            toast.error(`Account setup failed: ${dbError.message}`);
+          } else {
+            toast.error("Email confirmed but account setup failed. Please contact support.");
+          }
+          
+          return false;
+        }
       } else {
         toast.error("Email confirmation failed");
         return false;
       }
     } catch (error: any) {
       console.error("Email confirmation error:", error);
-      toast.error(error.message || "Email confirmation failed");
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
+      
+      // Handle specific Cognito errors
+      if (error.name === 'CodeMismatchException') {
+        toast.error("Invalid verification code. Please check and try again.");
+      } else if (error.name === 'ExpiredCodeException') {
+        toast.error("Verification code has expired. Please request a new one.");
+      } else if (error.name === 'NotAuthorizedException') {
+        // User might already be confirmed - try to create user in database anyway
+        console.log('User might already be confirmed, attempting to create user in database...');
+        
+        try {
+          await createUserInDatabase(email, firstName, lastName);
+          toast.success("Account created successfully! You can now login.");
+          return true;
+        } catch (dbError: any) {
+          console.error("Failed to create user in database:", dbError);
+          toast.error("User is already confirmed but account setup failed. Please contact support.");
+          return false;
+        }
+      } else {
+        toast.error(error.message || "Email confirmation failed");
+      }
+      
+      return false;
+    }
+  };
+
+  const resendVerificationCode = async (email: string): Promise<boolean> => {
+    try {
+      await resendSignUpCode({ username: email });
+      toast.success("Verification code resent! Please check your email.");
+      return true;
+    } catch (error: any) {
+      console.error("Resend verification code error:", error);
+      
+      // Handle specific Cognito errors
+      if (error.name === 'UserNotFoundException') {
+        toast.error("User not found. Please register first.");
+      } else if (error.name === 'InvalidParameterException') {
+        toast.error("Invalid email format.");
+      } else if (error.name === 'LimitExceededException') {
+        toast.error("Too many attempts. Please wait before requesting another code.");
+      } else {
+        toast.error(error.message || "Failed to resend verification code");
+      }
+      
       return false;
     }
   };
@@ -375,6 +536,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         confirmRegistration,
+        resendVerificationCode,
         forgotPassword,
         resetPassword,
         logout,

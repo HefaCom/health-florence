@@ -36,9 +36,9 @@ export interface User {
   isActive: boolean;
   lastLoginAt?: string;
   loginCount: number;
-  preferences?: any;
-  notificationSettings?: any;
-  privacySettings?: any;
+  preferences?: string | any; // Can be string (from DB) or object (in memory)
+  notificationSettings?: string | any; // Can be string (from DB) or object (in memory)
+  privacySettings?: string | any; // Can be string (from DB) or object (in memory)
   subscriptionTier: string;
   subscriptionExpiresAt?: string;
   createdAt: string;
@@ -91,12 +91,27 @@ export interface UpdateUserInput {
 
 class UserService {
   /**
+   * Helper function to parse JSON fields from database
+   */
+  private parseUserFromDB(user: any): User {
+    return {
+      ...user,
+      preferences: user.preferences ? (typeof user.preferences === 'string' ? JSON.parse(user.preferences) : user.preferences) : {},
+      notificationSettings: user.notificationSettings ? (typeof user.notificationSettings === 'string' ? JSON.parse(user.notificationSettings) : user.notificationSettings) : {},
+      privacySettings: user.privacySettings ? (typeof user.privacySettings === 'string' ? JSON.parse(user.privacySettings) : user.privacySettings) : {}
+    };
+  }
+
+  /**
    * Create a new user with default role as 'user'
    */
   async createUser(input: CreateUserInput): Promise<User> {
     try {
+      // Generate a unique UUID for the user ID
+      const userId = crypto.randomUUID();
+      
       const userInput = {
-        id: input.email, // Use email as ID for consistency
+        id: userId, // Use UUID for ID
         email: input.email,
         firstName: input.firstName,
         lastName: input.lastName,
@@ -104,33 +119,75 @@ class UserService {
         role: input.role || 'user', // Default to 'user' role
         isActive: input.isActive !== false, // Default to true
         loginCount: 0,
-        preferences: input.preferences || {},
-        notificationSettings: input.notificationSettings || {
+        preferences: JSON.stringify(input.preferences || {}),
+        notificationSettings: JSON.stringify(input.notificationSettings || {
           email: true,
           push: true,
           sms: false
-        },
-        privacySettings: input.privacySettings || {
+        }),
+        privacySettings: JSON.stringify(input.privacySettings || {
           profileVisibility: 'private',
           healthDataSharing: false
-        },
+        }),
         subscriptionTier: input.subscriptionTier || 'basic'
       };
 
+      console.log('Creating user with input:', userInput);
+
+      // Create a simplified mutation that doesn't fetch related fields
+      const createUserSimple = /* GraphQL */ `
+        mutation CreateUserSimple($input: CreateUserInput!) {
+          createUser(input: $input) {
+            id
+            email
+            firstName
+            lastName
+            phoneNumber
+            role
+            isActive
+            loginCount
+            preferences
+            notificationSettings
+            privacySettings
+            subscriptionTier
+            createdAt
+            updatedAt
+          }
+        }
+      `;
+
       const result = await client.graphql({
-        query: createUser,
-        variables: { input: userInput }
+        query: createUserSimple,
+        variables: { input: userInput },
+        authMode: 'apiKey' // Use API key for public access
       });
 
-      return (result as any).data.createUser;
+      console.log('User creation result:', result);
+      const createdUser = (result as any).data.createUser;
+      
+      // Check if user was actually created successfully
+      if (createdUser && createdUser.id) {
+        console.log('User created successfully:', createdUser);
+        return this.parseUserFromDB(createdUser);
+      } else {
+        console.error('User creation failed - no user data returned');
+        throw new Error('User creation failed - no user data returned');
+      }
     } catch (error) {
       console.error('Error creating user:', error);
+      
+      // Check if this is just authorization errors but user was created
+      if (error.data && error.data.createUser && error.data.createUser.id) {
+        console.log('User created successfully despite authorization warnings:', error.data.createUser);
+        return this.parseUserFromDB(error.data.createUser);
+      }
+      
       throw error;
     }
   }
 
   /**
-   * Get user by ID (email)
+   * Get user by ID (UUID)
    */
   async getUser(id: string): Promise<User | null> {
     try {
@@ -139,7 +196,8 @@ class UserService {
         variables: { id }
       });
 
-      return (result as any).data.getUser;
+      const user = (result as any).data.getUser;
+      return user ? this.parseUserFromDB(user) : null;
     } catch (error) {
       console.error('Error getting user:', error);
       return null;
@@ -156,8 +214,8 @@ class UserService {
       });
 
       const users = (result as any).data.listUsers.items;
-      const user = users.find((u: User) => u.email === email);
-      return user || null;
+      const user = users.find((u: any) => u.email === email);
+      return user ? this.parseUserFromDB(user) : null;
     } catch (error) {
       console.error('Error getting user by email:', error);
       return null;
@@ -169,12 +227,21 @@ class UserService {
    */
   async updateUser(input: UpdateUserInput): Promise<User> {
     try {
+      // Serialize JSON fields if they exist
+      const updateInput = {
+        ...input,
+        preferences: input.preferences ? (typeof input.preferences === 'string' ? input.preferences : JSON.stringify(input.preferences)) : undefined,
+        notificationSettings: input.notificationSettings ? (typeof input.notificationSettings === 'string' ? input.notificationSettings : JSON.stringify(input.notificationSettings)) : undefined,
+        privacySettings: input.privacySettings ? (typeof input.privacySettings === 'string' ? input.privacySettings : JSON.stringify(input.privacySettings)) : undefined
+      };
+
       const result = await client.graphql({
         query: updateUser,
-        variables: { input }
+        variables: { input: updateInput }
       });
 
-      return (result as any).data.updateUser;
+      const updatedUser = (result as any).data.updateUser;
+      return this.parseUserFromDB(updatedUser);
     } catch (error) {
       console.error('Error updating user:', error);
       throw error;
@@ -223,7 +290,38 @@ class UserService {
    */
   async updateUserLogin(userId: string): Promise<User> {
     try {
-      const user = await this.getUser(userId);
+      // First, try to get the user with a simplified query to avoid authorization issues
+      const getUserSimple = /* GraphQL */ `
+        query GetUserSimple($id: ID!) {
+          getUser(id: $id) {
+            id
+            email
+            firstName
+            lastName
+            loginCount
+            isActive
+            role
+          }
+        }
+      `;
+
+      let user;
+      try {
+        const userResult = await client.graphql({
+          query: getUserSimple,
+          variables: { id: userId }
+        });
+        user = (userResult as any).data.getUser;
+      } catch (getUserError) {
+        // If getUser fails due to authorization, check if we got partial data
+        if (getUserError.data && getUserError.data.getUser && getUserError.data.getUser.id) {
+          user = getUserError.data.getUser;
+          console.log('Got user data despite authorization warnings');
+        } else {
+          throw new Error('User not found');
+        }
+      }
+
       if (!user) {
         throw new Error('User not found');
       }
@@ -234,14 +332,45 @@ class UserService {
         loginCount: (user.loginCount || 0) + 1
       };
 
+      // Create a simplified mutation for login updates
+      const updateUserLoginSimple = /* GraphQL */ `
+        mutation UpdateUserLoginSimple($input: UpdateUserInput!) {
+          updateUser(input: $input) {
+            id
+            email
+            firstName
+            lastName
+            lastLoginAt
+            loginCount
+            isActive
+            role
+            updatedAt
+          }
+        }
+      `;
+
       const result = await client.graphql({
-        query: updateUser,
+        query: updateUserLoginSimple,
         variables: { input }
       });
 
-      return (result as any).data.updateUser;
+      const updatedUser = (result as any).data.updateUser;
+      console.log('Login information updated successfully:', {
+        userId,
+        lastLoginAt: updatedUser.lastLoginAt,
+        loginCount: updatedUser.loginCount
+      });
+      
+      return this.parseUserFromDB(updatedUser);
     } catch (error) {
       console.error('Error updating user login:', error);
+      
+      // Check if update was successful despite errors
+      if (error.data && error.data.updateUser && error.data.updateUser.id) {
+        console.log('Login information updated successfully despite some errors');
+        return this.parseUserFromDB(error.data.updateUser);
+      }
+      
       throw error;
     }
   }
