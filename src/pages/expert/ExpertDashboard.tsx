@@ -21,7 +21,9 @@ import {
   Clock,
   DollarSign,
   Star,
-  TrendingUp
+  TrendingUp,
+  Bot,
+  RefreshCw
 } from 'lucide-react';
 
 export default function ExpertDashboard() {
@@ -31,11 +33,42 @@ export default function ExpertDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [apps, setApps] = useState<any[]>([]);
   const [expertId, setExpertId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const client = generateClient();
 
   useEffect(() => {
     checkProfileStatus();
   }, [user]);
+
+  // Add auto-refresh when component becomes visible or window gains focus
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && hasProfile) {
+        checkProfileStatus();
+      }
+    };
+
+    const handleFocus = () => {
+      if (hasProfile) {
+        checkProfileStatus();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [hasProfile]);
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await checkProfileStatus();
+    setIsRefreshing(false);
+    toast.success('Dashboard refreshed');
+  };
 
   const checkProfileStatus = async () => {
     if (!user) return;
@@ -110,12 +143,22 @@ export default function ExpertDashboard() {
     }
   };
 
-  const todayStats = useMemo(() => {
+  const dashboardStats = useMemo(() => {
     const today = new Date();
     const dayKey = today.toDateString();
     const todays = apps.filter(a => new Date(a.date).toDateString() === dayKey);
     const upcoming = todays.filter(a => (a.status || '').toUpperCase() === 'SCHEDULED').length;
-    return { todayCount: todays.length, upcoming };
+    const totalPatients = new Set(apps.map(a => a.userId)).size;
+    const totalAppointments = apps.length;
+    const completedAppointments = apps.filter(a => (a.status || '').toUpperCase() === 'COMPLETED').length;
+    
+    return { 
+      todayCount: todays.length, 
+      upcoming,
+      totalPatients,
+      totalAppointments,
+      completedAppointments
+    };
   }, [apps]);
 
   if (isLoading) {
@@ -146,7 +189,17 @@ export default function ExpertDashboard() {
               Manage your patients, appointments, and practice from your expert dashboard
             </p>
           </div>
-          <div className="text-right">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
               <CheckCircle className="h-4 w-4 mr-1" />
               Profile Complete
@@ -163,7 +216,7 @@ export default function ExpertDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{new Set(apps.map(a => a.userId)).size}</div>
+            <div className="text-2xl font-bold">{dashboardStats.totalPatients}</div>
             <p className="text-xs text-muted-foreground">Unique patients</p>
           </CardContent>
         </Card>
@@ -174,36 +227,40 @@ export default function ExpertDashboard() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{todayStats.todayCount}</div>
-            <p className="text-xs text-muted-foreground">{todayStats.upcoming} scheduled</p>
+            <div className="text-2xl font-bold">{dashboardStats.todayCount}</div>
+            <p className="text-xs text-muted-foreground">{dashboardStats.upcoming} scheduled</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">—</div>
-            <p className="text-xs text-muted-foreground">Coming soon</p>
+            <div className="text-2xl font-bold">{dashboardStats.totalAppointments}</div>
+            <p className="text-xs text-muted-foreground">{dashboardStats.completedAppointments} completed</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">—</div>
-            <p className="text-xs text-muted-foreground">No reviews yet</p>
+            <div className="text-2xl font-bold">
+              {dashboardStats.totalAppointments > 0 
+                ? Math.round((dashboardStats.completedAppointments / dashboardStats.totalAppointments) * 100)
+                : 0}%
+            </div>
+            <p className="text-xs text-muted-foreground">Appointments completed</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -218,7 +275,7 @@ export default function ExpertDashboard() {
             <div className="text-center py-4">
               <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-2" />
               <p className="text-gray-600 mb-4">No appointments scheduled</p>
-              <Button onClick={() => navigate('/expert/appointments')}>
+              <Button onClick={() => navigate('/expert/dashboard/appointments')}>
                 View Appointments
               </Button>
             </div>
@@ -241,17 +298,17 @@ export default function ExpertDashboard() {
               <p className="text-gray-600 mb-4">No patients yet</p>
               <div className="space-y-2">
                 <Button 
-                  onClick={() => navigate('/expert/patients')}
+                  onClick={() => navigate('/expert/dashboard/patients')}
                   className="w-full"
                 >
                   View Patients
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => navigate('/expert/patients/external')}
+                  onClick={() => navigate('/expert/dashboard/florence')}
                   className="w-full"
                 >
-                  Add External Patient
+                  Florence AI Assistant
                 </Button>
               </div>
             </div>
@@ -281,6 +338,30 @@ export default function ExpertDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5" />
+              Florence AI Assistant
+            </CardTitle>
+            <CardDescription>
+              Get AI-powered insights and assistance
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center py-4">
+              <Bot className="h-12 w-12 text-blue-400 mx-auto mb-2" />
+              <p className="text-gray-600 mb-4">AI-powered healthcare insights</p>
+              <Button 
+                onClick={() => navigate('/expert/dashboard/florence')}
+                className="w-full"
+              >
+                Access Florence AI
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Recent Activity */}
@@ -295,13 +376,55 @@ export default function ExpertDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
-            <Clock className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-600">No recent activity</p>
-            <p className="text-sm text-gray-500 mt-1">
-              Your activity will appear here as you interact with patients
-            </p>
-          </div>
+          {apps.length > 0 ? (
+            <div className="space-y-4">
+              {apps.slice(0, 5).map((appointment) => (
+                <div key={appointment.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Calendar className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">
+                        {appointment.user?.firstName && appointment.user?.lastName
+                          ? `${appointment.user.firstName} ${appointment.user.lastName}`
+                          : 'Patient'
+                        }
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(appointment.date).toLocaleDateString()} - {appointment.type || 'Consultation'}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge 
+                    variant={appointment.status === 'COMPLETED' ? 'default' : 'secondary'}
+                    className="text-xs"
+                  >
+                    {appointment.status || 'SCHEDULED'}
+                  </Badge>
+                </div>
+              ))}
+              {apps.length > 5 && (
+                <div className="text-center pt-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/expert/dashboard/appointments')}
+                  >
+                    View All Appointments
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Clock className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-600">No recent activity</p>
+              <p className="text-sm text-gray-500 mt-1">
+                Your activity will appear here as you interact with patients
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -339,7 +462,11 @@ export default function ExpertDashboard() {
                   <p className="text-sm text-gray-600">Configure your working hours</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/expert/dashboard/profile')}
+              >
                 Configure
               </Button>
             </div>
@@ -352,7 +479,11 @@ export default function ExpertDashboard() {
                   <p className="text-sm text-gray-600">Define your consultation services</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/expert/dashboard/profile')}
+              >
                 Add Services
               </Button>
             </div>
@@ -365,7 +496,11 @@ export default function ExpertDashboard() {
                   <p className="text-sm text-gray-600">Add licenses and certifications</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/expert/dashboard/profile')}
+              >
                 Upload
               </Button>
             </div>

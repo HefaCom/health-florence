@@ -272,24 +272,31 @@ export default function ExpertPatients() {
   }, [search, patients]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Patients</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your patient records and information
-          </p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 md:p-8 border border-blue-100">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-blue-600 rounded-xl">
+              <Users className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Patients</h1>
+              <p className="text-gray-600 mt-1">
+                Manage your patient records and information
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-blue-600">{filtered.length}</div>
+            <div className="text-sm text-gray-500">Total Patients</div>
+          </div>
         </div>
-        {/* <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setAddOpen(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add New Patient
-        </Button> */}
       </div>
 
       {/* Search and Filters */}
-      <Card className="p-6">
-        <div className="flex flex-col md:flex-row gap-4">
+      <Card className="p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
@@ -299,96 +306,183 @@ export default function ExpertPatients() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Button variant="outline">
+          <Button variant="outline" className="w-full sm:w-auto">
             <Filter className="h-4 w-4 mr-2" />
             Filters
           </Button>
         </div>
       </Card>
 
-      {/* Patients Table */}
-      <Card className="p-6">
-        <div className="overflow-x-auto">
-          {isLoading ? (
-            <div className="text-center py-10 text-gray-600">Loading patients...</div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-10 text-gray-600">No patients found</div>
-          ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-medium text-gray-900">Patient</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-900">Contact</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-900">Age</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-900">Condition</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-900">Last Visit</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((patient) => (
-                <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Users className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{patient.name}</p>
-                        {/* <p className="text-sm text-gray-500">ID: {patient.id}</p> */}
-                      </div>
+      {/* Patients List */}
+      {isLoading ? (
+        <Card className="border-0 shadow-lg bg-white">
+          <div className="text-center py-16">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Loading patients...</h3>
+            <p className="text-gray-600">Please wait while we fetch your patient list</p>
+          </div>
+        </Card>
+      ) : filtered.length === 0 ? (
+        <Card className="border-0 shadow-lg bg-white">
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <Users className="h-12 w-12 text-blue-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">No patients found</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              {search ? "No patients match your search criteria. Try adjusting your search terms." : "You don't have any patients yet. Patients will appear here when they add you as their expert."}
+            </p>
+          </div>
+        </Card>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <Card className="hidden lg:block p-6">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Patient</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Contact</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Age</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Condition</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Last Visit</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((patient) => (
+                    <tr key={patient.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Users className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{patient.name}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <Mail className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm">{patient.email}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Phone className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm">{patient.phone}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="text-sm text-gray-900">{patient.age !== undefined ? `${patient.age} years` : 'N/A'}</span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="text-sm text-gray-900">{patient.condition || 'No conditions recorded'}</span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <Badge className={getStatusColor(patient.status || 'active')}>
+                          {patient.status || 'Active'}
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="text-sm text-gray-500">{patient.lastVisit || 'No visits'}</span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => navigate(`/expert/dashboard/patient/${patient.id}`)}
+                            className="flex items-center space-x-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            <span>View Details</span>
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden space-y-4">
+            {filtered.map((patient) => (
+              <Card key={patient.id} className="p-4 hover:shadow-lg transition-shadow">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md">
+                      {patient.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                     </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <Mail className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">{patient.email}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Phone className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">{patient.phone}</span>
-                      </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{patient.name}</h3>
+                      <p className="text-sm text-gray-500">{patient.age !== undefined ? `${patient.age} years old` : 'Age not specified'}</p>
                     </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="text-sm text-gray-900">{patient.age !== undefined ? `${patient.age} years` : 'N/A'}</span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="text-sm text-gray-900">{patient.condition || 'No conditions recorded'}</span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <Badge className={getStatusColor(patient.status || 'active')}>
-                      {patient.status || 'Active'}
-                    </Badge>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="text-sm text-gray-500">{patient.lastVisit || 'No visits'}</span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => navigate(`/expert/dashboard/patient/${patient.id}`)}
-                        className="flex items-center space-x-1"
-                      >
-                        <Eye className="h-4 w-4" />
-                        <span>View Details</span>
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                  </div>
+                  <Badge className={getStatusColor(patient.status || 'active')}>
+                    {patient.status || 'Active'}
+                  </Badge>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Contact Info */}
+                  <div className="grid grid-cols-1 gap-2">
+                    <div className="flex items-center space-x-2 text-sm">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-600">{patient.email}</span>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          )}
-        </div>
-      </Card>
+                    <div className="flex items-center space-x-2 text-sm">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-600">{patient.phone}</span>
+                    </div>
+                  </div>
+
+                  {/* Condition */}
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-1">Condition</p>
+                    <p className="text-sm text-gray-900">{patient.condition || 'No conditions recorded'}</p>
+                  </div>
+
+                  {/* Last Visit */}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Last Visit:</span>
+                    <span className="text-gray-900">{patient.lastVisit || 'No visits'}</span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex space-x-2 pt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => navigate(`/expert/dashboard/patient/${patient.id}`)}
+                      className="flex-1 flex items-center justify-center space-x-1"
+                    >
+                      <Eye className="h-4 w-4" />
+                      <span>View Details</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="px-3">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Add Patient Dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
