@@ -41,6 +41,7 @@ import { GraphQLResult } from '@aws-amplify/api';
 import { GetUserQuery, UpdateUserMutation } from '../API';
 import { getCurrentUser, updatePassword } from 'aws-amplify/auth';
 import { useAudit } from '@/hooks/useAudit';
+import { userService } from '@/services/user.service';
 
 const client = generateClient();
 
@@ -150,60 +151,7 @@ const Profile = () => {
     const fetchUserDetails = async () => {
       if (user?.email) {
         try {
-          interface UserDetailsResponse {
-            listUsers: {
-              items: Array<{
-                id: string;
-                email: string;
-                firstName: string;
-                lastName: string;
-                phoneNumber: string;
-                dateOfBirth: string;
-                address: string;
-                city: string;
-                state: string;
-                zipCode: string;
-                emergencyContactName: string;
-                emergencyContactPhone: string;
-                allergies: string;
-                medicalConditions: string;
-                currentMedications: string;
-                role: string;
-                createdAt: string;
-                updatedAt: string;
-              }>;
-            };
-          }
-
-          const response = await client.graphql({
-            query: `query GetUserDetails {
-              listUsers(filter: { email: { eq: "${user.email}" } }) {
-                items {
-                  id
-                  email
-                  firstName
-                  lastName
-                  phoneNumber
-                  dateOfBirth
-                  address
-                  city
-                  state
-                  zipCode
-                  emergencyContactName
-                  emergencyContactPhone
-                  allergies
-                  medicalConditions
-                  currentMedications
-                  role
-                  createdAt
-                  updatedAt
-                }
-              }
-            }`,
-            authMode: 'apiKey'
-          }) as GraphQLResult<UserDetailsResponse>;
-
-          const userData = response.data?.listUsers?.items?.[0];
+          const userData = await userService.getUserByEmail(user.email);
           if (userData) {
             setUserId(userData.id);
             setAccountDetails(userData);
@@ -265,7 +213,7 @@ const Profile = () => {
         throw new Error('User ID not found');
       }
 
-      // Prepare the update input using the stored userId instead of getting it from getCurrentUser
+      // Prepare the update input using the stored userId
       const updateInput = {
         id: userId,
         firstName: formData.firstName || null,
@@ -283,15 +231,14 @@ const Profile = () => {
         currentMedications: formData.currentMedications || null
       };
 
-      // Update the user profile
-      const response = await client.graphql({
-        query: updateUser,
-        variables: { input: updateInput },
-        authMode: 'apiKey'  // Use apiKey mode for consistency
-      });
+      // Update the user profile using userService
+      const updatedUser = await userService.updateUser(updateInput);
 
-      if (response.data?.updateUser) {
+      if (updatedUser) {
         toast.success("Profile updated successfully");
+        
+        // Update local state with the updated data
+        setAccountDetails(updatedUser);
         
         // Log the profile update to the audit trail
         await logAction(

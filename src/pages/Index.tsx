@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 import { HealthMetric } from "@/components/dashboard/HealthMetric";
 import { MedicationReminder } from "@/components/dashboard/MedicationReminder";
@@ -8,50 +8,156 @@ import { AppointmentCard } from "@/components/dashboard/AppointmentCard";
 import { Activity, Footprints, Heart, Timer, Apple, Target, UserCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { FloLogo } from "@/components/FloLogo";
+import { useAuth } from "@/contexts/AuthContext";
+import { userService } from "@/services/user.service";
+import { generateClient } from "aws-amplify/api";
+import { toast } from "sonner";
 
 const Index = () => {
-  // Sample data for medications
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState<any>(null);
+  
+  // Real data for medications from user profile
   const [medications, setMedications] = useState([
     {
       id: "1",
-      name: "Lisinopril",
-      time: "8:00 AM",
-      taken: true,
-      dosage: "10mg",
-    },
-    {
-      id: "2",
-      name: "Metformin",
-      time: "12:30 PM",
+      name: "No medications recorded",
+      time: "N/A",
       taken: false,
-      dosage: "500mg",
-    },
-    {
-      id: "3",
-      name: "Simvastatin",
-      time: "7:00 PM",
-      taken: false,
-      dosage: "20mg",
-    },
+      dosage: "N/A",
+    }
   ]);
 
-  // Sample appointments
-  const appointments = [
+  // Real appointments from database
+  const [appointments, setAppointments] = useState([
     {
       id: "1",
-      title: "Annual Physical Checkup",
-      doctor: "Dr. Sarah Johnson",
-      location: "Memorial Hospital",
-      date: "May 15, 2023",
-      time: "10:30 AM",
-    },
-  ];
+      title: "No upcoming appointments",
+      doctor: "N/A",
+      location: "N/A",
+      date: "N/A",
+      time: "N/A",
+    }
+  ]);
+
+  // Fetch user data and appointments
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (user?.email) {
+        try {
+          setIsLoading(true);
+          
+          // Fetch user data
+          const userProfile = await userService.getUserByEmail(user.email);
+          if (userProfile) {
+            setUserData(userProfile);
+            
+            // Parse medications from user data
+            if (userProfile.currentMedications) {
+              const medList = userProfile.currentMedications.split(',').map((med, index) => ({
+                id: `med_${index}`,
+                name: med.trim(),
+                time: "As prescribed",
+                taken: false,
+                dosage: "As prescribed",
+              }));
+              setMedications(medList.length > 0 ? medList : medications);
+            }
+          }
+
+          // Fetch appointments
+          const client = generateClient();
+          const listAppointmentsWithExpert = /* GraphQL */ `
+            query ListAppointmentsWithExpert($filter: ModelAppointmentFilterInput, $limit: Int) {
+              listAppointments(filter: $filter, limit: $limit) {
+                items {
+                  id
+                  userId
+                  expertId
+                  date
+                  status
+                  type
+                  duration
+                  notes
+                  symptoms
+                  diagnosis
+                  prescription
+                  followUpDate
+                  expert {
+                    id
+                    specialization
+                    practiceName
+                    practiceAddress
+                    user {
+                      id
+                      firstName
+                      lastName
+                      email
+                    }
+                  }
+                }
+              }
+            }
+          `;
+
+          const response = await client.graphql({
+            query: listAppointmentsWithExpert,
+            variables: {
+              filter: { userId: { eq: user.id } },
+              limit: 5
+            }
+          }) as any;
+
+          if (response.data?.listAppointments?.items) {
+            const upcomingAppointments = response.data.listAppointments.items
+              .filter((apt: any) => new Date(apt.date) > new Date())
+              .slice(0, 3)
+              .map((apt: any) => ({
+                id: apt.id,
+                title: apt.type || 'Consultation',
+                doctor: apt.expert?.user ? `${apt.expert.user.firstName} ${apt.expert.user.lastName}` : apt.expert?.specialization || 'Unknown Expert',
+                location: apt.expert?.practiceName || 'Virtual',
+                date: new Date(apt.date).toLocaleDateString(),
+                time: new Date(apt.date).toLocaleTimeString(),
+              }));
+
+            if (upcomingAppointments.length > 0) {
+              setAppointments(upcomingAppointments);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching dashboard data:', error);
+          toast.error("Failed to load dashboard data");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchDashboardData();
+  }, [user?.email, user?.id]);
 
   const handleMarkTaken = (id: string) => {
     setMedications((prev) =>
       prev.map((med) => (med.id === id ? { ...med, taken: true } : med))
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex-1">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading your dashboard...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1">
@@ -60,7 +166,7 @@ const Index = () => {
           <div className="md:col-span-2">
             <div className="mb-6">
               <h1 className="text-3xl font-bold">
-                Welcome to Nurse Help Me<span className="text-primary">.</span>
+                Welcome{userData?.firstName ? ` ${userData.firstName}` : ''} to Nurse Help Me<span className="text-primary">.</span>
               </h1>
               <p className="text-muted-foreground">
                 Your personal health assistant and medical connector

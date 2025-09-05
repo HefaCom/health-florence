@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,9 @@ import {
   Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { userService } from "@/services/user.service";
+import { toast } from "sonner";
 
 interface HealthCondition {
   id: string;
@@ -35,53 +38,80 @@ interface HealthProfileProps {
 }
 
 export function HealthProfile({ className }: HealthProfileProps) {
+  const { user } = useAuth();
   const [isPrivate, setIsPrivate] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Basic health information
+  // Basic health information from database
   const [healthData, setHealthData] = useState({
-    height: 175, // cm
-    weight: 72, // kg
-    gender: "Male",
-    dateOfBirth: "1990-05-15",
-    bloodType: "O+",
-    allergies: ["Peanuts", "Shellfish"],
+    height: 0, // cm
+    weight: 0, // kg
+    gender: "",
+    dateOfBirth: "",
+    bloodType: "",
+    allergies: [] as string[],
     emergencyContact: {
-      name: "Jane Doe",
-      relationship: "Spouse",
-      phone: "+1 (555) 123-4567"
+      name: "",
+      relationship: "",
+      phone: ""
     }
   });
 
-  const [healthConditions, setHealthConditions] = useState<HealthCondition[]>([
-    {
-      id: "1",
-      name: "Hypertension",
-      severity: "moderate",
-      status: "managed",
-      diagnosedDate: "2022-03-15",
-      description: "High blood pressure managed with medication and lifestyle changes",
-      medications: ["Lisinopril 10mg", "Amlodipine 5mg"]
-    },
-    {
-      id: "2",
-      name: "Type 2 Diabetes",
-      severity: "mild",
-      status: "managed",
-      diagnosedDate: "2021-08-22",
-      description: "Controlled through diet, exercise, and medication",
-      medications: ["Metformin 500mg"]
-    },
-    {
-      id: "3",
-      name: "Seasonal Allergies",
-      severity: "mild",
-      status: "active",
-      diagnosedDate: "2019-04-10",
-      description: "Pollen and dust allergies",
-      medications: ["Cetirizine 10mg"]
-    }
-  ]);
+  const [healthConditions, setHealthConditions] = useState<HealthCondition[]>([]);
+
+  // Fetch user health data from database
+  useEffect(() => {
+    const fetchHealthData = async () => {
+      if (user?.email) {
+        try {
+          setIsLoading(true);
+          const userData = await userService.getUserByEmail(user.email);
+          
+          if (userData) {
+            // Parse health data from user record
+            const allergies = userData.allergies ? userData.allergies.split(',').map(a => a.trim()).filter(a => a) : [];
+            const medicalConditions = userData.medicalConditions ? userData.medicalConditions.split(',').map(c => c.trim()).filter(c => c) : [];
+            const currentMedications = userData.currentMedications ? userData.currentMedications.split(',').map(m => m.trim()).filter(m => m) : [];
+
+            setHealthData({
+              height: userData.height || 0,
+              weight: userData.weight || 0,
+              gender: userData.gender || "",
+              dateOfBirth: userData.dateOfBirth || "",
+              bloodType: userData.bloodType || "",
+              allergies: allergies,
+              emergencyContact: {
+                name: userData.emergencyContactName || "",
+                relationship: "Emergency Contact",
+                phone: userData.emergencyContactPhone || ""
+              }
+            });
+
+            // Convert medical conditions to health conditions format
+            const conditions: HealthCondition[] = medicalConditions.map((condition, index) => ({
+              id: `condition_${index}`,
+              name: condition,
+              severity: "moderate" as const,
+              status: "active" as const,
+              diagnosedDate: userData.createdAt || new Date().toISOString(),
+              description: `Medical condition: ${condition}`,
+              medications: currentMedications
+            }));
+
+            setHealthConditions(conditions);
+          }
+        } catch (error) {
+          console.error('Error fetching health data:', error);
+          toast.error("Failed to load health profile data");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchHealthData();
+  }, [user?.email]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -125,6 +155,19 @@ export function HealthProfile({ className }: HealthProfileProps) {
 
   const bmi = calculateBMI();
   const bmiCategory = getBMICategory(parseFloat(bmi));
+
+  if (isLoading) {
+    return (
+      <Card className={cn("rounded-florence overflow-hidden card-glow", className)}>
+        <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <span className="ml-2 text-muted-foreground">Loading health profile...</span>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className={cn("rounded-florence overflow-hidden card-glow", className)}>
