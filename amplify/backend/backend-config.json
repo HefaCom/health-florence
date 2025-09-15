@@ -66,6 +66,11 @@
     }
   },
   "function": {
+    "S3Trigger9e9a128e": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "appointmentsTriggerb8d8a287": {
       "build": true,
       "dependsOn": [
@@ -101,6 +106,22 @@
   },
   "hosting": {},
   "parameters": {
+    "AMPLIFY_function_S3Trigger9e9a128e_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "S3Trigger9e9a128e"
+        }
+      ]
+    },
+    "AMPLIFY_function_S3Trigger9e9a128e_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "S3Trigger9e9a128e"
+        }
+      ]
+    },
     "AMPLIFY_function_appointmentsTriggerb8d8a287_deploymentBucketName": {
       "usedBy": [
         {
@@ -142,6 +163,21 @@
     "doctors": {
       "providerPlugin": "awscloudformation",
       "service": "DynamoDB"
+    },
+    "healthAIStorage": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn",
+            "LambdaExecutionRole"
+          ],
+          "category": "function",
+          "resourceName": "S3Trigger9e9a128e"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
     },
     "users": {
       "providerPlugin": "awscloudformation",

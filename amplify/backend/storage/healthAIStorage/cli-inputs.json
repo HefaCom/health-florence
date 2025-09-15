@@ -1,0 +1,17 @@
+{
+  "resourceName": "healthAIStorage",
+  "policyUUID": "8a2d9473",
+  "bucketName": "healthflorence41da3ade3dc840d9ac1ffd686c498255",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "S3Trigger9e9a128e",
+  "groupAccess": {}
+}

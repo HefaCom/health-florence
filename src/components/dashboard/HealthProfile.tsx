@@ -31,6 +31,8 @@ import { userService } from "@/services/user.service";
 import { healthConditionService, HealthCondition as HealthConditionType } from "@/services/health-condition.service";
 import { haicTokenService } from "@/services/haic-token.service";
 import { toast } from "sonner";
+import { FileUpload } from "@/components/common/FileUpload";
+import { fileUploadService, UploadedFile } from "@/services/file-upload.service";
 
 interface HealthCondition {
   id: string;
@@ -78,6 +80,7 @@ export function HealthProfile({ className }: HealthProfileProps) {
   });
 
   const [healthConditions, setHealthConditions] = useState<HealthConditionType[]>([]);
+  const [medicalDocuments, setMedicalDocuments] = useState<UploadedFile[]>([]);
 
   // Fetch user health data from database
   useEffect(() => {
@@ -109,6 +112,17 @@ export function HealthProfile({ className }: HealthProfileProps) {
           // Fetch health conditions from the dedicated table
           const conditions = await healthConditionService.getHealthConditionsByUserId(user.id);
           setHealthConditions(conditions);
+
+          // Load medical documents
+          if (userData.medicalDocuments) {
+            try {
+              const documents = JSON.parse(userData.medicalDocuments);
+              setMedicalDocuments(documents);
+            } catch (error) {
+              console.error('Error parsing medical documents:', error);
+              setMedicalDocuments([]);
+            }
+          }
         } catch (error) {
           console.error('Error fetching health data:', error);
           toast.error("Failed to load health profile data");
@@ -264,6 +278,49 @@ export function HealthProfile({ className }: HealthProfileProps) {
     } catch (error) {
       console.error('Error updating health profile:', error);
       toast.error("Failed to update health profile");
+    }
+  };
+
+  const handleMedicalDocumentUpload = async (files: UploadedFile[]) => {
+    if (files.length === 0) return;
+
+    try {
+      // Add new documents to existing ones
+      const updatedDocuments = [...medicalDocuments, ...files];
+      setMedicalDocuments(updatedDocuments);
+
+      // Update user profile with new medical documents
+      if (user?.id) {
+        await userService.updateUser({
+          id: user.id,
+          medicalDocuments: JSON.stringify(updatedDocuments)
+        });
+      }
+
+      toast.success(`Successfully uploaded ${files.length} medical document(s)`);
+    } catch (error: any) {
+      console.error('Error uploading medical documents:', error);
+      toast.error(error.message || 'Failed to upload medical documents');
+    }
+  };
+
+  const handleDeleteDocument = async (documentId: string) => {
+    try {
+      const updatedDocuments = medicalDocuments.filter(doc => doc.id !== documentId);
+      setMedicalDocuments(updatedDocuments);
+
+      // Update user profile
+      if (user?.id) {
+        await userService.updateUser({
+          id: user.id,
+          medicalDocuments: JSON.stringify(updatedDocuments)
+        });
+      }
+
+      toast.success('Medical document deleted successfully');
+    } catch (error: any) {
+      console.error('Error deleting medical document:', error);
+      toast.error('Failed to delete medical document');
     }
   };
 
@@ -883,12 +940,80 @@ export function HealthProfile({ className }: HealthProfileProps) {
             className="flex-1 rounded-full"
           onClick={() => {
             // This would trigger Florence to update health profile
-            console.log("Requesting health profile updates from Florence");
+            // TODO: Implement Florence integration for health profile updates
           }}
         >
           <Plus className="h-4 w-4 mr-2" />
           Ask Florence to Update Health Profile
         </Button>
+        </div>
+
+        {/* Medical Documents */}
+        <div className="p-4 rounded-lg border bg-white dark:bg-card">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium">Medical Documents</h4>
+            <Badge variant="secondary" className="text-xs">
+              {medicalDocuments.length} document(s)
+            </Badge>
+          </div>
+          
+          <div className="space-y-3">
+            {medicalDocuments.length === 0 ? (
+              <div className="text-center py-4 text-gray-500">
+                <p className="text-sm">No medical documents uploaded</p>
+              </div>
+            ) : (
+              medicalDocuments.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 text-sm">📄</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{doc.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(doc.uploadedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(doc.url, '_blank')}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteDocument(doc.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+            
+            <FileUpload
+              onUploadComplete={handleMedicalDocumentUpload}
+              options={{
+                category: 'medical-documents',
+                maxSize: 10 * 1024 * 1024, // 10MB
+                allowedTypes: [
+                  'application/pdf',
+                  'image/jpeg',
+                  'image/png',
+                  'application/msword',
+                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ]
+              }}
+              multiple={true}
+              maxFiles={5}
+              className="mt-3"
+            />
+          </div>
         </div>
       </div>
     </Card>

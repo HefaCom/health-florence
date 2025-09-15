@@ -38,6 +38,8 @@ export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
     privacySettings
     subscriptionTier
     subscriptionExpiresAt
+    profilePicture
+    medicalDocuments
     createdAt
     updatedAt
     dietaryPlans {
@@ -100,6 +102,8 @@ export const listUsers = /* GraphQL */ `query ListUsers(
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -143,6 +147,8 @@ export const getExpert = /* GraphQL */ `query GetExpert($id: ID!) {
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -276,6 +282,8 @@ export const getAppointment = /* GraphQL */ `query GetAppointment($id: ID!) {
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -390,6 +398,8 @@ export const getExpertPatient = /* GraphQL */ `query GetExpertPatient($id: ID!) 
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -601,6 +611,8 @@ export const getDietaryPlan = /* GraphQL */ `query GetDietaryPlan($id: ID!) {
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -694,6 +706,8 @@ export const getHealthGoal = /* GraphQL */ `query GetHealthGoal($id: ID!) {
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -782,6 +796,8 @@ export const getHealthCondition = /* GraphQL */ `query GetHealthCondition($id: I
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -862,6 +878,8 @@ export const getHAICReward = /* GraphQL */ `query GetHAICReward($id: ID!) {
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1053,6 +1071,8 @@ export const getHAICTransaction = /* GraphQL */ `query GetHAICTransaction($id: I
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner

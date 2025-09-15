@@ -23,12 +23,17 @@
         "usersTrigger9dd0c00a": {
           "deploymentBucketName": "amplify-amplifycd7815c40a644-staging-24e99-deployment",
           "s3Key": "amplify-builds/usersTrigger9dd0c00a-34707277514b79542b37-build.zip"
+        },
+        "S3Trigger9e9a128e": {
+          "deploymentBucketName": "amplify-amplifycd7815c40a644-staging-24e99-deployment",
+          "s3Key": "amplify-builds/S3Trigger9e9a128e-54426e49354f4855455a-build.zip"
         }
       },
       "storage": {
         "appointments": {},
         "doctors": {},
-        "users": {}
+        "users": {},
+        "healthAIStorage": {}
       },
       "api": {
         "healthflorence": {}

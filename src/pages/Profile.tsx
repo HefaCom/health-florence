@@ -43,8 +43,77 @@ import { GetUserQuery, UpdateUserMutation } from '../API';
 import { getCurrentUser, updatePassword } from 'aws-amplify/auth';
 import { useAudit } from '@/hooks/useAudit';
 import { userService } from '@/services/user.service';
+import { FileUpload } from '@/components/common/FileUpload';
+import { fileUploadService, UploadedFile } from '@/services/file-upload.service';
 
 const client = generateClient();
+
+// Profile Picture Upload Component
+interface ProfilePictureUploadProps {
+  currentPicture?: string;
+  onPictureUpdate: (pictureUrl: string) => void;
+}
+
+const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({ 
+  currentPicture, 
+  onPictureUpdate 
+}) => {
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleUploadComplete = async (files: UploadedFile[]) => {
+    if (files.length > 0) {
+      setIsUploading(true);
+      try {
+        const uploadedFile = files[0];
+        onPictureUpdate(uploadedFile.url);
+        toast.success('Profile picture updated successfully!');
+      } catch (error: any) {
+        toast.error('Failed to update profile picture');
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Current Profile Picture */}
+      {currentPicture && (
+        <div className="flex items-center space-x-4">
+          <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200">
+            <img 
+              src={currentPicture} 
+              alt="Profile" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div>
+            <p className="text-sm font-medium">Current Profile Picture</p>
+            <p className="text-xs text-gray-500">Click to change</p>
+          </div>
+        </div>
+      )}
+
+      {/* File Upload */}
+      <FileUpload
+        onUploadComplete={handleUploadComplete}
+        options={{
+          category: 'profile-picture',
+          maxSize: 5 * 1024 * 1024, // 5MB
+          allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        }}
+        multiple={false}
+        maxFiles={1}
+        disabled={isUploading}
+        className="max-w-md"
+      />
+      
+      <p className="text-xs text-gray-500">
+        Supported formats: JPEG, PNG, GIF, WebP. Maximum size: 5MB.
+      </p>
+    </div>
+  );
+};
 
 interface ListUsersResponse {
   listUsers: {
@@ -275,6 +344,34 @@ const Profile = () => {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleProfilePictureUpdate = async (pictureUrl: string) => {
+    try {
+      const updateInput = {
+        id: userId,
+        profilePicture: pictureUrl
+      };
+
+      const updatedUser = await userService.updateUser(updateInput);
+      
+      if (updatedUser) {
+        setAccountDetails(updatedUser);
+        toast.success("Profile picture updated successfully");
+        
+        // Log the profile picture update to the audit trail
+        await logAction(
+          'PROFILE_PICTURE_UPDATE',
+          userId,
+          {
+            timestamp: new Date().toISOString()
+          }
+        );
+      }
+    } catch (error: any) {
+      console.error('Error updating profile picture:', error);
+      toast.error("Failed to update profile picture");
     }
   };
 
@@ -543,6 +640,22 @@ const Profile = () => {
                   </Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Profile Picture Upload */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Picture</CardTitle>
+              <CardDescription>
+                Upload a profile picture to personalize your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProfilePictureUpload 
+                currentPicture={accountDetails?.profilePicture}
+                onPictureUpdate={handleProfilePictureUpdate}
+              />
             </CardContent>
           </Card>
           

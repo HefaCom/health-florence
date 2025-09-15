@@ -18,6 +18,13 @@ export type AmplifyDependentResourcesAttributes = {
     }
   },
   "function": {
+    "S3Trigger9e9a128e": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    },
     "appointmentsTriggerb8d8a287": {
       "Arn": "string",
       "LambdaExecutionRole": "string",
@@ -51,6 +58,10 @@ export type AmplifyDependentResourcesAttributes = {
       "PartitionKeyType": "string",
       "Region": "string",
       "StreamArn": "string"
+    },
+    "healthAIStorage": {
+      "BucketName": "string",
+      "Region": "string"
     },
     "users": {
       "Arn": "string",

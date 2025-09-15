@@ -41,6 +41,8 @@ export const onCreateUser = /* GraphQL */ `subscription OnCreateUser(
     privacySettings
     subscriptionTier
     subscriptionExpiresAt
+    profilePicture
+    medicalDocuments
     createdAt
     updatedAt
     dietaryPlans {
@@ -104,6 +106,8 @@ export const onUpdateUser = /* GraphQL */ `subscription OnUpdateUser(
     privacySettings
     subscriptionTier
     subscriptionExpiresAt
+    profilePicture
+    medicalDocuments
     createdAt
     updatedAt
     dietaryPlans {
@@ -167,6 +171,8 @@ export const onDeleteUser = /* GraphQL */ `subscription OnDeleteUser(
     privacySettings
     subscriptionTier
     subscriptionExpiresAt
+    profilePicture
+    medicalDocuments
     createdAt
     updatedAt
     dietaryPlans {
@@ -230,6 +236,8 @@ export const onCreateExpert = /* GraphQL */ `subscription OnCreateExpert($filter
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -312,6 +320,8 @@ export const onUpdateExpert = /* GraphQL */ `subscription OnUpdateExpert($filter
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -394,6 +404,8 @@ export const onDeleteExpert = /* GraphQL */ `subscription OnDeleteExpert($filter
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -489,6 +501,8 @@ export const onCreateAppointment = /* GraphQL */ `subscription OnCreateAppointme
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -580,6 +594,8 @@ export const onUpdateAppointment = /* GraphQL */ `subscription OnUpdateAppointme
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -671,6 +687,8 @@ export const onDeleteAppointment = /* GraphQL */ `subscription OnDeleteAppointme
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -756,6 +774,8 @@ export const onCreateExpertPatient = /* GraphQL */ `subscription OnCreateExpertP
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -841,6 +861,8 @@ export const onUpdateExpertPatient = /* GraphQL */ `subscription OnUpdateExpertP
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -926,6 +948,8 @@ export const onDeleteExpertPatient = /* GraphQL */ `subscription OnDeleteExpertP
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1204,6 +1228,8 @@ export const onCreateDietaryPlan = /* GraphQL */ `subscription OnCreateDietaryPl
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1266,6 +1292,8 @@ export const onUpdateDietaryPlan = /* GraphQL */ `subscription OnUpdateDietaryPl
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1328,6 +1356,8 @@ export const onDeleteDietaryPlan = /* GraphQL */ `subscription OnDeleteDietaryPl
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1391,6 +1421,8 @@ export const onCreateHealthGoal = /* GraphQL */ `subscription OnCreateHealthGoal
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1454,6 +1486,8 @@ export const onUpdateHealthGoal = /* GraphQL */ `subscription OnUpdateHealthGoal
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1517,6 +1551,8 @@ export const onDeleteHealthGoal = /* GraphQL */ `subscription OnDeleteHealthGoal
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1574,6 +1610,8 @@ export const onCreateHealthCondition = /* GraphQL */ `subscription OnCreateHealt
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1631,6 +1669,8 @@ export const onUpdateHealthCondition = /* GraphQL */ `subscription OnUpdateHealt
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1688,6 +1728,8 @@ export const onDeleteHealthCondition = /* GraphQL */ `subscription OnDeleteHealt
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1743,6 +1785,8 @@ export const onCreateHAICReward = /* GraphQL */ `subscription OnCreateHAICReward
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1798,6 +1842,8 @@ export const onUpdateHAICReward = /* GraphQL */ `subscription OnUpdateHAICReward
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -1853,6 +1899,8 @@ export const onDeleteHAICReward = /* GraphQL */ `subscription OnDeleteHAICReward
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -2068,6 +2116,8 @@ export const onCreateHAICTransaction = /* GraphQL */ `subscription OnCreateHAICT
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -2130,6 +2180,8 @@ export const onUpdateHAICTransaction = /* GraphQL */ `subscription OnUpdateHAICT
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner
@@ -2192,6 +2244,8 @@ export const onDeleteHAICTransaction = /* GraphQL */ `subscription OnDeleteHAICT
       privacySettings
       subscriptionTier
       subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
       createdAt
       updatedAt
       owner

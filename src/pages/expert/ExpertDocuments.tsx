@@ -21,6 +21,8 @@ import {
   Calendar,
   Shield
 } from 'lucide-react';
+import { FileUpload } from '@/components/common/FileUpload';
+import { fileUploadService, UploadedFile } from '@/services/file-upload.service';
 
 interface Document {
   id: string;
@@ -134,6 +136,42 @@ export default function ExpertDocuments() {
     }
   };
 
+  const handleDocumentUpload = async (files: UploadedFile[]) => {
+    if (files.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      const newDocuments: Document[] = files.map(file => ({
+        id: file.id,
+        name: file.name,
+        type: file.category || 'general',
+        url: file.url,
+        uploadedAt: file.uploadedAt,
+        status: 'pending' as const
+      }));
+
+      // Add new documents to existing ones
+      const updatedDocuments = [...documents, ...newDocuments];
+      setDocuments(updatedDocuments);
+
+      // Update expert profile with new documents
+      const expert = await expertService.getExpertByUserId(user.id);
+      if (expert) {
+        await expertService.updateExpertSimple({
+          id: expert.id,
+          documents: JSON.stringify(updatedDocuments)
+        });
+      }
+
+      toast.success(`Successfully uploaded ${files.length} document(s)`);
+    } catch (error: any) {
+      console.error('Error uploading documents:', error);
+      toast.error(error.message || 'Failed to upload documents');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleDeleteDocument = async (documentId: string) => {
     try {
       setDocuments(prev => prev.filter(doc => doc.id !== documentId));
@@ -209,40 +247,36 @@ export default function ExpertDocuments() {
           <h1 className="text-3xl font-bold">Document Management</h1>
           <p className="text-gray-600">Upload and manage your professional documents for verification</p>
         </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="file"
-            id="document-upload"
-            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-            onChange={handleFileUpload}
-            className="hidden"
-            disabled={isUploading}
-          />
-          <Button 
-            onClick={() => document.getElementById('document-upload')?.click()}
-            disabled={isUploading}
-            className="flex items-center gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            {isUploading ? 'Uploading...' : 'Upload Document'}
-          </Button>
-        </div>
       </div>
 
-      {/* Upload Progress */}
-      {isUploading && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Uploading document...</span>
-                <span className="text-sm text-gray-600">{uploadProgress}%</span>
-              </div>
-              <Progress value={uploadProgress} className="w-full" />
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Document Upload */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Upload Documents</CardTitle>
+          <CardDescription>
+            Upload your professional documents for verification. Supported formats: PDF, JPG, PNG, DOC, DOCX
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FileUpload
+            onUploadComplete={handleDocumentUpload}
+            options={{
+              category: 'expert-documents',
+              maxSize: 10 * 1024 * 1024, // 10MB
+              allowedTypes: [
+                'application/pdf',
+                'image/jpeg',
+                'image/png',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+              ]
+            }}
+            multiple={true}
+            maxFiles={10}
+            disabled={isUploading}
+          />
+        </CardContent>
+      </Card>
 
       {/* Verification Progress */}
       <Card>

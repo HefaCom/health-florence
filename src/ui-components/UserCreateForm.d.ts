@@ -49,6 +49,8 @@ export declare type UserCreateFormInputValues = {
     privacySettings?: string;
     subscriptionTier?: string;
     subscriptionExpiresAt?: string;
+    profilePicture?: string;
+    medicalDocuments?: string;
     createdAt?: string;
     updatedAt?: string;
 };
@@ -80,6 +82,8 @@ export declare type UserCreateFormValidationValues = {
     privacySettings?: ValidationFunction<string>;
     subscriptionTier?: ValidationFunction<string>;
     subscriptionExpiresAt?: ValidationFunction<string>;
+    profilePicture?: ValidationFunction<string>;
+    medicalDocuments?: ValidationFunction<string>;
     createdAt?: ValidationFunction<string>;
     updatedAt?: ValidationFunction<string>;
 };
@@ -113,6 +117,8 @@ export declare type UserCreateFormOverridesProps = {
     privacySettings?: PrimitiveOverrideProps<TextAreaFieldProps>;
     subscriptionTier?: PrimitiveOverrideProps<TextFieldProps>;
     subscriptionExpiresAt?: PrimitiveOverrideProps<TextFieldProps>;
+    profilePicture?: PrimitiveOverrideProps<TextFieldProps>;
+    medicalDocuments?: PrimitiveOverrideProps<TextAreaFieldProps>;
     createdAt?: PrimitiveOverrideProps<TextFieldProps>;
     updatedAt?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;

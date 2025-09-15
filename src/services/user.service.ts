@@ -32,6 +32,7 @@ export interface User {
   weight?: number;
   gender?: string;
   bloodType?: string;
+  medicalDocuments?: string;
   role: 'user' | 'admin' | 'expert';
   isActive: boolean;
   lastLoginAt?: string;
@@ -55,6 +56,7 @@ export interface CreateUserInput {
   preferences?: any;
   notificationSettings?: any;
   privacySettings?: any;
+  medicalDocuments?: string;
   subscriptionTier?: string;
 }
 
@@ -78,6 +80,7 @@ export interface UpdateUserInput {
   weight?: number;
   gender?: string;
   bloodType?: string;
+  medicalDocuments?: string;
   role?: 'user' | 'admin' | 'expert';
   isActive?: boolean;
   lastLoginAt?: string;

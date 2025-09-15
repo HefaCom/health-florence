@@ -35,6 +35,10 @@ type User @model @auth(rules: [
   subscriptionTier: String @default(value: "basic")
   subscriptionExpiresAt: AWSDateTime
   
+  # File upload fields
+  profilePicture: String
+  medicalDocuments: AWSJSON
+  
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
   dietaryPlans: [DietaryPlan] @hasMany(fields: ["id"])

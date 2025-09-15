@@ -59,6 +59,8 @@ export default function UserUpdateForm(props) {
     privacySettings: "",
     subscriptionTier: "",
     subscriptionExpiresAt: "",
+    profilePicture: "",
+    medicalDocuments: "",
     createdAt: "",
     updatedAt: "",
   };
@@ -113,6 +115,12 @@ export default function UserUpdateForm(props) {
   const [subscriptionExpiresAt, setSubscriptionExpiresAt] = React.useState(
     initialValues.subscriptionExpiresAt
   );
+  const [profilePicture, setProfilePicture] = React.useState(
+    initialValues.profilePicture
+  );
+  const [medicalDocuments, setMedicalDocuments] = React.useState(
+    initialValues.medicalDocuments
+  );
   const [createdAt, setCreatedAt] = React.useState(initialValues.createdAt);
   const [updatedAt, setUpdatedAt] = React.useState(initialValues.updatedAt);
   const [errors, setErrors] = React.useState({});
@@ -162,6 +170,13 @@ export default function UserUpdateForm(props) {
     );
     setSubscriptionTier(cleanValues.subscriptionTier);
     setSubscriptionExpiresAt(cleanValues.subscriptionExpiresAt);
+    setProfilePicture(cleanValues.profilePicture);
+    setMedicalDocuments(
+      typeof cleanValues.medicalDocuments === "string" ||
+        cleanValues.medicalDocuments === null
+        ? cleanValues.medicalDocuments
+        : JSON.stringify(cleanValues.medicalDocuments)
+    );
     setCreatedAt(cleanValues.createdAt);
     setUpdatedAt(cleanValues.updatedAt);
     setErrors({});
@@ -210,6 +225,8 @@ export default function UserUpdateForm(props) {
     privacySettings: [{ type: "JSON" }],
     subscriptionTier: [],
     subscriptionExpiresAt: [],
+    profilePicture: [],
+    medicalDocuments: [{ type: "JSON" }],
     createdAt: [{ type: "Required" }],
     updatedAt: [{ type: "Required" }],
   };
@@ -283,6 +300,8 @@ export default function UserUpdateForm(props) {
           privacySettings: privacySettings ?? null,
           subscriptionTier: subscriptionTier ?? null,
           subscriptionExpiresAt: subscriptionExpiresAt ?? null,
+          profilePicture: profilePicture ?? null,
+          medicalDocuments: medicalDocuments ?? null,
           createdAt,
           updatedAt,
         };
@@ -372,6 +391,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -424,6 +445,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -476,6 +499,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -528,6 +553,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -581,6 +608,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -633,6 +662,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -685,6 +716,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -737,6 +770,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -789,6 +824,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -841,6 +878,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -895,6 +934,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -949,6 +990,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1001,6 +1044,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1055,6 +1100,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1113,6 +1160,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1169,6 +1218,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1221,6 +1272,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1273,6 +1326,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1325,6 +1380,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1377,6 +1434,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1431,6 +1490,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1487,6 +1548,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1539,6 +1602,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1591,6 +1656,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1645,6 +1712,8 @@ export default function UserUpdateForm(props) {
               privacySettings: value,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1697,6 +1766,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier: value,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1754,6 +1825,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt: value,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt,
             };
@@ -1772,6 +1845,114 @@ export default function UserUpdateForm(props) {
         hasError={errors.subscriptionExpiresAt?.hasError}
         {...getOverrideProps(overrides, "subscriptionExpiresAt")}
       ></TextField>
+      <TextField
+        label="Profile picture"
+        isRequired={false}
+        isReadOnly={false}
+        value={profilePicture}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              profilePicture: value,
+              medicalDocuments,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.profilePicture ?? value;
+          }
+          if (errors.profilePicture?.hasError) {
+            runValidationTasks("profilePicture", value);
+          }
+          setProfilePicture(value);
+        }}
+        onBlur={() => runValidationTasks("profilePicture", profilePicture)}
+        errorMessage={errors.profilePicture?.errorMessage}
+        hasError={errors.profilePicture?.hasError}
+        {...getOverrideProps(overrides, "profilePicture")}
+      ></TextField>
+      <TextAreaField
+        label="Medical documents"
+        isRequired={false}
+        isReadOnly={false}
+        value={medicalDocuments}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              email,
+              firstName,
+              lastName,
+              phoneNumber,
+              dateOfBirth,
+              address,
+              city,
+              state,
+              zipCode,
+              emergencyContactName,
+              emergencyContactPhone,
+              allergies,
+              medicalConditions,
+              currentMedications,
+              height,
+              weight,
+              gender,
+              bloodType,
+              role,
+              isActive,
+              lastLoginAt,
+              loginCount,
+              preferences,
+              notificationSettings,
+              privacySettings,
+              subscriptionTier,
+              subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments: value,
+              createdAt,
+              updatedAt,
+            };
+            const result = onChange(modelFields);
+            value = result?.medicalDocuments ?? value;
+          }
+          if (errors.medicalDocuments?.hasError) {
+            runValidationTasks("medicalDocuments", value);
+          }
+          setMedicalDocuments(value);
+        }}
+        onBlur={() => runValidationTasks("medicalDocuments", medicalDocuments)}
+        errorMessage={errors.medicalDocuments?.errorMessage}
+        hasError={errors.medicalDocuments?.hasError}
+        {...getOverrideProps(overrides, "medicalDocuments")}
+      ></TextAreaField>
       <TextField
         label="Created at"
         isRequired={true}
@@ -1810,6 +1991,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt: value,
               updatedAt,
             };
@@ -1864,6 +2047,8 @@ export default function UserUpdateForm(props) {
               privacySettings,
               subscriptionTier,
               subscriptionExpiresAt,
+              profilePicture,
+              medicalDocuments,
               createdAt,
               updatedAt: value,
             };
