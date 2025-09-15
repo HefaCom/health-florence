@@ -162,6 +162,7 @@ export const getExpert = /* GraphQL */ `query GetExpert($id: ID!) {
     bio
     profileImage
     coverImage
+    documents
     isVerified
     isActive
     verificationStatus
@@ -211,6 +212,7 @@ export const listExperts = /* GraphQL */ `query ListExperts(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -296,6 +298,7 @@ export const getAppointment = /* GraphQL */ `query GetAppointment($id: ID!) {
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -409,6 +412,7 @@ export const getExpertPatient = /* GraphQL */ `query GetExpertPatient($id: ID!) 
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -493,6 +497,7 @@ export const getPatientRecord = /* GraphQL */ `query GetPatientRecord($id: ID!) 
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus

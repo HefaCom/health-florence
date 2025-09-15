@@ -33,6 +33,9 @@ import ExpertActivity from "./pages/expert/ExpertActivity";
 import ExpertFlorence from "./pages/expert/ExpertFlorence";
 import ExpertProfileSetup from "./pages/expert/ExpertProfileSetup";
 import ExpertProfile from "./pages/expert/ExpertProfile";
+import ExpertAvailability from "./pages/expert/ExpertAvailability";
+import ExpertDocuments from "./pages/expert/ExpertDocuments";
+import ExpertServices from "./pages/expert/ExpertServices";
 import ExpertProfileView from "./pages/ExpertProfileView";
 import { ExpertLayout } from "./components/expert/ExpertLayout";
 
@@ -44,6 +47,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminExpertReview from "./pages/admin/AdminExpertReview";
 import AdminAppointments from "./pages/admin/AdminAppointments";
 import AppointmentDetail from "./pages/admin/AppointmentDetail";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
@@ -101,6 +105,7 @@ const App = () => (
                   <Route index element={<AdminDashboard />} />
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="experts" element={<AdminExperts />} />
+                  <Route path="expert-review" element={<AdminExpertReview />} />
                   <Route path="appointments" element={<AdminAppointments />} />
                   <Route path="appointments/:id" element={<AppointmentDetail />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
@@ -123,6 +128,9 @@ const App = () => (
                 }>
                   <Route index element={<ExpertDashboard />} />
                   <Route path="profile" element={<ExpertProfile />} />
+                  <Route path="availability" element={<ExpertAvailability />} />
+                  <Route path="documents" element={<ExpertDocuments />} />
+                  <Route path="services" element={<ExpertServices />} />
                   <Route path="florence" element={<ExpertFlorence />} />
                   <Route path="patients" element={<ExpertPatients />} />
                   <Route path="patient/:patientId" element={<PatientDetails />} />

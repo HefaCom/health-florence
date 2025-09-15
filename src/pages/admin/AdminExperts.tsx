@@ -39,7 +39,8 @@ import {
   Phone,
   Clock,
   User,
-  Activity
+  Activity,
+  Shield
 } from "lucide-react";
 
 type ExpertSummary = {
@@ -268,6 +269,13 @@ export default function AdminExperts() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => window.location.href = '/admin/expert-review'}
+            className="flex items-center gap-2"
+          >
+            <Shield className="h-4 w-4" />
+            Expert Review
+          </Button>
           <Badge variant="secondary" className="px-3 py-1">
             <Activity className="h-3 w-3 mr-1" />
             {filteredExperts.length} Experts

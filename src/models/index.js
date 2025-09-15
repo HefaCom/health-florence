@@ -4,10 +4,18 @@ import { schema } from './schema';
 
 
 
-const { User, Doctor, Appointment } = initSchema(schema);
+const { User, Expert, Appointment, ExpertPatient, PatientRecord, AuditEvent, AuditBatch, DietaryPlan, HealthGoal, HealthCondition, HAICReward } = initSchema(schema);
 
 export {
   User,
-  Doctor,
-  Appointment
+  Expert,
+  Appointment,
+  ExpertPatient,
+  PatientRecord,
+  AuditEvent,
+  AuditBatch,
+  DietaryPlan,
+  HealthGoal,
+  HealthCondition,
+  HAICReward
 };

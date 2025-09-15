@@ -244,6 +244,7 @@ export const createExpert = /* GraphQL */ `mutation CreateExpert(
     bio
     profileImage
     coverImage
+    documents
     isVerified
     isActive
     verificationStatus
@@ -328,6 +329,7 @@ export const updateExpert = /* GraphQL */ `mutation UpdateExpert(
     bio
     profileImage
     coverImage
+    documents
     isVerified
     isActive
     verificationStatus
@@ -412,6 +414,7 @@ export const deleteExpert = /* GraphQL */ `mutation DeleteExpert(
     bio
     profileImage
     coverImage
+    documents
     isVerified
     isActive
     verificationStatus
@@ -509,6 +512,7 @@ export const createAppointment = /* GraphQL */ `mutation CreateAppointment(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -599,6 +603,7 @@ export const updateAppointment = /* GraphQL */ `mutation UpdateAppointment(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -689,6 +694,7 @@ export const deleteAppointment = /* GraphQL */ `mutation DeleteAppointment(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -773,6 +779,7 @@ export const createExpertPatient = /* GraphQL */ `mutation CreateExpertPatient(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -857,6 +864,7 @@ export const updateExpertPatient = /* GraphQL */ `mutation UpdateExpertPatient(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -941,6 +949,7 @@ export const deleteExpertPatient = /* GraphQL */ `mutation DeleteExpertPatient(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -1002,6 +1011,7 @@ export const createPatientRecord = /* GraphQL */ `mutation CreatePatientRecord(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -1063,6 +1073,7 @@ export const updatePatientRecord = /* GraphQL */ `mutation UpdatePatientRecord(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -1124,6 +1135,7 @@ export const deletePatientRecord = /* GraphQL */ `mutation DeletePatientRecord(
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus

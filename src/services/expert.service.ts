@@ -8,6 +8,7 @@ import {
   getExpert as getExpertQuery, 
   listExperts as listExpertsQuery 
 } from '../graphql/queries';
+import { UpdateExpertInput } from '../API';
 
 // Generate API client
 const client = generateClient();
@@ -53,6 +54,7 @@ export interface Expert {
   bio?: string;
   profileImage?: string;
   coverImage?: string;
+  documents?: string; // JSON string containing array of documents
   isVerified: boolean;
   isActive: boolean;
   verificationStatus: string;
@@ -92,31 +94,6 @@ export interface CreateExpertInput {
   verificationStatus?: string;
 }
 
-export interface UpdateExpertInput {
-  id: string;
-  userId?: string;
-  specialization?: string;
-  subSpecializations?: string[];
-  licenseNumber?: string;
-  yearsOfExperience?: number;
-  education?: string[];
-  certifications?: string[];
-  languages?: string[];
-  practiceName?: string;
-  practiceAddress?: string;
-  practicePhone?: string;
-  practiceEmail?: string;
-  practiceWebsite?: string;
-  availability?: any;
-  consultationFee?: number;
-  services?: string[];
-  bio?: string;
-  profileImage?: string;
-  coverImage?: string;
-  isVerified?: boolean;
-  isActive?: boolean;
-  verificationStatus?: string;
-}
 
 class ExpertService {
   /**
@@ -287,6 +264,56 @@ class ExpertService {
     try {
       const result = await client.graphql({
         query: updateExpertMutation,
+        variables: { input }
+      });
+
+      return (result as any).data.updateExpert;
+    } catch (error) {
+      console.error('Error updating expert:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update expert profile (simplified - no user relationship)
+   */
+  async updateExpertSimple(input: UpdateExpertInput): Promise<Expert> {
+    try {
+      const updateExpertSimpleMutation = /* GraphQL */ `
+        mutation UpdateExpertSimple($input: UpdateExpertInput!) {
+          updateExpert(input: $input) {
+            id
+            userId
+            specialization
+            subSpecializations
+            licenseNumber
+            yearsOfExperience
+            education
+            certifications
+            languages
+            practiceName
+            practiceAddress
+            practicePhone
+            practiceEmail
+            practiceWebsite
+            availability
+            consultationFee
+            services
+            bio
+            profileImage
+            coverImage
+            documents
+            isVerified
+            isActive
+            verificationStatus
+            createdAt
+            updatedAt
+          }
+        }
+      `;
+
+      const result = await client.graphql({
+        query: updateExpertSimpleMutation,
         variables: { input }
       });
 

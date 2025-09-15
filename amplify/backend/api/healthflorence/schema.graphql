@@ -77,6 +77,9 @@ type Expert @model @auth(rules: [
   profileImage: String
   coverImage: String
   
+  # Documents & Verification
+  documents: AWSJSON # Array of document objects with id, name, type, url, status, etc.
+  
   # Status & Verification
   isVerified: Boolean! @default(value: "false")
   isActive: Boolean! @default(value: "true")
@@ -484,6 +487,7 @@ input CreateExpertInput {
   bio: String
   profileImage: String
   coverImage: String
+  documents: AWSJSON
   isVerified: Boolean
   isActive: Boolean
   verificationStatus: String
@@ -510,6 +514,7 @@ input UpdateExpertInput {
   bio: String
   profileImage: String
   coverImage: String
+  documents: AWSJSON
   isVerified: Boolean
   isActive: Boolean
   verificationStatus: String

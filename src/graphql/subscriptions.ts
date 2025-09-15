@@ -241,6 +241,7 @@ export const onCreateExpert = /* GraphQL */ `subscription OnCreateExpert($filter
     bio
     profileImage
     coverImage
+    documents
     isVerified
     isActive
     verificationStatus
@@ -322,6 +323,7 @@ export const onUpdateExpert = /* GraphQL */ `subscription OnUpdateExpert($filter
     bio
     profileImage
     coverImage
+    documents
     isVerified
     isActive
     verificationStatus
@@ -403,6 +405,7 @@ export const onDeleteExpert = /* GraphQL */ `subscription OnDeleteExpert($filter
     bio
     profileImage
     coverImage
+    documents
     isVerified
     isActive
     verificationStatus
@@ -500,6 +503,7 @@ export const onCreateAppointment = /* GraphQL */ `subscription OnCreateAppointme
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -590,6 +594,7 @@ export const onUpdateAppointment = /* GraphQL */ `subscription OnUpdateAppointme
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -680,6 +685,7 @@ export const onDeleteAppointment = /* GraphQL */ `subscription OnDeleteAppointme
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -764,6 +770,7 @@ export const onCreateExpertPatient = /* GraphQL */ `subscription OnCreateExpertP
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -848,6 +855,7 @@ export const onUpdateExpertPatient = /* GraphQL */ `subscription OnUpdateExpertP
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -932,6 +940,7 @@ export const onDeleteExpertPatient = /* GraphQL */ `subscription OnDeleteExpertP
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -993,6 +1002,7 @@ export const onCreatePatientRecord = /* GraphQL */ `subscription OnCreatePatient
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -1054,6 +1064,7 @@ export const onUpdatePatientRecord = /* GraphQL */ `subscription OnUpdatePatient
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus
@@ -1115,6 +1126,7 @@ export const onDeletePatientRecord = /* GraphQL */ `subscription OnDeletePatient
       bio
       profileImage
       coverImage
+      documents
       isVerified
       isActive
       verificationStatus

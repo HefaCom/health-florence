@@ -55,7 +55,19 @@ class XRPLService {
   // Create or load a wallet
   async initializeWallet(seed?: string) {
     if (!this.client) {
-      await this.connect();
+      const connected = await this.connect();
+      if (!connected) {
+        throw new Error('Failed to connect to XRPL');
+      }
+    }
+
+    // Ensure client is connected before proceeding
+    if (!this.client?.isConnected()) {
+      console.log('Client not connected, attempting to reconnect...');
+      const connected = await this.connect();
+      if (!connected) {
+        throw new Error('Failed to connect to XRPL');
+      }
     }
 
     try {
@@ -441,6 +453,42 @@ class XRPLService {
     } catch (error) {
       console.error('Failed to get account balance:', error);
       throw error;
+    }
+  }
+
+  // Debug function to test XRPL connection
+  async debugXRPL() {
+    console.log('🔍 XRPL Debug Information:');
+    console.log('Client exists:', !!this.client);
+    console.log('Client connected:', this.client?.isConnected());
+    console.log('Wallet exists:', !!this.wallet);
+    console.log('Wallet address:', this.wallet?.address);
+    
+    if (this.client && this.client.isConnected()) {
+      try {
+        const serverInfo = await this.client.request({
+          command: 'server_info'
+        });
+        console.log('Server info:', serverInfo);
+      } catch (error) {
+        console.error('Failed to get server info:', error);
+      }
+    } else {
+      console.log('⚠️ XRPL client not connected. Attempting to connect...');
+      try {
+        const connected = await this.connect();
+        if (connected) {
+          console.log('✅ Successfully connected to XRPL');
+          const serverInfo = await this.client!.request({
+            command: 'server_info'
+          });
+          console.log('Server info:', serverInfo);
+        } else {
+          console.log('❌ Failed to connect to XRPL');
+        }
+      } catch (error) {
+        console.error('❌ Connection error:', error);
+      }
     }
   }
 }

@@ -465,7 +465,7 @@ export default function ExpertDashboard() {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => navigate('/expert/dashboard/profile')}
+                onClick={() => navigate('/expert/dashboard/availability')}
               >
                 Configure
               </Button>
@@ -482,7 +482,7 @@ export default function ExpertDashboard() {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => navigate('/expert/dashboard/profile')}
+                onClick={() => navigate('/expert/dashboard/services')}
               >
                 Add Services
               </Button>
@@ -499,7 +499,7 @@ export default function ExpertDashboard() {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => navigate('/expert/dashboard/profile')}
+                onClick={() => navigate('/expert/dashboard/documents')}
               >
                 Upload
               </Button>
