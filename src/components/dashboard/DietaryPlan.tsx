@@ -23,6 +23,7 @@ import {
 import { cn } from "@/lib/utils";
 import { florenceService } from "@/services/florence.service";
 import { dietaryPlanService, DietaryPlan as DietaryPlanType } from "@/services/dietary-plan.service";
+import { haicTokenService } from "@/services/haic-token.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { userService } from "@/services/user.service";
 import { toast } from "sonner";
@@ -173,7 +174,23 @@ export function DietaryPlan({ className }: DietaryPlanProps) {
       // Update local state with new plans
       setDietaryItems(prev => [...prev, ...createdPlans]);
 
-      toast.success(`Florence has created ${createdPlans.length} personalized dietary recommendations!`);
+      // Award HAIC tokens for getting dietary recommendations
+      if (createdPlans.length > 0 && user?.id) {
+        try {
+          await haicTokenService.distributeReward(
+            user.id,
+            25, // 25 HAIC tokens for dietary recommendations
+            `Received ${createdPlans.length} personalized dietary recommendations`,
+            "dietary_adherence"
+          );
+          toast.success(`Florence has created ${createdPlans.length} personalized dietary recommendations! You earned 25 HAIC tokens! 🎉`);
+        } catch (error) {
+          console.error('Error awarding HAIC tokens:', error);
+          toast.success(`Florence has created ${createdPlans.length} personalized dietary recommendations!`);
+        }
+      } else {
+        toast.success(`Florence has created ${createdPlans.length} personalized dietary recommendations!`);
+      }
     } catch (error) {
       console.error('Error updating dietary recommendations:', error);
       toast.error("Failed to update dietary recommendations");
@@ -255,7 +272,20 @@ export function DietaryPlan({ className }: DietaryPlanProps) {
         time: "",
         reason: ""
       });
-      toast.success("New dietary plan added successfully!");
+
+      // Award HAIC tokens for creating a dietary plan
+      try {
+        await haicTokenService.distributeReward(
+          user.id,
+          10, // 10 HAIC tokens for creating a dietary plan
+          `Created dietary plan: ${newPlan.name}`,
+          "dietary_adherence"
+        );
+        toast.success("New dietary plan added successfully! You earned 10 HAIC tokens! 🎉");
+      } catch (error) {
+        console.error('Error awarding HAIC tokens:', error);
+        toast.success("New dietary plan added successfully!");
+      }
     } catch (error) {
       console.error('Error adding dietary plan:', error);
       toast.error("Failed to add dietary plan");
@@ -517,75 +547,75 @@ export function DietaryPlan({ className }: DietaryPlanProps) {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="flex items-center space-x-1">
-                        {item.isCompleted ? (
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="flex items-center space-x-1">
+                      {item.isCompleted ? (
                           <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                        ) : (
+                      ) : (
                           <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                        )}
-                        <span className="text-sm font-medium">{item.time}</span>
-                      </div>
-                      <Badge 
-                        variant="secondary" 
-                        className={cn("text-xs", getCategoryColor(item.category))}
-                      >
-                        {getCategoryIcon(item.category)}
-                        <span className="ml-1 capitalize">{item.category}</span>
-                      </Badge>
-                      {item.isRecommended && (
-                        <Badge variant="outline" className="text-xs border-green-300 text-green-700 dark:border-green-600 dark:text-green-300">
-                          <AlertCircle className="h-3 w-3 mr-1" />
-                          AI Recommended
-                        </Badge>
                       )}
+                      <span className="text-sm font-medium">{item.time}</span>
                     </div>
-                    
-                    <h4 className={cn(
-                      "font-medium mb-1",
+                    <Badge 
+                      variant="secondary" 
+                      className={cn("text-xs", getCategoryColor(item.category))}
+                    >
+                      {getCategoryIcon(item.category)}
+                      <span className="ml-1 capitalize">{item.category}</span>
+                    </Badge>
+                    {item.isRecommended && (
+                        <Badge variant="outline" className="text-xs border-green-300 text-green-700 dark:border-green-600 dark:text-green-300">
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        AI Recommended
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <h4 className={cn(
+                    "font-medium mb-1",
                       item.isCompleted && "line-through text-gray-500 dark:text-gray-400"
-                    )}>
-                      {item.name}
-                    </h4>
-                    
+                  )}>
+                    {item.name}
+                  </h4>
+                  
                     <div className="grid grid-cols-4 gap-2 text-xs text-muted-foreground mb-2">
-                      <div>
-                        <span className="font-medium">{item.calories}</span> cal
-                      </div>
-                      <div>
-                        <span className="font-medium">{item.protein}g</span> protein
-                      </div>
-                      <div>
-                        <span className="font-medium">{item.carbs}g</span> carbs
-                      </div>
-                      <div>
-                        <span className="font-medium">{item.fat}g</span> fat
-                      </div>
+                    <div>
+                      <span className="font-medium">{item.calories}</span> cal
                     </div>
+                    <div>
+                      <span className="font-medium">{item.protein}g</span> protein
+                    </div>
+                    <div>
+                      <span className="font-medium">{item.carbs}g</span> carbs
+                    </div>
+                    <div>
+                      <span className="font-medium">{item.fat}g</span> fat
+                    </div>
+                  </div>
                     
                     {item.reason && (
                       <p className="text-xs text-muted-foreground italic">{item.reason}</p>
                     )}
-                  </div>
-                  
+                </div>
+                
                   <div className="flex flex-col space-y-1 ml-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleToggleComplete(item.id)}
-                      className={cn(
-                        item.isCompleted 
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleToggleComplete(item.id)}
+                  className={cn(
+                    item.isCompleted 
                           ? "text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300" 
                           : "text-gray-400 hover:text-green-600 dark:text-gray-500 dark:hover:text-green-400"
-                      )}
-                    >
-                      <CheckCircle className={cn(
-                        "h-5 w-5",
-                        item.isCompleted && "fill-current"
-                      )} />
-                    </Button>
+                  )}
+                >
+                  <CheckCircle className={cn(
+                    "h-5 w-5",
+                    item.isCompleted && "fill-current"
+                  )} />
+                </Button>
                     
                     {isEditing && (
                       <div className="flex space-x-1">
@@ -608,7 +638,7 @@ export function DietaryPlan({ className }: DietaryPlanProps) {
                       </div>
                     )}
                   </div>
-                </div>
+              </div>
               )}
             </div>
           ))}
@@ -755,25 +785,25 @@ export function DietaryPlan({ className }: DietaryPlanProps) {
             </Button>
           )}
           
-          <Button 
-            variant="outline" 
-            size="sm" 
+        <Button 
+          variant="outline" 
+          size="sm" 
             className="flex-1 rounded-full"
-            onClick={handleAskFlorence}
-            disabled={isUpdating}
-          >
-            {isUpdating ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Florence is thinking...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4 mr-2" />
+          onClick={handleAskFlorence}
+          disabled={isUpdating}
+        >
+          {isUpdating ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Florence is thinking...
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4 mr-2" />
                 Ask Florence for Personalized Recommendations
-              </>
-            )}
-          </Button>
+            </>
+          )}
+        </Button>
         </div>
       </div>
     </Card>

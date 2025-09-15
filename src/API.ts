@@ -176,6 +176,7 @@ export type User = {
   healthGoals?: ModelHealthGoalConnection | null,
   healthConditions?: ModelHealthConditionConnection | null,
   haicRewards?: ModelHAICRewardConnection | null,
+  haicTransactions?: ModelHAICTransactionConnection | null,
   owner?: string | null,
 };
 
@@ -270,6 +271,33 @@ export type HAICReward = {
   reason: string,
   category: string,
   transactionHash?: string | null,
+  user?: User | null,
+  createdAt: string,
+  updatedAt: string,
+  owner?: string | null,
+};
+
+export type ModelHAICTransactionConnection = {
+  __typename: "ModelHAICTransactionConnection",
+  items:  Array<HAICTransaction | null >,
+  nextToken?: string | null,
+};
+
+export type HAICTransaction = {
+  __typename: "HAICTransaction",
+  id: string,
+  userId: string,
+  type: string,
+  amount: number,
+  balance: number,
+  description: string,
+  transactionHash?: string | null,
+  blockNumber?: number | null,
+  status: string,
+  gasUsed?: number | null,
+  gasPrice?: number | null,
+  recipientAddress?: string | null,
+  senderAddress?: string | null,
   user?: User | null,
   createdAt: string,
   updatedAt: string,
@@ -690,115 +718,6 @@ export type DeletePatientRecordInput = {
   id: string,
 };
 
-export type CreateAuditEventInput = {
-  id?: string | null,
-  timestamp: string,
-  userId: string,
-  action: string,
-  resourceId: string,
-  details: string,
-  transactionHash?: string | null,
-  merkleRoot?: string | null,
-  batchId?: string | null,
-  auditBatchEventsId?: string | null,
-};
-
-export type ModelAuditEventConditionInput = {
-  timestamp?: ModelStringInput | null,
-  userId?: ModelStringInput | null,
-  action?: ModelStringInput | null,
-  resourceId?: ModelStringInput | null,
-  details?: ModelStringInput | null,
-  transactionHash?: ModelStringInput | null,
-  merkleRoot?: ModelStringInput | null,
-  batchId?: ModelStringInput | null,
-  and?: Array< ModelAuditEventConditionInput | null > | null,
-  or?: Array< ModelAuditEventConditionInput | null > | null,
-  not?: ModelAuditEventConditionInput | null,
-  createdAt?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-  auditBatchEventsId?: ModelIDInput | null,
-};
-
-export type AuditEvent = {
-  __typename: "AuditEvent",
-  id: string,
-  timestamp: string,
-  userId: string,
-  action: string,
-  resourceId: string,
-  details: string,
-  transactionHash?: string | null,
-  merkleRoot?: string | null,
-  batchId?: string | null,
-  createdAt: string,
-  updatedAt: string,
-  auditBatchEventsId?: string | null,
-};
-
-export type UpdateAuditEventInput = {
-  id: string,
-  timestamp?: string | null,
-  userId?: string | null,
-  action?: string | null,
-  resourceId?: string | null,
-  details?: string | null,
-  transactionHash?: string | null,
-  merkleRoot?: string | null,
-  batchId?: string | null,
-  auditBatchEventsId?: string | null,
-};
-
-export type DeleteAuditEventInput = {
-  id: string,
-};
-
-export type CreateAuditBatchInput = {
-  id?: string | null,
-  timestamp: string,
-  merkleRoot: string,
-  transactionHash: string,
-};
-
-export type ModelAuditBatchConditionInput = {
-  timestamp?: ModelStringInput | null,
-  merkleRoot?: ModelStringInput | null,
-  transactionHash?: ModelStringInput | null,
-  and?: Array< ModelAuditBatchConditionInput | null > | null,
-  or?: Array< ModelAuditBatchConditionInput | null > | null,
-  not?: ModelAuditBatchConditionInput | null,
-  createdAt?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-};
-
-export type AuditBatch = {
-  __typename: "AuditBatch",
-  id: string,
-  timestamp: string,
-  merkleRoot: string,
-  transactionHash: string,
-  events?: ModelAuditEventConnection | null,
-  createdAt: string,
-  updatedAt: string,
-};
-
-export type ModelAuditEventConnection = {
-  __typename: "ModelAuditEventConnection",
-  items:  Array<AuditEvent | null >,
-  nextToken?: string | null,
-};
-
-export type UpdateAuditBatchInput = {
-  id: string,
-  timestamp?: string | null,
-  merkleRoot?: string | null,
-  transactionHash?: string | null,
-};
-
-export type DeleteAuditBatchInput = {
-  id: string,
-};
-
 export type CreateDietaryPlanInput = {
   id: string,
   userId: string,
@@ -994,6 +913,200 @@ export type DeleteHAICRewardInput = {
   id: string,
 };
 
+export type CreateAuditEventInput = {
+  id: string,
+  timestamp: string,
+  userId: string,
+  action: string,
+  resourceId: string,
+  details: string,
+  transactionHash?: string | null,
+  merkleRoot?: string | null,
+  batchId?: string | null,
+  severity: string,
+  category: string,
+  outcome: string,
+  ipAddress?: string | null,
+  userAgent?: string | null,
+  sessionId?: string | null,
+  auditBatchEventsId?: string | null,
+};
+
+export type ModelAuditEventConditionInput = {
+  timestamp?: ModelStringInput | null,
+  userId?: ModelStringInput | null,
+  action?: ModelStringInput | null,
+  resourceId?: ModelStringInput | null,
+  details?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  merkleRoot?: ModelStringInput | null,
+  batchId?: ModelStringInput | null,
+  severity?: ModelStringInput | null,
+  category?: ModelStringInput | null,
+  outcome?: ModelStringInput | null,
+  ipAddress?: ModelStringInput | null,
+  userAgent?: ModelStringInput | null,
+  sessionId?: ModelStringInput | null,
+  and?: Array< ModelAuditEventConditionInput | null > | null,
+  or?: Array< ModelAuditEventConditionInput | null > | null,
+  not?: ModelAuditEventConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  auditBatchEventsId?: ModelIDInput | null,
+};
+
+export type AuditEvent = {
+  __typename: "AuditEvent",
+  id: string,
+  timestamp: string,
+  userId: string,
+  action: string,
+  resourceId: string,
+  details: string,
+  transactionHash?: string | null,
+  merkleRoot?: string | null,
+  batchId?: string | null,
+  severity: string,
+  category: string,
+  outcome: string,
+  ipAddress?: string | null,
+  userAgent?: string | null,
+  sessionId?: string | null,
+  createdAt: string,
+  updatedAt: string,
+  auditBatchEventsId?: string | null,
+};
+
+export type UpdateAuditEventInput = {
+  id: string,
+  timestamp?: string | null,
+  userId?: string | null,
+  action?: string | null,
+  resourceId?: string | null,
+  details?: string | null,
+  transactionHash?: string | null,
+  merkleRoot?: string | null,
+  batchId?: string | null,
+  severity?: string | null,
+  category?: string | null,
+  outcome?: string | null,
+  ipAddress?: string | null,
+  userAgent?: string | null,
+  sessionId?: string | null,
+  auditBatchEventsId?: string | null,
+};
+
+export type DeleteAuditEventInput = {
+  id: string,
+};
+
+export type CreateAuditBatchInput = {
+  id: string,
+  timestamp: string,
+  merkleRoot: string,
+  transactionHash: string,
+  status: string,
+};
+
+export type ModelAuditBatchConditionInput = {
+  timestamp?: ModelStringInput | null,
+  merkleRoot?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  status?: ModelStringInput | null,
+  and?: Array< ModelAuditBatchConditionInput | null > | null,
+  or?: Array< ModelAuditBatchConditionInput | null > | null,
+  not?: ModelAuditBatchConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type AuditBatch = {
+  __typename: "AuditBatch",
+  id: string,
+  timestamp: string,
+  merkleRoot: string,
+  transactionHash: string,
+  status: string,
+  events?: ModelAuditEventConnection | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type ModelAuditEventConnection = {
+  __typename: "ModelAuditEventConnection",
+  items:  Array<AuditEvent | null >,
+  nextToken?: string | null,
+};
+
+export type UpdateAuditBatchInput = {
+  id: string,
+  timestamp?: string | null,
+  merkleRoot?: string | null,
+  transactionHash?: string | null,
+  status?: string | null,
+};
+
+export type DeleteAuditBatchInput = {
+  id: string,
+};
+
+export type CreateHAICTransactionInput = {
+  id: string,
+  userId: string,
+  type: string,
+  amount: number,
+  balance: number,
+  description: string,
+  transactionHash?: string | null,
+  blockNumber?: number | null,
+  status: string,
+  gasUsed?: number | null,
+  gasPrice?: number | null,
+  recipientAddress?: string | null,
+  senderAddress?: string | null,
+};
+
+export type ModelHAICTransactionConditionInput = {
+  userId?: ModelIDInput | null,
+  type?: ModelStringInput | null,
+  amount?: ModelIntInput | null,
+  balance?: ModelIntInput | null,
+  description?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  blockNumber?: ModelIntInput | null,
+  status?: ModelStringInput | null,
+  gasUsed?: ModelIntInput | null,
+  gasPrice?: ModelFloatInput | null,
+  recipientAddress?: ModelStringInput | null,
+  senderAddress?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelHAICTransactionConditionInput | null > | null,
+  or?: Array< ModelHAICTransactionConditionInput | null > | null,
+  not?: ModelHAICTransactionConditionInput | null,
+  owner?: ModelStringInput | null,
+};
+
+export type UpdateHAICTransactionInput = {
+  id: string,
+  userId?: string | null,
+  type?: string | null,
+  amount?: number | null,
+  balance?: number | null,
+  description?: string | null,
+  transactionHash?: string | null,
+  blockNumber?: number | null,
+  status?: string | null,
+  gasUsed?: number | null,
+  gasPrice?: number | null,
+  recipientAddress?: string | null,
+  senderAddress?: string | null,
+};
+
+export type DeleteHAICTransactionInput = {
+  id: string,
+};
+
 export type ModelUserFilterInput = {
   id?: ModelIDInput | null,
   email?: ModelStringInput | null,
@@ -1138,42 +1251,6 @@ export type ModelPatientRecordFilterInput = {
   owner?: ModelStringInput | null,
 };
 
-export type ModelAuditEventFilterInput = {
-  id?: ModelIDInput | null,
-  timestamp?: ModelStringInput | null,
-  userId?: ModelStringInput | null,
-  action?: ModelStringInput | null,
-  resourceId?: ModelStringInput | null,
-  details?: ModelStringInput | null,
-  transactionHash?: ModelStringInput | null,
-  merkleRoot?: ModelStringInput | null,
-  batchId?: ModelStringInput | null,
-  createdAt?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-  and?: Array< ModelAuditEventFilterInput | null > | null,
-  or?: Array< ModelAuditEventFilterInput | null > | null,
-  not?: ModelAuditEventFilterInput | null,
-  auditBatchEventsId?: ModelIDInput | null,
-};
-
-export type ModelAuditBatchFilterInput = {
-  id?: ModelIDInput | null,
-  timestamp?: ModelStringInput | null,
-  merkleRoot?: ModelStringInput | null,
-  transactionHash?: ModelStringInput | null,
-  createdAt?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-  and?: Array< ModelAuditBatchFilterInput | null > | null,
-  or?: Array< ModelAuditBatchFilterInput | null > | null,
-  not?: ModelAuditBatchFilterInput | null,
-};
-
-export type ModelAuditBatchConnection = {
-  __typename: "ModelAuditBatchConnection",
-  items:  Array<AuditBatch | null >,
-  nextToken?: string | null,
-};
-
 export type ModelDietaryPlanFilterInput = {
   id?: ModelIDInput | null,
   userId?: ModelIDInput | null,
@@ -1248,6 +1325,71 @@ export type ModelHAICRewardFilterInput = {
   and?: Array< ModelHAICRewardFilterInput | null > | null,
   or?: Array< ModelHAICRewardFilterInput | null > | null,
   not?: ModelHAICRewardFilterInput | null,
+  owner?: ModelStringInput | null,
+};
+
+export type ModelAuditEventFilterInput = {
+  id?: ModelIDInput | null,
+  timestamp?: ModelStringInput | null,
+  userId?: ModelStringInput | null,
+  action?: ModelStringInput | null,
+  resourceId?: ModelStringInput | null,
+  details?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  merkleRoot?: ModelStringInput | null,
+  batchId?: ModelStringInput | null,
+  severity?: ModelStringInput | null,
+  category?: ModelStringInput | null,
+  outcome?: ModelStringInput | null,
+  ipAddress?: ModelStringInput | null,
+  userAgent?: ModelStringInput | null,
+  sessionId?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelAuditEventFilterInput | null > | null,
+  or?: Array< ModelAuditEventFilterInput | null > | null,
+  not?: ModelAuditEventFilterInput | null,
+  auditBatchEventsId?: ModelIDInput | null,
+};
+
+export type ModelAuditBatchFilterInput = {
+  id?: ModelIDInput | null,
+  timestamp?: ModelStringInput | null,
+  merkleRoot?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  status?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelAuditBatchFilterInput | null > | null,
+  or?: Array< ModelAuditBatchFilterInput | null > | null,
+  not?: ModelAuditBatchFilterInput | null,
+};
+
+export type ModelAuditBatchConnection = {
+  __typename: "ModelAuditBatchConnection",
+  items:  Array<AuditBatch | null >,
+  nextToken?: string | null,
+};
+
+export type ModelHAICTransactionFilterInput = {
+  id?: ModelIDInput | null,
+  userId?: ModelIDInput | null,
+  type?: ModelStringInput | null,
+  amount?: ModelIntInput | null,
+  balance?: ModelIntInput | null,
+  description?: ModelStringInput | null,
+  transactionHash?: ModelStringInput | null,
+  blockNumber?: ModelIntInput | null,
+  status?: ModelStringInput | null,
+  gasUsed?: ModelIntInput | null,
+  gasPrice?: ModelFloatInput | null,
+  recipientAddress?: ModelStringInput | null,
+  senderAddress?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelHAICTransactionFilterInput | null > | null,
+  or?: Array< ModelHAICTransactionFilterInput | null > | null,
+  not?: ModelHAICTransactionFilterInput | null,
   owner?: ModelStringInput | null,
 };
 
@@ -1437,34 +1579,6 @@ export type ModelSubscriptionPatientRecordFilterInput = {
   owner?: ModelStringInput | null,
 };
 
-export type ModelSubscriptionAuditEventFilterInput = {
-  id?: ModelSubscriptionIDInput | null,
-  timestamp?: ModelSubscriptionStringInput | null,
-  userId?: ModelSubscriptionStringInput | null,
-  action?: ModelSubscriptionStringInput | null,
-  resourceId?: ModelSubscriptionStringInput | null,
-  details?: ModelSubscriptionStringInput | null,
-  transactionHash?: ModelSubscriptionStringInput | null,
-  merkleRoot?: ModelSubscriptionStringInput | null,
-  batchId?: ModelSubscriptionStringInput | null,
-  createdAt?: ModelSubscriptionStringInput | null,
-  updatedAt?: ModelSubscriptionStringInput | null,
-  and?: Array< ModelSubscriptionAuditEventFilterInput | null > | null,
-  or?: Array< ModelSubscriptionAuditEventFilterInput | null > | null,
-};
-
-export type ModelSubscriptionAuditBatchFilterInput = {
-  id?: ModelSubscriptionIDInput | null,
-  timestamp?: ModelSubscriptionStringInput | null,
-  merkleRoot?: ModelSubscriptionStringInput | null,
-  transactionHash?: ModelSubscriptionStringInput | null,
-  createdAt?: ModelSubscriptionStringInput | null,
-  updatedAt?: ModelSubscriptionStringInput | null,
-  and?: Array< ModelSubscriptionAuditBatchFilterInput | null > | null,
-  or?: Array< ModelSubscriptionAuditBatchFilterInput | null > | null,
-  auditBatchEventsId?: ModelSubscriptionIDInput | null,
-};
-
 export type ModelSubscriptionDietaryPlanFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   userId?: ModelSubscriptionIDInput | null,
@@ -1538,6 +1652,62 @@ export type ModelSubscriptionHAICRewardFilterInput = {
   owner?: ModelStringInput | null,
 };
 
+export type ModelSubscriptionAuditEventFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  timestamp?: ModelSubscriptionStringInput | null,
+  userId?: ModelSubscriptionStringInput | null,
+  action?: ModelSubscriptionStringInput | null,
+  resourceId?: ModelSubscriptionStringInput | null,
+  details?: ModelSubscriptionStringInput | null,
+  transactionHash?: ModelSubscriptionStringInput | null,
+  merkleRoot?: ModelSubscriptionStringInput | null,
+  batchId?: ModelSubscriptionStringInput | null,
+  severity?: ModelSubscriptionStringInput | null,
+  category?: ModelSubscriptionStringInput | null,
+  outcome?: ModelSubscriptionStringInput | null,
+  ipAddress?: ModelSubscriptionStringInput | null,
+  userAgent?: ModelSubscriptionStringInput | null,
+  sessionId?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionAuditEventFilterInput | null > | null,
+  or?: Array< ModelSubscriptionAuditEventFilterInput | null > | null,
+};
+
+export type ModelSubscriptionAuditBatchFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  timestamp?: ModelSubscriptionStringInput | null,
+  merkleRoot?: ModelSubscriptionStringInput | null,
+  transactionHash?: ModelSubscriptionStringInput | null,
+  status?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionAuditBatchFilterInput | null > | null,
+  or?: Array< ModelSubscriptionAuditBatchFilterInput | null > | null,
+  auditBatchEventsId?: ModelSubscriptionIDInput | null,
+};
+
+export type ModelSubscriptionHAICTransactionFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  userId?: ModelSubscriptionIDInput | null,
+  type?: ModelSubscriptionStringInput | null,
+  amount?: ModelSubscriptionIntInput | null,
+  balance?: ModelSubscriptionIntInput | null,
+  description?: ModelSubscriptionStringInput | null,
+  transactionHash?: ModelSubscriptionStringInput | null,
+  blockNumber?: ModelSubscriptionIntInput | null,
+  status?: ModelSubscriptionStringInput | null,
+  gasUsed?: ModelSubscriptionIntInput | null,
+  gasPrice?: ModelSubscriptionFloatInput | null,
+  recipientAddress?: ModelSubscriptionStringInput | null,
+  senderAddress?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionHAICTransactionFilterInput | null > | null,
+  or?: Array< ModelSubscriptionHAICTransactionFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+};
+
 export type CreateUserMutationVariables = {
   input: CreateUserInput,
   condition?: ModelUserConditionInput | null,
@@ -1590,6 +1760,10 @@ export type CreateUserMutation = {
     } | null,
     haicRewards?:  {
       __typename: "ModelHAICRewardConnection",
+      nextToken?: string | null,
+    } | null,
+    haicTransactions?:  {
+      __typename: "ModelHAICTransactionConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -1650,6 +1824,10 @@ export type UpdateUserMutation = {
       __typename: "ModelHAICRewardConnection",
       nextToken?: string | null,
     } | null,
+    haicTransactions?:  {
+      __typename: "ModelHAICTransactionConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
   } | null,
 };
@@ -1706,6 +1884,10 @@ export type DeleteUserMutation = {
     } | null,
     haicRewards?:  {
       __typename: "ModelHAICRewardConnection",
+      nextToken?: string | null,
+    } | null,
+    haicTransactions?:  {
+      __typename: "ModelHAICTransactionConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -2669,138 +2851,6 @@ export type DeletePatientRecordMutation = {
   } | null,
 };
 
-export type CreateAuditEventMutationVariables = {
-  input: CreateAuditEventInput,
-  condition?: ModelAuditEventConditionInput | null,
-};
-
-export type CreateAuditEventMutation = {
-  createAuditEvent?:  {
-    __typename: "AuditEvent",
-    id: string,
-    timestamp: string,
-    userId: string,
-    action: string,
-    resourceId: string,
-    details: string,
-    transactionHash?: string | null,
-    merkleRoot?: string | null,
-    batchId?: string | null,
-    createdAt: string,
-    updatedAt: string,
-    auditBatchEventsId?: string | null,
-  } | null,
-};
-
-export type UpdateAuditEventMutationVariables = {
-  input: UpdateAuditEventInput,
-  condition?: ModelAuditEventConditionInput | null,
-};
-
-export type UpdateAuditEventMutation = {
-  updateAuditEvent?:  {
-    __typename: "AuditEvent",
-    id: string,
-    timestamp: string,
-    userId: string,
-    action: string,
-    resourceId: string,
-    details: string,
-    transactionHash?: string | null,
-    merkleRoot?: string | null,
-    batchId?: string | null,
-    createdAt: string,
-    updatedAt: string,
-    auditBatchEventsId?: string | null,
-  } | null,
-};
-
-export type DeleteAuditEventMutationVariables = {
-  input: DeleteAuditEventInput,
-  condition?: ModelAuditEventConditionInput | null,
-};
-
-export type DeleteAuditEventMutation = {
-  deleteAuditEvent?:  {
-    __typename: "AuditEvent",
-    id: string,
-    timestamp: string,
-    userId: string,
-    action: string,
-    resourceId: string,
-    details: string,
-    transactionHash?: string | null,
-    merkleRoot?: string | null,
-    batchId?: string | null,
-    createdAt: string,
-    updatedAt: string,
-    auditBatchEventsId?: string | null,
-  } | null,
-};
-
-export type CreateAuditBatchMutationVariables = {
-  input: CreateAuditBatchInput,
-  condition?: ModelAuditBatchConditionInput | null,
-};
-
-export type CreateAuditBatchMutation = {
-  createAuditBatch?:  {
-    __typename: "AuditBatch",
-    id: string,
-    timestamp: string,
-    merkleRoot: string,
-    transactionHash: string,
-    events?:  {
-      __typename: "ModelAuditEventConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type UpdateAuditBatchMutationVariables = {
-  input: UpdateAuditBatchInput,
-  condition?: ModelAuditBatchConditionInput | null,
-};
-
-export type UpdateAuditBatchMutation = {
-  updateAuditBatch?:  {
-    __typename: "AuditBatch",
-    id: string,
-    timestamp: string,
-    merkleRoot: string,
-    transactionHash: string,
-    events?:  {
-      __typename: "ModelAuditEventConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type DeleteAuditBatchMutationVariables = {
-  input: DeleteAuditBatchInput,
-  condition?: ModelAuditBatchConditionInput | null,
-};
-
-export type DeleteAuditBatchMutation = {
-  deleteAuditBatch?:  {
-    __typename: "AuditBatch",
-    id: string,
-    timestamp: string,
-    merkleRoot: string,
-    transactionHash: string,
-    events?:  {
-      __typename: "ModelAuditEventConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
 export type CreateDietaryPlanMutationVariables = {
   input: CreateDietaryPlanInput,
   condition?: ModelDietaryPlanConditionInput | null,
@@ -3500,6 +3550,342 @@ export type DeleteHAICRewardMutation = {
   } | null,
 };
 
+export type CreateAuditEventMutationVariables = {
+  input: CreateAuditEventInput,
+  condition?: ModelAuditEventConditionInput | null,
+};
+
+export type CreateAuditEventMutation = {
+  createAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    severity: string,
+    category: string,
+    outcome: string,
+    ipAddress?: string | null,
+    userAgent?: string | null,
+    sessionId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type UpdateAuditEventMutationVariables = {
+  input: UpdateAuditEventInput,
+  condition?: ModelAuditEventConditionInput | null,
+};
+
+export type UpdateAuditEventMutation = {
+  updateAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    severity: string,
+    category: string,
+    outcome: string,
+    ipAddress?: string | null,
+    userAgent?: string | null,
+    sessionId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type DeleteAuditEventMutationVariables = {
+  input: DeleteAuditEventInput,
+  condition?: ModelAuditEventConditionInput | null,
+};
+
+export type DeleteAuditEventMutation = {
+  deleteAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    severity: string,
+    category: string,
+    outcome: string,
+    ipAddress?: string | null,
+    userAgent?: string | null,
+    sessionId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type CreateAuditBatchMutationVariables = {
+  input: CreateAuditBatchInput,
+  condition?: ModelAuditBatchConditionInput | null,
+};
+
+export type CreateAuditBatchMutation = {
+  createAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    status: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateAuditBatchMutationVariables = {
+  input: UpdateAuditBatchInput,
+  condition?: ModelAuditBatchConditionInput | null,
+};
+
+export type UpdateAuditBatchMutation = {
+  updateAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    status: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteAuditBatchMutationVariables = {
+  input: DeleteAuditBatchInput,
+  condition?: ModelAuditBatchConditionInput | null,
+};
+
+export type DeleteAuditBatchMutation = {
+  deleteAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    status: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateHAICTransactionMutationVariables = {
+  input: CreateHAICTransactionInput,
+  condition?: ModelHAICTransactionConditionInput | null,
+};
+
+export type CreateHAICTransactionMutation = {
+  createHAICTransaction?:  {
+    __typename: "HAICTransaction",
+    id: string,
+    userId: string,
+    type: string,
+    amount: number,
+    balance: number,
+    description: string,
+    transactionHash?: string | null,
+    blockNumber?: number | null,
+    status: string,
+    gasUsed?: number | null,
+    gasPrice?: number | null,
+    recipientAddress?: string | null,
+    senderAddress?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type UpdateHAICTransactionMutationVariables = {
+  input: UpdateHAICTransactionInput,
+  condition?: ModelHAICTransactionConditionInput | null,
+};
+
+export type UpdateHAICTransactionMutation = {
+  updateHAICTransaction?:  {
+    __typename: "HAICTransaction",
+    id: string,
+    userId: string,
+    type: string,
+    amount: number,
+    balance: number,
+    description: string,
+    transactionHash?: string | null,
+    blockNumber?: number | null,
+    status: string,
+    gasUsed?: number | null,
+    gasPrice?: number | null,
+    recipientAddress?: string | null,
+    senderAddress?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type DeleteHAICTransactionMutationVariables = {
+  input: DeleteHAICTransactionInput,
+  condition?: ModelHAICTransactionConditionInput | null,
+};
+
+export type DeleteHAICTransactionMutation = {
+  deleteHAICTransaction?:  {
+    __typename: "HAICTransaction",
+    id: string,
+    userId: string,
+    type: string,
+    amount: number,
+    balance: number,
+    description: string,
+    transactionHash?: string | null,
+    blockNumber?: number | null,
+    status: string,
+    gasUsed?: number | null,
+    gasPrice?: number | null,
+    recipientAddress?: string | null,
+    senderAddress?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
 export type GetUserQueryVariables = {
   id: string,
 };
@@ -3551,6 +3937,10 @@ export type GetUserQuery = {
     } | null,
     haicRewards?:  {
       __typename: "ModelHAICRewardConnection",
+      nextToken?: string | null,
+    } | null,
+    haicTransactions?:  {
+      __typename: "ModelHAICTransactionConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -4054,98 +4444,6 @@ export type ListPatientRecordsQuery = {
   } | null,
 };
 
-export type GetAuditEventQueryVariables = {
-  id: string,
-};
-
-export type GetAuditEventQuery = {
-  getAuditEvent?:  {
-    __typename: "AuditEvent",
-    id: string,
-    timestamp: string,
-    userId: string,
-    action: string,
-    resourceId: string,
-    details: string,
-    transactionHash?: string | null,
-    merkleRoot?: string | null,
-    batchId?: string | null,
-    createdAt: string,
-    updatedAt: string,
-    auditBatchEventsId?: string | null,
-  } | null,
-};
-
-export type ListAuditEventsQueryVariables = {
-  filter?: ModelAuditEventFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type ListAuditEventsQuery = {
-  listAuditEvents?:  {
-    __typename: "ModelAuditEventConnection",
-    items:  Array< {
-      __typename: "AuditEvent",
-      id: string,
-      timestamp: string,
-      userId: string,
-      action: string,
-      resourceId: string,
-      details: string,
-      transactionHash?: string | null,
-      merkleRoot?: string | null,
-      batchId?: string | null,
-      createdAt: string,
-      updatedAt: string,
-      auditBatchEventsId?: string | null,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
-export type GetAuditBatchQueryVariables = {
-  id: string,
-};
-
-export type GetAuditBatchQuery = {
-  getAuditBatch?:  {
-    __typename: "AuditBatch",
-    id: string,
-    timestamp: string,
-    merkleRoot: string,
-    transactionHash: string,
-    events?:  {
-      __typename: "ModelAuditEventConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type ListAuditBatchesQueryVariables = {
-  filter?: ModelAuditBatchFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-};
-
-export type ListAuditBatchesQuery = {
-  listAuditBatches?:  {
-    __typename: "ModelAuditBatchConnection",
-    items:  Array< {
-      __typename: "AuditBatch",
-      id: string,
-      timestamp: string,
-      merkleRoot: string,
-      transactionHash: string,
-      createdAt: string,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
 export type GetDietaryPlanQueryVariables = {
   id: string,
 };
@@ -4492,6 +4790,204 @@ export type ListHAICRewardsQuery = {
   } | null,
 };
 
+export type GetAuditEventQueryVariables = {
+  id: string,
+};
+
+export type GetAuditEventQuery = {
+  getAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    severity: string,
+    category: string,
+    outcome: string,
+    ipAddress?: string | null,
+    userAgent?: string | null,
+    sessionId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type ListAuditEventsQueryVariables = {
+  filter?: ModelAuditEventFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListAuditEventsQuery = {
+  listAuditEvents?:  {
+    __typename: "ModelAuditEventConnection",
+    items:  Array< {
+      __typename: "AuditEvent",
+      id: string,
+      timestamp: string,
+      userId: string,
+      action: string,
+      resourceId: string,
+      details: string,
+      transactionHash?: string | null,
+      merkleRoot?: string | null,
+      batchId?: string | null,
+      severity: string,
+      category: string,
+      outcome: string,
+      ipAddress?: string | null,
+      userAgent?: string | null,
+      sessionId?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      auditBatchEventsId?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetAuditBatchQueryVariables = {
+  id: string,
+};
+
+export type GetAuditBatchQuery = {
+  getAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    status: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListAuditBatchesQueryVariables = {
+  filter?: ModelAuditBatchFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListAuditBatchesQuery = {
+  listAuditBatches?:  {
+    __typename: "ModelAuditBatchConnection",
+    items:  Array< {
+      __typename: "AuditBatch",
+      id: string,
+      timestamp: string,
+      merkleRoot: string,
+      transactionHash: string,
+      status: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetHAICTransactionQueryVariables = {
+  id: string,
+};
+
+export type GetHAICTransactionQuery = {
+  getHAICTransaction?:  {
+    __typename: "HAICTransaction",
+    id: string,
+    userId: string,
+    type: string,
+    amount: number,
+    balance: number,
+    description: string,
+    transactionHash?: string | null,
+    blockNumber?: number | null,
+    status: string,
+    gasUsed?: number | null,
+    gasPrice?: number | null,
+    recipientAddress?: string | null,
+    senderAddress?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type ListHAICTransactionsQueryVariables = {
+  filter?: ModelHAICTransactionFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListHAICTransactionsQuery = {
+  listHAICTransactions?:  {
+    __typename: "ModelHAICTransactionConnection",
+    items:  Array< {
+      __typename: "HAICTransaction",
+      id: string,
+      userId: string,
+      type: string,
+      amount: number,
+      balance: number,
+      description: string,
+      transactionHash?: string | null,
+      blockNumber?: number | null,
+      status: string,
+      gasUsed?: number | null,
+      gasPrice?: number | null,
+      recipientAddress?: string | null,
+      senderAddress?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type OnCreateUserSubscriptionVariables = {
   filter?: ModelSubscriptionUserFilterInput | null,
   owner?: string | null,
@@ -4544,6 +5040,10 @@ export type OnCreateUserSubscription = {
     } | null,
     haicRewards?:  {
       __typename: "ModelHAICRewardConnection",
+      nextToken?: string | null,
+    } | null,
+    haicTransactions?:  {
+      __typename: "ModelHAICTransactionConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -4604,6 +5104,10 @@ export type OnUpdateUserSubscription = {
       __typename: "ModelHAICRewardConnection",
       nextToken?: string | null,
     } | null,
+    haicTransactions?:  {
+      __typename: "ModelHAICTransactionConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
   } | null,
 };
@@ -4660,6 +5164,10 @@ export type OnDeleteUserSubscription = {
     } | null,
     haicRewards?:  {
       __typename: "ModelHAICRewardConnection",
+      nextToken?: string | null,
+    } | null,
+    haicTransactions?:  {
+      __typename: "ModelHAICTransactionConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -5620,132 +6128,6 @@ export type OnDeletePatientRecordSubscription = {
   } | null,
 };
 
-export type OnCreateAuditEventSubscriptionVariables = {
-  filter?: ModelSubscriptionAuditEventFilterInput | null,
-};
-
-export type OnCreateAuditEventSubscription = {
-  onCreateAuditEvent?:  {
-    __typename: "AuditEvent",
-    id: string,
-    timestamp: string,
-    userId: string,
-    action: string,
-    resourceId: string,
-    details: string,
-    transactionHash?: string | null,
-    merkleRoot?: string | null,
-    batchId?: string | null,
-    createdAt: string,
-    updatedAt: string,
-    auditBatchEventsId?: string | null,
-  } | null,
-};
-
-export type OnUpdateAuditEventSubscriptionVariables = {
-  filter?: ModelSubscriptionAuditEventFilterInput | null,
-};
-
-export type OnUpdateAuditEventSubscription = {
-  onUpdateAuditEvent?:  {
-    __typename: "AuditEvent",
-    id: string,
-    timestamp: string,
-    userId: string,
-    action: string,
-    resourceId: string,
-    details: string,
-    transactionHash?: string | null,
-    merkleRoot?: string | null,
-    batchId?: string | null,
-    createdAt: string,
-    updatedAt: string,
-    auditBatchEventsId?: string | null,
-  } | null,
-};
-
-export type OnDeleteAuditEventSubscriptionVariables = {
-  filter?: ModelSubscriptionAuditEventFilterInput | null,
-};
-
-export type OnDeleteAuditEventSubscription = {
-  onDeleteAuditEvent?:  {
-    __typename: "AuditEvent",
-    id: string,
-    timestamp: string,
-    userId: string,
-    action: string,
-    resourceId: string,
-    details: string,
-    transactionHash?: string | null,
-    merkleRoot?: string | null,
-    batchId?: string | null,
-    createdAt: string,
-    updatedAt: string,
-    auditBatchEventsId?: string | null,
-  } | null,
-};
-
-export type OnCreateAuditBatchSubscriptionVariables = {
-  filter?: ModelSubscriptionAuditBatchFilterInput | null,
-};
-
-export type OnCreateAuditBatchSubscription = {
-  onCreateAuditBatch?:  {
-    __typename: "AuditBatch",
-    id: string,
-    timestamp: string,
-    merkleRoot: string,
-    transactionHash: string,
-    events?:  {
-      __typename: "ModelAuditEventConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type OnUpdateAuditBatchSubscriptionVariables = {
-  filter?: ModelSubscriptionAuditBatchFilterInput | null,
-};
-
-export type OnUpdateAuditBatchSubscription = {
-  onUpdateAuditBatch?:  {
-    __typename: "AuditBatch",
-    id: string,
-    timestamp: string,
-    merkleRoot: string,
-    transactionHash: string,
-    events?:  {
-      __typename: "ModelAuditEventConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type OnDeleteAuditBatchSubscriptionVariables = {
-  filter?: ModelSubscriptionAuditBatchFilterInput | null,
-};
-
-export type OnDeleteAuditBatchSubscription = {
-  onDeleteAuditBatch?:  {
-    __typename: "AuditBatch",
-    id: string,
-    timestamp: string,
-    merkleRoot: string,
-    transactionHash: string,
-    events?:  {
-      __typename: "ModelAuditEventConnection",
-      nextToken?: string | null,
-    } | null,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
 export type OnCreateDietaryPlanSubscriptionVariables = {
   filter?: ModelSubscriptionDietaryPlanFilterInput | null,
   owner?: string | null,
@@ -6405,6 +6787,336 @@ export type OnDeleteHAICRewardSubscription = {
     reason: string,
     category: string,
     transactionHash?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type OnCreateAuditEventSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditEventFilterInput | null,
+};
+
+export type OnCreateAuditEventSubscription = {
+  onCreateAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    severity: string,
+    category: string,
+    outcome: string,
+    ipAddress?: string | null,
+    userAgent?: string | null,
+    sessionId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type OnUpdateAuditEventSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditEventFilterInput | null,
+};
+
+export type OnUpdateAuditEventSubscription = {
+  onUpdateAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    severity: string,
+    category: string,
+    outcome: string,
+    ipAddress?: string | null,
+    userAgent?: string | null,
+    sessionId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type OnDeleteAuditEventSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditEventFilterInput | null,
+};
+
+export type OnDeleteAuditEventSubscription = {
+  onDeleteAuditEvent?:  {
+    __typename: "AuditEvent",
+    id: string,
+    timestamp: string,
+    userId: string,
+    action: string,
+    resourceId: string,
+    details: string,
+    transactionHash?: string | null,
+    merkleRoot?: string | null,
+    batchId?: string | null,
+    severity: string,
+    category: string,
+    outcome: string,
+    ipAddress?: string | null,
+    userAgent?: string | null,
+    sessionId?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    auditBatchEventsId?: string | null,
+  } | null,
+};
+
+export type OnCreateAuditBatchSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditBatchFilterInput | null,
+};
+
+export type OnCreateAuditBatchSubscription = {
+  onCreateAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    status: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateAuditBatchSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditBatchFilterInput | null,
+};
+
+export type OnUpdateAuditBatchSubscription = {
+  onUpdateAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    status: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteAuditBatchSubscriptionVariables = {
+  filter?: ModelSubscriptionAuditBatchFilterInput | null,
+};
+
+export type OnDeleteAuditBatchSubscription = {
+  onDeleteAuditBatch?:  {
+    __typename: "AuditBatch",
+    id: string,
+    timestamp: string,
+    merkleRoot: string,
+    transactionHash: string,
+    status: string,
+    events?:  {
+      __typename: "ModelAuditEventConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateHAICTransactionSubscriptionVariables = {
+  filter?: ModelSubscriptionHAICTransactionFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateHAICTransactionSubscription = {
+  onCreateHAICTransaction?:  {
+    __typename: "HAICTransaction",
+    id: string,
+    userId: string,
+    type: string,
+    amount: number,
+    balance: number,
+    description: string,
+    transactionHash?: string | null,
+    blockNumber?: number | null,
+    status: string,
+    gasUsed?: number | null,
+    gasPrice?: number | null,
+    recipientAddress?: string | null,
+    senderAddress?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type OnUpdateHAICTransactionSubscriptionVariables = {
+  filter?: ModelSubscriptionHAICTransactionFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateHAICTransactionSubscription = {
+  onUpdateHAICTransaction?:  {
+    __typename: "HAICTransaction",
+    id: string,
+    userId: string,
+    type: string,
+    amount: number,
+    balance: number,
+    description: string,
+    transactionHash?: string | null,
+    blockNumber?: number | null,
+    status: string,
+    gasUsed?: number | null,
+    gasPrice?: number | null,
+    recipientAddress?: string | null,
+    senderAddress?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+    owner?: string | null,
+  } | null,
+};
+
+export type OnDeleteHAICTransactionSubscriptionVariables = {
+  filter?: ModelSubscriptionHAICTransactionFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteHAICTransactionSubscription = {
+  onDeleteHAICTransaction?:  {
+    __typename: "HAICTransaction",
+    id: string,
+    userId: string,
+    type: string,
+    amount: number,
+    balance: number,
+    description: string,
+    transactionHash?: string | null,
+    blockNumber?: number | null,
+    status: string,
+    gasUsed?: number | null,
+    gasPrice?: number | null,
+    recipientAddress?: string | null,
+    senderAddress?: string | null,
     user?:  {
       __typename: "User",
       id: string,

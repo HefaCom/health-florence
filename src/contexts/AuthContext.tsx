@@ -356,6 +356,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
       
+      // Check if this is a duplicate user error
+      if (dbError.message && dbError.message.includes('already exists')) {
+        console.log("User already exists, treating as success");
+        return true;
+      }
+      
       throw dbError;
     }
   };

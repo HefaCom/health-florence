@@ -59,6 +59,10 @@ export const onCreateUser = /* GraphQL */ `subscription OnCreateUser(
       nextToken
       __typename
     }
+    haicTransactions {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -118,6 +122,10 @@ export const onUpdateUser = /* GraphQL */ `subscription OnUpdateUser(
       nextToken
       __typename
     }
+    haicTransactions {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -174,6 +182,10 @@ export const onDeleteUser = /* GraphQL */ `subscription OnDeleteUser(
       __typename
     }
     haicRewards {
+      nextToken
+      __typename
+    }
+    haicTransactions {
       nextToken
       __typename
     }
@@ -1145,138 +1157,6 @@ export const onDeletePatientRecord = /* GraphQL */ `subscription OnDeletePatient
   APITypes.OnDeletePatientRecordSubscriptionVariables,
   APITypes.OnDeletePatientRecordSubscription
 >;
-export const onCreateAuditEvent = /* GraphQL */ `subscription OnCreateAuditEvent(
-  $filter: ModelSubscriptionAuditEventFilterInput
-) {
-  onCreateAuditEvent(filter: $filter) {
-    id
-    timestamp
-    userId
-    action
-    resourceId
-    details
-    transactionHash
-    merkleRoot
-    batchId
-    createdAt
-    updatedAt
-    auditBatchEventsId
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnCreateAuditEventSubscriptionVariables,
-  APITypes.OnCreateAuditEventSubscription
->;
-export const onUpdateAuditEvent = /* GraphQL */ `subscription OnUpdateAuditEvent(
-  $filter: ModelSubscriptionAuditEventFilterInput
-) {
-  onUpdateAuditEvent(filter: $filter) {
-    id
-    timestamp
-    userId
-    action
-    resourceId
-    details
-    transactionHash
-    merkleRoot
-    batchId
-    createdAt
-    updatedAt
-    auditBatchEventsId
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnUpdateAuditEventSubscriptionVariables,
-  APITypes.OnUpdateAuditEventSubscription
->;
-export const onDeleteAuditEvent = /* GraphQL */ `subscription OnDeleteAuditEvent(
-  $filter: ModelSubscriptionAuditEventFilterInput
-) {
-  onDeleteAuditEvent(filter: $filter) {
-    id
-    timestamp
-    userId
-    action
-    resourceId
-    details
-    transactionHash
-    merkleRoot
-    batchId
-    createdAt
-    updatedAt
-    auditBatchEventsId
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnDeleteAuditEventSubscriptionVariables,
-  APITypes.OnDeleteAuditEventSubscription
->;
-export const onCreateAuditBatch = /* GraphQL */ `subscription OnCreateAuditBatch(
-  $filter: ModelSubscriptionAuditBatchFilterInput
-) {
-  onCreateAuditBatch(filter: $filter) {
-    id
-    timestamp
-    merkleRoot
-    transactionHash
-    events {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnCreateAuditBatchSubscriptionVariables,
-  APITypes.OnCreateAuditBatchSubscription
->;
-export const onUpdateAuditBatch = /* GraphQL */ `subscription OnUpdateAuditBatch(
-  $filter: ModelSubscriptionAuditBatchFilterInput
-) {
-  onUpdateAuditBatch(filter: $filter) {
-    id
-    timestamp
-    merkleRoot
-    transactionHash
-    events {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnUpdateAuditBatchSubscriptionVariables,
-  APITypes.OnUpdateAuditBatchSubscription
->;
-export const onDeleteAuditBatch = /* GraphQL */ `subscription OnDeleteAuditBatch(
-  $filter: ModelSubscriptionAuditBatchFilterInput
-) {
-  onDeleteAuditBatch(filter: $filter) {
-    id
-    timestamp
-    merkleRoot
-    transactionHash
-    events {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnDeleteAuditBatchSubscriptionVariables,
-  APITypes.OnDeleteAuditBatchSubscription
->;
 export const onCreateDietaryPlan = /* GraphQL */ `subscription OnCreateDietaryPlan(
   $filter: ModelSubscriptionDietaryPlanFilterInput
   $owner: String
@@ -1987,4 +1867,343 @@ export const onDeleteHAICReward = /* GraphQL */ `subscription OnDeleteHAICReward
 ` as GeneratedSubscription<
   APITypes.OnDeleteHAICRewardSubscriptionVariables,
   APITypes.OnDeleteHAICRewardSubscription
+>;
+export const onCreateAuditEvent = /* GraphQL */ `subscription OnCreateAuditEvent(
+  $filter: ModelSubscriptionAuditEventFilterInput
+) {
+  onCreateAuditEvent(filter: $filter) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    severity
+    category
+    outcome
+    ipAddress
+    userAgent
+    sessionId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateAuditEventSubscriptionVariables,
+  APITypes.OnCreateAuditEventSubscription
+>;
+export const onUpdateAuditEvent = /* GraphQL */ `subscription OnUpdateAuditEvent(
+  $filter: ModelSubscriptionAuditEventFilterInput
+) {
+  onUpdateAuditEvent(filter: $filter) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    severity
+    category
+    outcome
+    ipAddress
+    userAgent
+    sessionId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateAuditEventSubscriptionVariables,
+  APITypes.OnUpdateAuditEventSubscription
+>;
+export const onDeleteAuditEvent = /* GraphQL */ `subscription OnDeleteAuditEvent(
+  $filter: ModelSubscriptionAuditEventFilterInput
+) {
+  onDeleteAuditEvent(filter: $filter) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    severity
+    category
+    outcome
+    ipAddress
+    userAgent
+    sessionId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteAuditEventSubscriptionVariables,
+  APITypes.OnDeleteAuditEventSubscription
+>;
+export const onCreateAuditBatch = /* GraphQL */ `subscription OnCreateAuditBatch(
+  $filter: ModelSubscriptionAuditBatchFilterInput
+) {
+  onCreateAuditBatch(filter: $filter) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    status
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateAuditBatchSubscriptionVariables,
+  APITypes.OnCreateAuditBatchSubscription
+>;
+export const onUpdateAuditBatch = /* GraphQL */ `subscription OnUpdateAuditBatch(
+  $filter: ModelSubscriptionAuditBatchFilterInput
+) {
+  onUpdateAuditBatch(filter: $filter) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    status
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateAuditBatchSubscriptionVariables,
+  APITypes.OnUpdateAuditBatchSubscription
+>;
+export const onDeleteAuditBatch = /* GraphQL */ `subscription OnDeleteAuditBatch(
+  $filter: ModelSubscriptionAuditBatchFilterInput
+) {
+  onDeleteAuditBatch(filter: $filter) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    status
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteAuditBatchSubscriptionVariables,
+  APITypes.OnDeleteAuditBatchSubscription
+>;
+export const onCreateHAICTransaction = /* GraphQL */ `subscription OnCreateHAICTransaction(
+  $filter: ModelSubscriptionHAICTransactionFilterInput
+  $owner: String
+) {
+  onCreateHAICTransaction(filter: $filter, owner: $owner) {
+    id
+    userId
+    type
+    amount
+    balance
+    description
+    transactionHash
+    blockNumber
+    status
+    gasUsed
+    gasPrice
+    recipientAddress
+    senderAddress
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateHAICTransactionSubscriptionVariables,
+  APITypes.OnCreateHAICTransactionSubscription
+>;
+export const onUpdateHAICTransaction = /* GraphQL */ `subscription OnUpdateHAICTransaction(
+  $filter: ModelSubscriptionHAICTransactionFilterInput
+  $owner: String
+) {
+  onUpdateHAICTransaction(filter: $filter, owner: $owner) {
+    id
+    userId
+    type
+    amount
+    balance
+    description
+    transactionHash
+    blockNumber
+    status
+    gasUsed
+    gasPrice
+    recipientAddress
+    senderAddress
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateHAICTransactionSubscriptionVariables,
+  APITypes.OnUpdateHAICTransactionSubscription
+>;
+export const onDeleteHAICTransaction = /* GraphQL */ `subscription OnDeleteHAICTransaction(
+  $filter: ModelSubscriptionHAICTransactionFilterInput
+  $owner: String
+) {
+  onDeleteHAICTransaction(filter: $filter, owner: $owner) {
+    id
+    userId
+    type
+    amount
+    balance
+    description
+    transactionHash
+    blockNumber
+    status
+    gasUsed
+    gasPrice
+    recipientAddress
+    senderAddress
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteHAICTransactionSubscriptionVariables,
+  APITypes.OnDeleteHAICTransactionSubscription
 >;

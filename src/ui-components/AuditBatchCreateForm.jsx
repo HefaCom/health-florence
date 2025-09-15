@@ -26,23 +26,27 @@ export default function AuditBatchCreateForm(props) {
     timestamp: "",
     merkleRoot: "",
     transactionHash: "",
+    status: "",
   };
   const [timestamp, setTimestamp] = React.useState(initialValues.timestamp);
   const [merkleRoot, setMerkleRoot] = React.useState(initialValues.merkleRoot);
   const [transactionHash, setTransactionHash] = React.useState(
     initialValues.transactionHash
   );
+  const [status, setStatus] = React.useState(initialValues.status);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     setTimestamp(initialValues.timestamp);
     setMerkleRoot(initialValues.merkleRoot);
     setTransactionHash(initialValues.transactionHash);
+    setStatus(initialValues.status);
     setErrors({});
   };
   const validations = {
     timestamp: [{ type: "Required" }],
     merkleRoot: [{ type: "Required" }],
     transactionHash: [{ type: "Required" }],
+    status: [{ type: "Required" }],
   };
   const runValidationTasks = async (
     fieldName,
@@ -90,6 +94,7 @@ export default function AuditBatchCreateForm(props) {
           timestamp,
           merkleRoot,
           transactionHash,
+          status,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -157,6 +162,7 @@ export default function AuditBatchCreateForm(props) {
               timestamp: value,
               merkleRoot,
               transactionHash,
+              status,
             };
             const result = onChange(modelFields);
             value = result?.timestamp ?? value;
@@ -183,6 +189,7 @@ export default function AuditBatchCreateForm(props) {
               timestamp,
               merkleRoot: value,
               transactionHash,
+              status,
             };
             const result = onChange(modelFields);
             value = result?.merkleRoot ?? value;
@@ -209,6 +216,7 @@ export default function AuditBatchCreateForm(props) {
               timestamp,
               merkleRoot,
               transactionHash: value,
+              status,
             };
             const result = onChange(modelFields);
             value = result?.transactionHash ?? value;
@@ -222,6 +230,33 @@ export default function AuditBatchCreateForm(props) {
         errorMessage={errors.transactionHash?.errorMessage}
         hasError={errors.transactionHash?.hasError}
         {...getOverrideProps(overrides, "transactionHash")}
+      ></TextField>
+      <TextField
+        label="Status"
+        isRequired={true}
+        isReadOnly={false}
+        value={status}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              timestamp,
+              merkleRoot,
+              transactionHash,
+              status: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.status ?? value;
+          }
+          if (errors.status?.hasError) {
+            runValidationTasks("status", value);
+          }
+          setStatus(value);
+        }}
+        onBlur={() => runValidationTasks("status", status)}
+        errorMessage={errors.status?.errorMessage}
+        hasError={errors.status?.hasError}
+        {...getOverrideProps(overrides, "status")}
       ></TextField>
       <Flex
         justifyContent="space-between"

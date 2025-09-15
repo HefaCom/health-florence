@@ -31,6 +31,12 @@ export declare type AuditEventUpdateFormInputValues = {
     transactionHash?: string;
     merkleRoot?: string;
     batchId?: string;
+    severity?: string;
+    category?: string;
+    outcome?: string;
+    ipAddress?: string;
+    userAgent?: string;
+    sessionId?: string;
 };
 export declare type AuditEventUpdateFormValidationValues = {
     timestamp?: ValidationFunction<string>;
@@ -41,6 +47,12 @@ export declare type AuditEventUpdateFormValidationValues = {
     transactionHash?: ValidationFunction<string>;
     merkleRoot?: ValidationFunction<string>;
     batchId?: ValidationFunction<string>;
+    severity?: ValidationFunction<string>;
+    category?: ValidationFunction<string>;
+    outcome?: ValidationFunction<string>;
+    ipAddress?: ValidationFunction<string>;
+    userAgent?: ValidationFunction<string>;
+    sessionId?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type AuditEventUpdateFormOverridesProps = {
@@ -53,6 +65,12 @@ export declare type AuditEventUpdateFormOverridesProps = {
     transactionHash?: PrimitiveOverrideProps<TextFieldProps>;
     merkleRoot?: PrimitiveOverrideProps<TextFieldProps>;
     batchId?: PrimitiveOverrideProps<TextFieldProps>;
+    severity?: PrimitiveOverrideProps<TextFieldProps>;
+    category?: PrimitiveOverrideProps<TextFieldProps>;
+    outcome?: PrimitiveOverrideProps<TextFieldProps>;
+    ipAddress?: PrimitiveOverrideProps<TextFieldProps>;
+    userAgent?: PrimitiveOverrideProps<TextFieldProps>;
+    sessionId?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type AuditEventUpdateFormProps = React.PropsWithChildren<{
     overrides?: AuditEventUpdateFormOverridesProps | undefined | null;

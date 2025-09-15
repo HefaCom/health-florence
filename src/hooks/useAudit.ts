@@ -20,7 +20,10 @@ export const useAudit = () => {
       details: {
         ...details,
         userEmail: user.email
-      }
+      },
+      severity: 'low',
+      category: 'data_modification',
+      outcome: 'success'
     };
 
     await auditService.logEvent(event);

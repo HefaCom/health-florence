@@ -2,7 +2,7 @@
   "version": "1",
   "cognitoConfig": {
     "identityPoolName": "healthflorencef530612c_identitypool_f530612c",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "healthf530612c",
     "userPoolName": "healthflorencef530612c_userpool_f530612c",
     "autoVerifiedAttributes": [

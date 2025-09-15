@@ -37,6 +37,12 @@ export default function AuditEventCreateForm(props) {
     transactionHash: "",
     merkleRoot: "",
     batchId: "",
+    severity: "",
+    category: "",
+    outcome: "",
+    ipAddress: "",
+    userAgent: "",
+    sessionId: "",
   };
   const [timestamp, setTimestamp] = React.useState(initialValues.timestamp);
   const [userId, setUserId] = React.useState(initialValues.userId);
@@ -48,6 +54,12 @@ export default function AuditEventCreateForm(props) {
   );
   const [merkleRoot, setMerkleRoot] = React.useState(initialValues.merkleRoot);
   const [batchId, setBatchId] = React.useState(initialValues.batchId);
+  const [severity, setSeverity] = React.useState(initialValues.severity);
+  const [category, setCategory] = React.useState(initialValues.category);
+  const [outcome, setOutcome] = React.useState(initialValues.outcome);
+  const [ipAddress, setIpAddress] = React.useState(initialValues.ipAddress);
+  const [userAgent, setUserAgent] = React.useState(initialValues.userAgent);
+  const [sessionId, setSessionId] = React.useState(initialValues.sessionId);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
     setTimestamp(initialValues.timestamp);
@@ -58,6 +70,12 @@ export default function AuditEventCreateForm(props) {
     setTransactionHash(initialValues.transactionHash);
     setMerkleRoot(initialValues.merkleRoot);
     setBatchId(initialValues.batchId);
+    setSeverity(initialValues.severity);
+    setCategory(initialValues.category);
+    setOutcome(initialValues.outcome);
+    setIpAddress(initialValues.ipAddress);
+    setUserAgent(initialValues.userAgent);
+    setSessionId(initialValues.sessionId);
     setErrors({});
   };
   const validations = {
@@ -69,6 +87,12 @@ export default function AuditEventCreateForm(props) {
     transactionHash: [],
     merkleRoot: [],
     batchId: [],
+    severity: [{ type: "Required" }],
+    category: [{ type: "Required" }],
+    outcome: [{ type: "Required" }],
+    ipAddress: [],
+    userAgent: [],
+    sessionId: [],
   };
   const runValidationTasks = async (
     fieldName,
@@ -121,6 +145,12 @@ export default function AuditEventCreateForm(props) {
           transactionHash,
           merkleRoot,
           batchId,
+          severity,
+          category,
+          outcome,
+          ipAddress,
+          userAgent,
+          sessionId,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -193,6 +223,12 @@ export default function AuditEventCreateForm(props) {
               transactionHash,
               merkleRoot,
               batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
             };
             const result = onChange(modelFields);
             value = result?.timestamp ?? value;
@@ -224,6 +260,12 @@ export default function AuditEventCreateForm(props) {
               transactionHash,
               merkleRoot,
               batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
             };
             const result = onChange(modelFields);
             value = result?.userId ?? value;
@@ -255,6 +297,12 @@ export default function AuditEventCreateForm(props) {
               transactionHash,
               merkleRoot,
               batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
             };
             const result = onChange(modelFields);
             value = result?.action ?? value;
@@ -286,6 +334,12 @@ export default function AuditEventCreateForm(props) {
               transactionHash,
               merkleRoot,
               batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
             };
             const result = onChange(modelFields);
             value = result?.resourceId ?? value;
@@ -316,6 +370,12 @@ export default function AuditEventCreateForm(props) {
               transactionHash,
               merkleRoot,
               batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
             };
             const result = onChange(modelFields);
             value = result?.details ?? value;
@@ -347,6 +407,12 @@ export default function AuditEventCreateForm(props) {
               transactionHash: value,
               merkleRoot,
               batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
             };
             const result = onChange(modelFields);
             value = result?.transactionHash ?? value;
@@ -378,6 +444,12 @@ export default function AuditEventCreateForm(props) {
               transactionHash,
               merkleRoot: value,
               batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
             };
             const result = onChange(modelFields);
             value = result?.merkleRoot ?? value;
@@ -409,6 +481,12 @@ export default function AuditEventCreateForm(props) {
               transactionHash,
               merkleRoot,
               batchId: value,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
             };
             const result = onChange(modelFields);
             value = result?.batchId ?? value;
@@ -422,6 +500,228 @@ export default function AuditEventCreateForm(props) {
         errorMessage={errors.batchId?.errorMessage}
         hasError={errors.batchId?.hasError}
         {...getOverrideProps(overrides, "batchId")}
+      ></TextField>
+      <TextField
+        label="Severity"
+        isRequired={true}
+        isReadOnly={false}
+        value={severity}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              timestamp,
+              userId,
+              action,
+              resourceId,
+              details,
+              transactionHash,
+              merkleRoot,
+              batchId,
+              severity: value,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
+            };
+            const result = onChange(modelFields);
+            value = result?.severity ?? value;
+          }
+          if (errors.severity?.hasError) {
+            runValidationTasks("severity", value);
+          }
+          setSeverity(value);
+        }}
+        onBlur={() => runValidationTasks("severity", severity)}
+        errorMessage={errors.severity?.errorMessage}
+        hasError={errors.severity?.hasError}
+        {...getOverrideProps(overrides, "severity")}
+      ></TextField>
+      <TextField
+        label="Category"
+        isRequired={true}
+        isReadOnly={false}
+        value={category}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              timestamp,
+              userId,
+              action,
+              resourceId,
+              details,
+              transactionHash,
+              merkleRoot,
+              batchId,
+              severity,
+              category: value,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId,
+            };
+            const result = onChange(modelFields);
+            value = result?.category ?? value;
+          }
+          if (errors.category?.hasError) {
+            runValidationTasks("category", value);
+          }
+          setCategory(value);
+        }}
+        onBlur={() => runValidationTasks("category", category)}
+        errorMessage={errors.category?.errorMessage}
+        hasError={errors.category?.hasError}
+        {...getOverrideProps(overrides, "category")}
+      ></TextField>
+      <TextField
+        label="Outcome"
+        isRequired={true}
+        isReadOnly={false}
+        value={outcome}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              timestamp,
+              userId,
+              action,
+              resourceId,
+              details,
+              transactionHash,
+              merkleRoot,
+              batchId,
+              severity,
+              category,
+              outcome: value,
+              ipAddress,
+              userAgent,
+              sessionId,
+            };
+            const result = onChange(modelFields);
+            value = result?.outcome ?? value;
+          }
+          if (errors.outcome?.hasError) {
+            runValidationTasks("outcome", value);
+          }
+          setOutcome(value);
+        }}
+        onBlur={() => runValidationTasks("outcome", outcome)}
+        errorMessage={errors.outcome?.errorMessage}
+        hasError={errors.outcome?.hasError}
+        {...getOverrideProps(overrides, "outcome")}
+      ></TextField>
+      <TextField
+        label="Ip address"
+        isRequired={false}
+        isReadOnly={false}
+        value={ipAddress}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              timestamp,
+              userId,
+              action,
+              resourceId,
+              details,
+              transactionHash,
+              merkleRoot,
+              batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress: value,
+              userAgent,
+              sessionId,
+            };
+            const result = onChange(modelFields);
+            value = result?.ipAddress ?? value;
+          }
+          if (errors.ipAddress?.hasError) {
+            runValidationTasks("ipAddress", value);
+          }
+          setIpAddress(value);
+        }}
+        onBlur={() => runValidationTasks("ipAddress", ipAddress)}
+        errorMessage={errors.ipAddress?.errorMessage}
+        hasError={errors.ipAddress?.hasError}
+        {...getOverrideProps(overrides, "ipAddress")}
+      ></TextField>
+      <TextField
+        label="User agent"
+        isRequired={false}
+        isReadOnly={false}
+        value={userAgent}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              timestamp,
+              userId,
+              action,
+              resourceId,
+              details,
+              transactionHash,
+              merkleRoot,
+              batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent: value,
+              sessionId,
+            };
+            const result = onChange(modelFields);
+            value = result?.userAgent ?? value;
+          }
+          if (errors.userAgent?.hasError) {
+            runValidationTasks("userAgent", value);
+          }
+          setUserAgent(value);
+        }}
+        onBlur={() => runValidationTasks("userAgent", userAgent)}
+        errorMessage={errors.userAgent?.errorMessage}
+        hasError={errors.userAgent?.hasError}
+        {...getOverrideProps(overrides, "userAgent")}
+      ></TextField>
+      <TextField
+        label="Session id"
+        isRequired={false}
+        isReadOnly={false}
+        value={sessionId}
+        onChange={(e) => {
+          let { value } = e.target;
+          if (onChange) {
+            const modelFields = {
+              timestamp,
+              userId,
+              action,
+              resourceId,
+              details,
+              transactionHash,
+              merkleRoot,
+              batchId,
+              severity,
+              category,
+              outcome,
+              ipAddress,
+              userAgent,
+              sessionId: value,
+            };
+            const result = onChange(modelFields);
+            value = result?.sessionId ?? value;
+          }
+          if (errors.sessionId?.hasError) {
+            runValidationTasks("sessionId", value);
+          }
+          setSessionId(value);
+        }}
+        onBlur={() => runValidationTasks("sessionId", sessionId)}
+        errorMessage={errors.sessionId?.errorMessage}
+        hasError={errors.sessionId?.hasError}
+        {...getOverrideProps(overrides, "sessionId")}
       ></TextField>
       <Flex
         justifyContent="space-between"

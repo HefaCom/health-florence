@@ -222,23 +222,26 @@ const Profile = () => {
       }
 
       // Prepare the update input using the stored userId
-      const updateInput = {
-        id: userId,
-        firstName: formData.firstName || null,
-        lastName: formData.lastName || null,
-        phoneNumber: formData.phoneNumber || null,
-        dateOfBirth: formData.dateOfBirth || null,
-        gender: formData.gender || null,
-        address: formData.address || null,
-        city: formData.city || null,
-        state: formData.state || null,
-        zipCode: formData.zipCode || null,
-        emergencyContactName: formData.emergencyContactName || null,
-        emergencyContactPhone: formData.emergencyContactPhone || null,
-        allergies: formData.allergies || null,
-        medicalConditions: formData.medicalConditions || null,
-        currentMedications: formData.currentMedications || null
+      // Only include fields that have values to avoid null value errors
+      const updateInput: any = {
+        id: userId
       };
+
+      // Only add fields that have values
+      if (formData.firstName) updateInput.firstName = formData.firstName;
+      if (formData.lastName) updateInput.lastName = formData.lastName;
+      if (formData.phoneNumber) updateInput.phoneNumber = formData.phoneNumber;
+      if (formData.dateOfBirth) updateInput.dateOfBirth = formData.dateOfBirth;
+      if (formData.gender) updateInput.gender = formData.gender;
+      if (formData.address) updateInput.address = formData.address;
+      if (formData.city) updateInput.city = formData.city;
+      if (formData.state) updateInput.state = formData.state;
+      if (formData.zipCode) updateInput.zipCode = formData.zipCode;
+      if (formData.emergencyContactName) updateInput.emergencyContactName = formData.emergencyContactName;
+      if (formData.emergencyContactPhone) updateInput.emergencyContactPhone = formData.emergencyContactPhone;
+      if (formData.allergies) updateInput.allergies = formData.allergies;
+      if (formData.medicalConditions) updateInput.medicalConditions = formData.medicalConditions;
+      if (formData.currentMedications) updateInput.currentMedications = formData.currentMedications;
 
       // Update the user profile using userService
       const updatedUser = await userService.updateUser(updateInput);

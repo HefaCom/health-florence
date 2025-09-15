@@ -198,6 +198,61 @@ class XRPLService {
     }
   }
 
+  // Submit transaction to XRPL (generic method)
+  async submitTransaction(transaction: any): Promise<{ hash: string; success: boolean }> {
+    if (!this.client || !this.wallet) {
+      throw new Error('XRPL client or wallet not initialized');
+    }
+
+    try {
+      const prepared = await this.client.autofill(transaction);
+      const signed = this.wallet.sign(prepared);
+      const result = await this.client.submitAndWait(signed.tx_blob) as XRPLResponse;
+
+      return {
+        hash: result.result.hash || '',
+        success: result.result.meta?.TransactionResult === 'tesSUCCESS'
+      };
+    } catch (error) {
+      console.error('Failed to submit transaction:', error);
+      throw error;
+    }
+  }
+
+  // Verify transaction on XRPL
+  async verifyTransaction(hash: string): Promise<boolean> {
+    if (!this.client) {
+      throw new Error('XRPL client not initialized');
+    }
+
+    try {
+      const response = await this.client.request({
+        command: 'tx',
+        transaction: hash
+      });
+
+      return response.result.validated === true;
+    } catch (error) {
+      console.error('Failed to verify transaction:', error);
+      return false;
+    }
+  }
+
+  // Get wallet address
+  async getWalletAddress(): Promise<string> {
+    if (!this.wallet) {
+      await this.initializeWallet();
+    }
+    return this.wallet!.address;
+  }
+
+  // Get audit address (for audit trail submissions)
+  async getAuditAddress(): Promise<string> {
+    // For now, use the same wallet address
+    // In production, this could be a dedicated audit address
+    return await this.getWalletAddress();
+  }
+
   // Validate XRPL transaction hash format
   private isValidXRPLHash(hash: string): boolean {
     // XRPL transaction hashes should be 64-character hexadecimal strings

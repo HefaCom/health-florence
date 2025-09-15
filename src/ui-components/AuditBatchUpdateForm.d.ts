@@ -26,11 +26,13 @@ export declare type AuditBatchUpdateFormInputValues = {
     timestamp?: string;
     merkleRoot?: string;
     transactionHash?: string;
+    status?: string;
 };
 export declare type AuditBatchUpdateFormValidationValues = {
     timestamp?: ValidationFunction<string>;
     merkleRoot?: ValidationFunction<string>;
     transactionHash?: ValidationFunction<string>;
+    status?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type AuditBatchUpdateFormOverridesProps = {
@@ -38,6 +40,7 @@ export declare type AuditBatchUpdateFormOverridesProps = {
     timestamp?: PrimitiveOverrideProps<TextFieldProps>;
     merkleRoot?: PrimitiveOverrideProps<TextFieldProps>;
     transactionHash?: PrimitiveOverrideProps<TextFieldProps>;
+    status?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type AuditBatchUpdateFormProps = React.PropsWithChildren<{
     overrides?: AuditBatchUpdateFormOverridesProps | undefined | null;

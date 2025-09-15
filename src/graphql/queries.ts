@@ -56,6 +56,10 @@ export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
       nextToken
       __typename
     }
+    haicTransactions {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -553,98 +557,6 @@ export const listPatientRecords = /* GraphQL */ `query ListPatientRecords(
   APITypes.ListPatientRecordsQueryVariables,
   APITypes.ListPatientRecordsQuery
 >;
-export const getAuditEvent = /* GraphQL */ `query GetAuditEvent($id: ID!) {
-  getAuditEvent(id: $id) {
-    id
-    timestamp
-    userId
-    action
-    resourceId
-    details
-    transactionHash
-    merkleRoot
-    batchId
-    createdAt
-    updatedAt
-    auditBatchEventsId
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.GetAuditEventQueryVariables,
-  APITypes.GetAuditEventQuery
->;
-export const listAuditEvents = /* GraphQL */ `query ListAuditEvents(
-  $filter: ModelAuditEventFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  listAuditEvents(filter: $filter, limit: $limit, nextToken: $nextToken) {
-    items {
-      id
-      timestamp
-      userId
-      action
-      resourceId
-      details
-      transactionHash
-      merkleRoot
-      batchId
-      createdAt
-      updatedAt
-      auditBatchEventsId
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.ListAuditEventsQueryVariables,
-  APITypes.ListAuditEventsQuery
->;
-export const getAuditBatch = /* GraphQL */ `query GetAuditBatch($id: ID!) {
-  getAuditBatch(id: $id) {
-    id
-    timestamp
-    merkleRoot
-    transactionHash
-    events {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.GetAuditBatchQueryVariables,
-  APITypes.GetAuditBatchQuery
->;
-export const listAuditBatches = /* GraphQL */ `query ListAuditBatches(
-  $filter: ModelAuditBatchFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  listAuditBatches(filter: $filter, limit: $limit, nextToken: $nextToken) {
-    items {
-      id
-      timestamp
-      merkleRoot
-      transactionHash
-      createdAt
-      updatedAt
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.ListAuditBatchesQueryVariables,
-  APITypes.ListAuditBatchesQuery
->;
 export const getDietaryPlan = /* GraphQL */ `query GetDietaryPlan($id: ID!) {
   getDietaryPlan(id: $id) {
     id
@@ -990,4 +902,202 @@ export const listHAICRewards = /* GraphQL */ `query ListHAICRewards(
 ` as GeneratedQuery<
   APITypes.ListHAICRewardsQueryVariables,
   APITypes.ListHAICRewardsQuery
+>;
+export const getAuditEvent = /* GraphQL */ `query GetAuditEvent($id: ID!) {
+  getAuditEvent(id: $id) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    severity
+    category
+    outcome
+    ipAddress
+    userAgent
+    sessionId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetAuditEventQueryVariables,
+  APITypes.GetAuditEventQuery
+>;
+export const listAuditEvents = /* GraphQL */ `query ListAuditEvents(
+  $filter: ModelAuditEventFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listAuditEvents(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      timestamp
+      userId
+      action
+      resourceId
+      details
+      transactionHash
+      merkleRoot
+      batchId
+      severity
+      category
+      outcome
+      ipAddress
+      userAgent
+      sessionId
+      createdAt
+      updatedAt
+      auditBatchEventsId
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAuditEventsQueryVariables,
+  APITypes.ListAuditEventsQuery
+>;
+export const getAuditBatch = /* GraphQL */ `query GetAuditBatch($id: ID!) {
+  getAuditBatch(id: $id) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    status
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetAuditBatchQueryVariables,
+  APITypes.GetAuditBatchQuery
+>;
+export const listAuditBatches = /* GraphQL */ `query ListAuditBatches(
+  $filter: ModelAuditBatchFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listAuditBatches(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      timestamp
+      merkleRoot
+      transactionHash
+      status
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAuditBatchesQueryVariables,
+  APITypes.ListAuditBatchesQuery
+>;
+export const getHAICTransaction = /* GraphQL */ `query GetHAICTransaction($id: ID!) {
+  getHAICTransaction(id: $id) {
+    id
+    userId
+    type
+    amount
+    balance
+    description
+    transactionHash
+    blockNumber
+    status
+    gasUsed
+    gasPrice
+    recipientAddress
+    senderAddress
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetHAICTransactionQueryVariables,
+  APITypes.GetHAICTransactionQuery
+>;
+export const listHAICTransactions = /* GraphQL */ `query ListHAICTransactions(
+  $filter: ModelHAICTransactionFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listHAICTransactions(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      type
+      amount
+      balance
+      description
+      transactionHash
+      blockNumber
+      status
+      gasUsed
+      gasPrice
+      recipientAddress
+      senderAddress
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListHAICTransactionsQueryVariables,
+  APITypes.ListHAICTransactionsQuery
 >;

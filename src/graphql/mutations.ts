@@ -59,6 +59,10 @@ export const createUser = /* GraphQL */ `mutation CreateUser(
       nextToken
       __typename
     }
+    haicTransactions {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -118,6 +122,10 @@ export const updateUser = /* GraphQL */ `mutation UpdateUser(
       nextToken
       __typename
     }
+    haicTransactions {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -174,6 +182,10 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
       __typename
     }
     haicRewards {
+      nextToken
+      __typename
+    }
+    haicTransactions {
       nextToken
       __typename
     }
@@ -1154,144 +1166,6 @@ export const deletePatientRecord = /* GraphQL */ `mutation DeletePatientRecord(
   APITypes.DeletePatientRecordMutationVariables,
   APITypes.DeletePatientRecordMutation
 >;
-export const createAuditEvent = /* GraphQL */ `mutation CreateAuditEvent(
-  $input: CreateAuditEventInput!
-  $condition: ModelAuditEventConditionInput
-) {
-  createAuditEvent(input: $input, condition: $condition) {
-    id
-    timestamp
-    userId
-    action
-    resourceId
-    details
-    transactionHash
-    merkleRoot
-    batchId
-    createdAt
-    updatedAt
-    auditBatchEventsId
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.CreateAuditEventMutationVariables,
-  APITypes.CreateAuditEventMutation
->;
-export const updateAuditEvent = /* GraphQL */ `mutation UpdateAuditEvent(
-  $input: UpdateAuditEventInput!
-  $condition: ModelAuditEventConditionInput
-) {
-  updateAuditEvent(input: $input, condition: $condition) {
-    id
-    timestamp
-    userId
-    action
-    resourceId
-    details
-    transactionHash
-    merkleRoot
-    batchId
-    createdAt
-    updatedAt
-    auditBatchEventsId
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.UpdateAuditEventMutationVariables,
-  APITypes.UpdateAuditEventMutation
->;
-export const deleteAuditEvent = /* GraphQL */ `mutation DeleteAuditEvent(
-  $input: DeleteAuditEventInput!
-  $condition: ModelAuditEventConditionInput
-) {
-  deleteAuditEvent(input: $input, condition: $condition) {
-    id
-    timestamp
-    userId
-    action
-    resourceId
-    details
-    transactionHash
-    merkleRoot
-    batchId
-    createdAt
-    updatedAt
-    auditBatchEventsId
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.DeleteAuditEventMutationVariables,
-  APITypes.DeleteAuditEventMutation
->;
-export const createAuditBatch = /* GraphQL */ `mutation CreateAuditBatch(
-  $input: CreateAuditBatchInput!
-  $condition: ModelAuditBatchConditionInput
-) {
-  createAuditBatch(input: $input, condition: $condition) {
-    id
-    timestamp
-    merkleRoot
-    transactionHash
-    events {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.CreateAuditBatchMutationVariables,
-  APITypes.CreateAuditBatchMutation
->;
-export const updateAuditBatch = /* GraphQL */ `mutation UpdateAuditBatch(
-  $input: UpdateAuditBatchInput!
-  $condition: ModelAuditBatchConditionInput
-) {
-  updateAuditBatch(input: $input, condition: $condition) {
-    id
-    timestamp
-    merkleRoot
-    transactionHash
-    events {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.UpdateAuditBatchMutationVariables,
-  APITypes.UpdateAuditBatchMutation
->;
-export const deleteAuditBatch = /* GraphQL */ `mutation DeleteAuditBatch(
-  $input: DeleteAuditBatchInput!
-  $condition: ModelAuditBatchConditionInput
-) {
-  deleteAuditBatch(input: $input, condition: $condition) {
-    id
-    timestamp
-    merkleRoot
-    transactionHash
-    events {
-      nextToken
-      __typename
-    }
-    createdAt
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.DeleteAuditBatchMutationVariables,
-  APITypes.DeleteAuditBatchMutation
->;
 export const createDietaryPlan = /* GraphQL */ `mutation CreateDietaryPlan(
   $input: CreateDietaryPlanInput!
   $condition: ModelDietaryPlanConditionInput
@@ -2002,4 +1876,349 @@ export const deleteHAICReward = /* GraphQL */ `mutation DeleteHAICReward(
 ` as GeneratedMutation<
   APITypes.DeleteHAICRewardMutationVariables,
   APITypes.DeleteHAICRewardMutation
+>;
+export const createAuditEvent = /* GraphQL */ `mutation CreateAuditEvent(
+  $input: CreateAuditEventInput!
+  $condition: ModelAuditEventConditionInput
+) {
+  createAuditEvent(input: $input, condition: $condition) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    severity
+    category
+    outcome
+    ipAddress
+    userAgent
+    sessionId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateAuditEventMutationVariables,
+  APITypes.CreateAuditEventMutation
+>;
+export const updateAuditEvent = /* GraphQL */ `mutation UpdateAuditEvent(
+  $input: UpdateAuditEventInput!
+  $condition: ModelAuditEventConditionInput
+) {
+  updateAuditEvent(input: $input, condition: $condition) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    severity
+    category
+    outcome
+    ipAddress
+    userAgent
+    sessionId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateAuditEventMutationVariables,
+  APITypes.UpdateAuditEventMutation
+>;
+export const deleteAuditEvent = /* GraphQL */ `mutation DeleteAuditEvent(
+  $input: DeleteAuditEventInput!
+  $condition: ModelAuditEventConditionInput
+) {
+  deleteAuditEvent(input: $input, condition: $condition) {
+    id
+    timestamp
+    userId
+    action
+    resourceId
+    details
+    transactionHash
+    merkleRoot
+    batchId
+    severity
+    category
+    outcome
+    ipAddress
+    userAgent
+    sessionId
+    createdAt
+    updatedAt
+    auditBatchEventsId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteAuditEventMutationVariables,
+  APITypes.DeleteAuditEventMutation
+>;
+export const createAuditBatch = /* GraphQL */ `mutation CreateAuditBatch(
+  $input: CreateAuditBatchInput!
+  $condition: ModelAuditBatchConditionInput
+) {
+  createAuditBatch(input: $input, condition: $condition) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    status
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateAuditBatchMutationVariables,
+  APITypes.CreateAuditBatchMutation
+>;
+export const updateAuditBatch = /* GraphQL */ `mutation UpdateAuditBatch(
+  $input: UpdateAuditBatchInput!
+  $condition: ModelAuditBatchConditionInput
+) {
+  updateAuditBatch(input: $input, condition: $condition) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    status
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateAuditBatchMutationVariables,
+  APITypes.UpdateAuditBatchMutation
+>;
+export const deleteAuditBatch = /* GraphQL */ `mutation DeleteAuditBatch(
+  $input: DeleteAuditBatchInput!
+  $condition: ModelAuditBatchConditionInput
+) {
+  deleteAuditBatch(input: $input, condition: $condition) {
+    id
+    timestamp
+    merkleRoot
+    transactionHash
+    status
+    events {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteAuditBatchMutationVariables,
+  APITypes.DeleteAuditBatchMutation
+>;
+export const createHAICTransaction = /* GraphQL */ `mutation CreateHAICTransaction(
+  $input: CreateHAICTransactionInput!
+  $condition: ModelHAICTransactionConditionInput
+) {
+  createHAICTransaction(input: $input, condition: $condition) {
+    id
+    userId
+    type
+    amount
+    balance
+    description
+    transactionHash
+    blockNumber
+    status
+    gasUsed
+    gasPrice
+    recipientAddress
+    senderAddress
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateHAICTransactionMutationVariables,
+  APITypes.CreateHAICTransactionMutation
+>;
+export const updateHAICTransaction = /* GraphQL */ `mutation UpdateHAICTransaction(
+  $input: UpdateHAICTransactionInput!
+  $condition: ModelHAICTransactionConditionInput
+) {
+  updateHAICTransaction(input: $input, condition: $condition) {
+    id
+    userId
+    type
+    amount
+    balance
+    description
+    transactionHash
+    blockNumber
+    status
+    gasUsed
+    gasPrice
+    recipientAddress
+    senderAddress
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateHAICTransactionMutationVariables,
+  APITypes.UpdateHAICTransactionMutation
+>;
+export const deleteHAICTransaction = /* GraphQL */ `mutation DeleteHAICTransaction(
+  $input: DeleteHAICTransactionInput!
+  $condition: ModelHAICTransactionConditionInput
+) {
+  deleteHAICTransaction(input: $input, condition: $condition) {
+    id
+    userId
+    type
+    amount
+    balance
+    description
+    transactionHash
+    blockNumber
+    status
+    gasUsed
+    gasPrice
+    recipientAddress
+    senderAddress
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteHAICTransactionMutationVariables,
+  APITypes.DeleteHAICTransactionMutation
 >;

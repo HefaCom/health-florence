@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { userService } from "@/services/user.service";
 import { healthConditionService, HealthCondition as HealthConditionType } from "@/services/health-condition.service";
+import { haicTokenService } from "@/services/haic-token.service";
 import { toast } from "sonner";
 
 interface HealthCondition {
@@ -246,7 +247,20 @@ export function HealthProfile({ className }: HealthProfileProps) {
       });
       
       setIsEditing(false);
-      toast.success("Health profile updated successfully!");
+
+      // Award HAIC tokens for updating health profile
+      try {
+        await haicTokenService.distributeReward(
+          user.id,
+          15, // 15 HAIC tokens for updating health profile
+          "Updated health profile information",
+          "profile_completion"
+        );
+        toast.success("Health profile updated successfully! You earned 15 HAIC tokens! 🎉");
+      } catch (error) {
+        console.error('Error awarding HAIC tokens:', error);
+        toast.success("Health profile updated successfully!");
+      }
     } catch (error) {
       console.error('Error updating health profile:', error);
       toast.error("Failed to update health profile");
@@ -451,33 +465,33 @@ export function HealthProfile({ className }: HealthProfileProps) {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <div className="text-sm text-muted-foreground">Height</div>
-                  <div className="font-medium flex items-center">
-                    <Ruler className="h-3 w-3 mr-1" />
-                    {isPrivate ? "***" : `${healthData.height} cm`}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Weight</div>
-                  <div className="font-medium flex items-center">
-                    <Scale className="h-3 w-3 mr-1" />
-                    {isPrivate ? "***" : `${healthData.weight} kg`}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Gender</div>
-                  <div className="font-medium">{isPrivate ? "***" : healthData.gender}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Date of Birth</div>
-                  <div className="font-medium flex items-center">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    {isPrivate ? "***" : new Date(healthData.dateOfBirth).toLocaleDateString()}
-                  </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <div className="text-sm text-muted-foreground">Height</div>
+                <div className="font-medium flex items-center">
+                  <Ruler className="h-3 w-3 mr-1" />
+                  {isPrivate ? "***" : `${healthData.height} cm`}
                 </div>
               </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Weight</div>
+                <div className="font-medium flex items-center">
+                  <Scale className="h-3 w-3 mr-1" />
+                  {isPrivate ? "***" : `${healthData.weight} kg`}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Gender</div>
+                <div className="font-medium">{isPrivate ? "***" : healthData.gender}</div>
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Date of Birth</div>
+                <div className="font-medium flex items-center">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {isPrivate ? "***" : new Date(healthData.dateOfBirth).toLocaleDateString()}
+                </div>
+              </div>
+            </div>
             )}
             {!isPrivate && (
               <div className="mt-3 pt-3 border-t">
@@ -658,23 +672,23 @@ export function HealthProfile({ className }: HealthProfileProps) {
                     </div>
                   ) : (
                     <div>
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <h5 className="font-medium">{condition.name}</h5>
-                          <Badge 
-                            variant="secondary" 
-                            className={cn("text-xs", getSeverityColor(condition.severity))}
-                          >
-                            {condition.severity}
-                          </Badge>
-                          <Badge 
-                            variant="outline" 
-                            className={cn("text-xs", getStatusColor(condition.status))}
-                          >
-                            {getStatusIcon(condition.status)}
-                            <span className="ml-1">{condition.status}</span>
-                          </Badge>
-                        </div>
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <h5 className="font-medium">{condition.name}</h5>
+                      <Badge 
+                        variant="secondary" 
+                        className={cn("text-xs", getSeverityColor(condition.severity))}
+                      >
+                        {condition.severity}
+                      </Badge>
+                      <Badge 
+                        variant="outline" 
+                        className={cn("text-xs", getStatusColor(condition.status))}
+                      >
+                        {getStatusIcon(condition.status)}
+                        <span className="ml-1">{condition.status}</span>
+                      </Badge>
+                    </div>
                         
                         {isEditing && (
                           <div className="flex space-x-1">
@@ -696,25 +710,25 @@ export function HealthProfile({ className }: HealthProfileProps) {
                             </Button>
                           </div>
                         )}
-                      </div>
-                      
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {condition.description}
-                      </p>
-                      
-                      <div className="text-xs text-muted-foreground mb-2">
-                        Diagnosed: {new Date(condition.diagnosedDate).toLocaleDateString()}
-                      </div>
-                      
+                  </div>
+                  
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {condition.description}
+                  </p>
+                  
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Diagnosed: {new Date(condition.diagnosedDate).toLocaleDateString()}
+                  </div>
+                  
                       {condition.medications && (
-                        <div>
-                          <div className="text-xs font-medium text-muted-foreground mb-1">
-                            Medications:
-                          </div>
+                    <div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">
+                        Medications:
+                      </div>
                           <div className="text-sm text-muted-foreground">
                             {condition.medications}
                           </div>
-                        </div>
+                      </div>
                       )}
                     </div>
                   )}
@@ -863,18 +877,18 @@ export function HealthProfile({ className }: HealthProfileProps) {
             </Button>
           )}
           
-          <Button 
-            variant="outline" 
-            size="sm" 
+        <Button 
+          variant="outline" 
+          size="sm" 
             className="flex-1 rounded-full"
-            onClick={() => {
-              // This would trigger Florence to update health profile
-              console.log("Requesting health profile updates from Florence");
-            }}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Ask Florence to Update Health Profile
-          </Button>
+          onClick={() => {
+            // This would trigger Florence to update health profile
+            console.log("Requesting health profile updates from Florence");
+          }}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Ask Florence to Update Health Profile
+        </Button>
         </div>
       </div>
     </Card>

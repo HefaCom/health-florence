@@ -26,7 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { florenceService } from "@/services/florence.service";
 import { healthGoalService, HealthGoal as HealthGoalType } from "@/services/health-goal.service";
-import { haicRewardService } from "@/services/haic-reward.service";
+import { haicTokenService } from "@/services/haic-token.service";
 import { useAuth } from "@/contexts/AuthContext";
 import { userService } from "@/services/user.service";
 import { toast } from "sonner";
@@ -105,19 +105,19 @@ export function HealthGoals({ className }: HealthGoalsProps) {
       const updatedGoal = await healthGoalService.updateProgress(id, newValue);
       
       // Update local state
-      setGoals(prev => 
+    setGoals(prev => 
         prev.map(g => g.id === id ? updatedGoal : g)
       );
 
       // If goal was just completed and has a reward, create HAIC reward
       if (!wasCompleted && updatedGoal.isCompleted && updatedGoal.reward && user?.id) {
         try {
-          await haicRewardService.createHAICReward({
-            userId: user.id,
-            amount: updatedGoal.reward,
-            reason: `Completed goal: ${updatedGoal.title}`,
-            category: "goal_completion"
-          });
+          await haicTokenService.distributeReward(
+            user.id,
+            updatedGoal.reward,
+            `Completed goal: ${updatedGoal.title}`,
+            "goal_completion"
+          );
           toast.success(`🎉 Goal completed! You earned ${updatedGoal.reward} HAIC tokens!`);
         } catch (error) {
           console.error('Error creating HAIC reward:', error);
@@ -583,92 +583,92 @@ export function HealthGoals({ className }: HealthGoalsProps) {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Badge 
-                        variant="secondary" 
-                        className={cn("text-xs", getCategoryColor(goal.category))}
-                      >
-                        {getCategoryIcon(goal.category)}
-                        <span className="ml-1 capitalize">{goal.category}</span>
-                      </Badge>
-                      <Badge 
-                        variant="outline" 
-                        className={cn("text-xs", getPriorityColor(goal.priority))}
-                      >
-                        {goal.priority} priority
-                      </Badge>
-                      {goal.isRecommended && (
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Badge 
+                      variant="secondary" 
+                      className={cn("text-xs", getCategoryColor(goal.category))}
+                    >
+                      {getCategoryIcon(goal.category)}
+                      <span className="ml-1 capitalize">{goal.category}</span>
+                    </Badge>
+                    <Badge 
+                      variant="outline" 
+                      className={cn("text-xs", getPriorityColor(goal.priority))}
+                    >
+                      {goal.priority} priority
+                    </Badge>
+                    {goal.isRecommended && (
                         <Badge variant="outline" className="text-xs border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300">
-                          <Target className="h-3 w-3 mr-1" />
-                          AI Recommended
-                        </Badge>
-                      )}
-                      {goal.isCompleted && (
+                        <Target className="h-3 w-3 mr-1" />
+                        AI Recommended
+                      </Badge>
+                    )}
+                    {goal.isCompleted && (
                         <Badge variant="outline" className="text-xs border-green-300 text-green-700 dark:border-green-600 dark:text-green-300">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Completed
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <h4 className={cn(
-                      "font-medium mb-1",
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Completed
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <h4 className={cn(
+                    "font-medium mb-1",
                       goal.isCompleted && "line-through text-gray-500 dark:text-gray-400"
-                    )}>
-                      {goal.title}
-                    </h4>
-                    
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {goal.description}
-                    </p>
+                  )}>
+                    {goal.title}
+                  </h4>
+                  
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {goal.description}
+                  </p>
 
-                    <div className="flex items-center space-x-4 mb-3">
-                      <div className="text-sm">
-                        <span className="font-medium">{goal.current}</span>
-                        <span className="text-muted-foreground"> / {goal.target} {goal.unit}</span>
-                      </div>
-                      <div className="flex-1">
-                        <Progress 
-                          value={(goal.current / goal.target) * 100} 
-                          className="h-2"
-                        />
-                      </div>
-                      <div className="text-sm font-medium text-green-600 dark:text-green-400">
-                        {goal.reward} HAIC
-                      </div>
+                  <div className="flex items-center space-x-4 mb-3">
+                    <div className="text-sm">
+                      <span className="font-medium">{goal.current}</span>
+                      <span className="text-muted-foreground"> / {goal.target} {goal.unit}</span>
                     </div>
+                    <div className="flex-1">
+                      <Progress 
+                        value={(goal.current / goal.target) * 100} 
+                        className="h-2"
+                      />
+                    </div>
+                      <div className="text-sm font-medium text-green-600 dark:text-green-400">
+                      {goal.reward} HAIC
+                    </div>
+                  </div>
 
                     <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>Deadline: {new Date(goal.deadline).toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Trophy className="h-3 w-3" />
-                        <span>Reward: {goal.reward} HAIC</span>
-                      </div>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>Deadline: {new Date(goal.deadline).toLocaleDateString()}</span>
                     </div>
+                    <div className="flex items-center space-x-1">
+                      <Trophy className="h-3 w-3" />
+                      <span>Reward: {goal.reward} HAIC</span>
+                    </div>
+                  </div>
                     
                     {goal.reason && (
                       <p className="text-xs text-muted-foreground italic">{goal.reason}</p>
                     )}
-                  </div>
-                  
+              </div>
+
                   <div className="flex flex-col space-y-1 ml-2">
-                    {isEditing && !goal.isCompleted && (
-                      <div className="flex items-center space-x-2">
+              {isEditing && !goal.isCompleted && (
+                  <div className="flex items-center space-x-2">
                         <span className="text-sm font-medium">Progress:</span>
-                        <input
-                          type="number"
-                          value={goal.current}
-                          onChange={(e) => handleUpdateProgress(goal.id, parseInt(e.target.value) || 0)}
+                    <input
+                      type="number"
+                      value={goal.current}
+                      onChange={(e) => handleUpdateProgress(goal.id, parseInt(e.target.value) || 0)}
                           className="w-20 px-2 py-1 text-sm border rounded dark:bg-input dark:border-border"
-                          min="0"
-                          max={goal.target * 2}
-                        />
-                        <span className="text-sm text-muted-foreground">{goal.unit}</span>
+                      min="0"
+                      max={goal.target * 2}
+                    />
+                    <span className="text-sm text-muted-foreground">{goal.unit}</span>
                       </div>
                     )}
                     
@@ -858,25 +858,25 @@ export function HealthGoals({ className }: HealthGoalsProps) {
             </Button>
           )}
           
-          <Button 
-            variant="outline" 
-            size="sm" 
+        <Button 
+          variant="outline" 
+          size="sm" 
             className="flex-1 rounded-full"
-            onClick={handleAskFlorence}
-            disabled={isUpdating}
-          >
-            {isUpdating ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Florence is thinking...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4 mr-2" />
+          onClick={handleAskFlorence}
+          disabled={isUpdating}
+        >
+          {isUpdating ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Florence is thinking...
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4 mr-2" />
                 Ask Florence for Personalized Goals
-              </>
-            )}
-          </Button>
+            </>
+          )}
+        </Button>
         </div>
       </div>
     </Card>

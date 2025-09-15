@@ -41,6 +41,7 @@ type User @model @auth(rules: [
   healthGoals: [HealthGoal] @hasMany(fields: ["id"])
   healthConditions: [HealthCondition] @hasMany(fields: ["id"])
   haicRewards: [HAICReward] @hasMany(fields: ["id"])
+  haicTransactions: [HAICTransaction] @hasMany(fields: ["id"])
 }
 
 type Expert @model @auth(rules: [
@@ -174,29 +175,6 @@ type PatientRecord @model @auth(rules: [
   updatedAt: AWSDateTime!
 }
 
-type AuditEvent @model @auth(rules: [
-  { allow: public, provider: apiKey, operations: [create, read, update] }
-]) {
-  id: ID!
-  timestamp: AWSDateTime!
-  userId: String!
-  action: String!
-  resourceId: String!
-  details: AWSJSON!
-  transactionHash: String
-  merkleRoot: String
-  batchId: String
-}
-
-type AuditBatch @model @auth(rules: [
-  { allow: public, provider: apiKey, operations: [create, read, update] }
-]) {
-  id: ID!
-  timestamp: AWSDateTime!
-  merkleRoot: String!
-  transactionHash: String!
-  events: [AuditEvent] @hasMany
-}
 
 type DietaryPlan @model @auth(rules: [
   { allow: public, provider: apiKey, operations: [create, read, update, delete] },
@@ -624,5 +602,156 @@ input UpdateAppointmentInput {
 }
 
 input DeleteAppointmentInput {
+  id: ID!
+}
+
+# Audit System
+type AuditEvent @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update] }
+]) {
+  id: ID!
+  timestamp: AWSDateTime!
+  userId: String!
+  action: String!
+  resourceId: String!
+  details: AWSJSON!
+  transactionHash: String
+  merkleRoot: String
+  batchId: String
+  severity: String!
+  category: String!
+  outcome: String!
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+}
+
+type AuditBatch @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update] }
+]) {
+  id: ID!
+  timestamp: AWSDateTime!
+  merkleRoot: String!
+  transactionHash: String!
+  status: String!
+  events: [AuditEvent] @hasMany
+}
+
+# HAIC Token System
+type HAICTransaction @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update] },
+  { allow: owner, operations: [create, read, update] }
+]) {
+  id: ID!
+  userId: ID!
+  type: String!
+  amount: Int!
+  balance: Int!
+  description: String!
+  transactionHash: String
+  blockNumber: Int
+  status: String!
+  gasUsed: Int
+  gasPrice: Float
+  recipientAddress: String
+  senderAddress: String
+  user: User @belongsTo(fields: ["userId"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+input CreateAuditEventInput {
+  id: ID!
+  timestamp: AWSDateTime!
+  userId: String!
+  action: String!
+  resourceId: String!
+  details: AWSJSON!
+  transactionHash: String
+  merkleRoot: String
+  batchId: String
+  severity: String!
+  category: String!
+  outcome: String!
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+}
+
+input UpdateAuditEventInput {
+  id: ID!
+  timestamp: AWSDateTime
+  userId: String
+  action: String
+  resourceId: String
+  details: AWSJSON
+  transactionHash: String
+  merkleRoot: String
+  batchId: String
+  severity: String
+  category: String
+  outcome: String
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+}
+
+input DeleteAuditEventInput {
+  id: ID!
+}
+
+input CreateAuditBatchInput {
+  id: ID!
+  timestamp: AWSDateTime!
+  merkleRoot: String!
+  transactionHash: String!
+  status: String!
+}
+
+input UpdateAuditBatchInput {
+  id: ID!
+  timestamp: AWSDateTime
+  merkleRoot: String
+  transactionHash: String
+  status: String
+}
+
+input DeleteAuditBatchInput {
+  id: ID!
+}
+
+input CreateHAICTransactionInput {
+  id: ID!
+  userId: ID!
+  type: String!
+  amount: Int!
+  balance: Int!
+  description: String!
+  transactionHash: String
+  blockNumber: Int
+  status: String!
+  gasUsed: Int
+  gasPrice: Float
+  recipientAddress: String
+  senderAddress: String
+}
+
+input UpdateHAICTransactionInput {
+  id: ID!
+  userId: ID
+  type: String
+  amount: Int
+  balance: Int
+  description: String
+  transactionHash: String
+  blockNumber: Int
+  status: String
+  gasUsed: Int
+  gasPrice: Float
+  recipientAddress: String
+  senderAddress: String
+}
+
+input DeleteHAICTransactionInput {
   id: ID!
 }
