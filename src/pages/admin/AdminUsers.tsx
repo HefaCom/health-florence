@@ -30,7 +30,8 @@ import {
   Stethoscope,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  Coins
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -48,6 +49,7 @@ import {
 import { toast } from "sonner";
 import { adminService } from "@/services/admin.service";
 import { User } from "@/services/user.service";
+import { xummService, HAICBalance } from "@/services/xumm.service";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -56,6 +58,7 @@ const AdminUsers = () => {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [haicBalances, setHaicBalances] = useState<HAICBalance[]>([]);
 
   useEffect(() => {
     loadUsers();
@@ -68,8 +71,12 @@ const AdminUsers = () => {
   const loadUsers = async () => {
     try {
       setIsLoading(true);
-      const userData = await adminService.getAllUsers();
+      const [userData, balanceData] = await Promise.all([
+        adminService.getAllUsers(),
+        xummService.getAllUserHAICBalances()
+      ]);
       setUsers(userData);
+      setHaicBalances(balanceData);
     } catch (error) {
       console.error('Error loading users:', error);
       toast.error('Failed to load users');
@@ -170,6 +177,11 @@ const AdminUsers = () => {
       <XCircle className="h-4 w-4 text-red-600" />;
   };
 
+  const getUserHAICBalance = (userId: string) => {
+    const balance = haicBalances.find(b => b.userId === userId);
+    return balance || { haicBalance: 0, xrpBalance: 0, walletAddress: null };
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -253,6 +265,9 @@ const AdminUsers = () => {
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>HAIC Balance</TableHead>
+                  {/* <TableHead>XRP Balance</TableHead>
+                  <TableHead>Wallet</TableHead> */}
                   <TableHead>Joined</TableHead>
                   <TableHead>Last Login</TableHead>
                   <TableHead>Actions</TableHead>
@@ -302,6 +317,29 @@ const AdminUsers = () => {
                           </span>
                         </div>
                       </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Coins className="h-3 w-3 text-yellow-600" />
+                          <span className="font-medium text-yellow-600">
+                            {getUserHAICBalance(user.id).haicBalance.toFixed(2)} HAIC
+                          </span>
+                        </div>
+                      </TableCell>
+                      {/* <TableCell>
+                        <span className="font-medium text-blue-600">
+                          {getUserHAICBalance(user.id).xrpBalance.toFixed(2)} XRP
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {getUserHAICBalance(user.id).walletAddress ? (
+                          <div className="text-xs text-muted-foreground">
+                            {getUserHAICBalance(user.id).walletAddress?.slice(0, 8)}...
+                            {getUserHAICBalance(user.id).walletAddress?.slice(-8)}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">No wallet</span>
+                        )}
+                      </TableCell> */}
                       <TableCell>{formatDate(user.createdAt)}</TableCell>
                       <TableCell>
                         {user.lastLoginAt ? (
@@ -321,9 +359,9 @@ const AdminUsers = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleStatusToggle(user.id, user.isActive)}>
+                            {/* <DropdownMenuItem onClick={() => handleStatusToggle(user.id, user.isActive)}>
                               {user.isActive ? 'Deactivate' : 'Activate'} User
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                             <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'user')}>
                               Set as User
                             </DropdownMenuItem>
@@ -333,12 +371,12 @@ const AdminUsers = () => {
                             <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'admin')}>
                               Set as Admin
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            {/* <DropdownMenuItem 
                               onClick={() => handleDeleteUser(user.id, `${user.firstName?.trim()} ${user.lastName?.trim()}`)}
                               className="text-red-600"
                             >
                               Delete User
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

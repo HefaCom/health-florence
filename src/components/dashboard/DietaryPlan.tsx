@@ -131,18 +131,63 @@ export function DietaryPlan({ className }: DietaryPlanProps) {
         ? userProfile.medicalConditions.split(',').map((c: string) => c.trim()).filter((c: string) => c)
         : [];
 
-      // Create personalized health profile
+      // Calculate BMI for more personalized recommendations
+      const bmi = userProfile.height && userProfile.weight 
+        ? (userProfile.weight / Math.pow(userProfile.height / 100, 2)).toFixed(1)
+        : null;
+
+      // Determine dietary goals based on health profile
+      let dietaryGoals = [];
+      if (bmi && parseFloat(bmi) > 25) {
+        dietaryGoals.push("weight management", "portion control");
+      } else if (bmi && parseFloat(bmi) < 18.5) {
+        dietaryGoals.push("healthy weight gain", "nutrient density");
+      }
+      
+      if (healthConditions.some(condition => condition.toLowerCase().includes('diabetes'))) {
+        dietaryGoals.push("blood sugar control", "low glycemic index");
+      }
+      if (healthConditions.some(condition => condition.toLowerCase().includes('heart'))) {
+        dietaryGoals.push("heart health", "low sodium", "omega-3 rich");
+      }
+      if (allergies.length > 0) {
+        dietaryGoals.push("allergy-safe alternatives");
+      }
+
+      // Create comprehensive personalized health profile
       const healthProfile = {
         height: userProfile.height || 175,
         weight: userProfile.weight || 72,
         age: age,
         gender: userProfile.gender || "unknown",
+        bmi: bmi,
         activityLevel: "moderate", // Could be enhanced with user input
         dietaryRestrictions: allergies,
         healthConditions: healthConditions,
         currentMedications: userProfile.currentMedications || "",
         bloodType: userProfile.bloodType || "",
-        existingDietaryPlans: dietaryItems
+        dietaryGoals: dietaryGoals,
+        existingDietaryPlans: dietaryItems,
+        // Add more personalization factors
+        userPreferences: {
+          mealFrequency: "3 main meals + 2 snacks",
+          cookingTime: "30-45 minutes",
+          cuisinePreferences: ["Mediterranean", "Asian", "Mediterranean"],
+          texturePreferences: ["varied"],
+          spiceLevel: "moderate",
+          // Track user's dietary history for better recommendations
+          completedMeals: dietaryItems.filter(item => item.isCompleted).map(item => item.name),
+          preferredCategories: dietaryItems.filter(item => item.isCompleted).map(item => item.category),
+          dislikedIngredients: [], // Could be enhanced with user feedback
+          favoriteCuisines: [], // Could be enhanced with user feedback
+          dietaryHistory: dietaryItems.length
+        },
+        nutritionalNeeds: {
+          calorieTarget: userProfile.weight ? Math.round(userProfile.weight * 25) : 2000,
+          proteinTarget: userProfile.weight ? Math.round(userProfile.weight * 1.2) : 80,
+          fiberTarget: 25,
+          sodiumLimit: healthConditions.some(condition => condition.toLowerCase().includes('heart')) ? 1500 : 2300
+        }
       };
 
       const newRecommendations = await florenceService.generateDietaryRecommendations(healthProfile);
@@ -163,7 +208,7 @@ export function DietaryPlan({ className }: DietaryPlanProps) {
             isRecommended: true,
             isCompleted: false,
             time: recommendation.time,
-            reason: "AI Generated Personalized Recommendation"
+            reason: recommendation.reason || "AI Generated Personalized Recommendation"
           });
           createdPlans.push(newPlan);
         } catch (error) {
@@ -173,6 +218,35 @@ export function DietaryPlan({ className }: DietaryPlanProps) {
 
       // Update local state with new plans
       setDietaryItems(prev => [...prev, ...createdPlans]);
+
+      // Save user preferences for future personalization
+      if (user?.id && createdPlans.length > 0) {
+        try {
+          const updatedPreferences = {
+            ...userProfile.preferences,
+            dietaryPreferences: {
+              lastRecommendationDate: new Date().toISOString(),
+              totalRecommendations: (userProfile.preferences?.dietaryPreferences?.totalRecommendations || 0) + createdPlans.length,
+              preferredCategories: [...new Set([...(userProfile.preferences?.dietaryPreferences?.preferredCategories || []), ...createdPlans.map(plan => plan.category)])],
+              completedMeals: [...(userProfile.preferences?.dietaryPreferences?.completedMeals || []), ...createdPlans.filter(plan => plan.isCompleted).map(plan => plan.name)],
+              dietaryGoals: dietaryGoals,
+              lastHealthProfile: {
+                bmi: bmi,
+                dietaryFocus: dietaryGoals.join(', '),
+                healthConditions: healthConditions,
+                allergies: allergies
+              }
+            }
+          };
+
+          await userService.updateUser({
+            id: user.id,
+            preferences: JSON.stringify(updatedPreferences)
+          });
+        } catch (error) {
+          console.error('Error saving user preferences:', error);
+        }
+      }
 
       // Award HAIC tokens for getting dietary recommendations
       if (createdPlans.length > 0 && user?.id) {

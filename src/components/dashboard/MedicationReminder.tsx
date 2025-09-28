@@ -33,7 +33,12 @@ export function MedicationReminder({
       </div>
       
       <div className="space-y-3">
-        {medications.map((med) => (
+        {medications.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground">
+            No medications recorded
+          </div>
+        ) : (
+          medications.map((med) => (
           <div
             key={med.id}
             className={cn(
@@ -76,7 +81,8 @@ export function MedicationReminder({
               )}
             </Button>
           </div>
-        ))}
+          ))
+        )}
       </div>
     </Card>
   );

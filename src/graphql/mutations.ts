@@ -65,6 +65,10 @@ export const createUser = /* GraphQL */ `mutation CreateUser(
       nextToken
       __typename
     }
+    healthMetrics {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -130,6 +134,10 @@ export const updateUser = /* GraphQL */ `mutation UpdateUser(
       nextToken
       __typename
     }
+    healthMetrics {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -192,6 +200,10 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
       __typename
     }
     haicTransactions {
+      nextToken
+      __typename
+    }
+    healthMetrics {
       nextToken
       __typename
     }
@@ -1924,6 +1936,192 @@ export const deleteHAICReward = /* GraphQL */ `mutation DeleteHAICReward(
 ` as GeneratedMutation<
   APITypes.DeleteHAICRewardMutationVariables,
   APITypes.DeleteHAICRewardMutation
+>;
+export const createHealthMetrics = /* GraphQL */ `mutation CreateHealthMetrics(
+  $input: CreateHealthMetricsInput!
+  $condition: ModelHealthMetricsConditionInput
+) {
+  createHealthMetrics(input: $input, condition: $condition) {
+    id
+    userId
+    heartRate
+    heartRateTarget
+    steps
+    stepsTarget
+    activityMinutes
+    activityTarget
+    sleepHours
+    sleepTarget
+    date
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateHealthMetricsMutationVariables,
+  APITypes.CreateHealthMetricsMutation
+>;
+export const updateHealthMetrics = /* GraphQL */ `mutation UpdateHealthMetrics(
+  $input: UpdateHealthMetricsInput!
+  $condition: ModelHealthMetricsConditionInput
+) {
+  updateHealthMetrics(input: $input, condition: $condition) {
+    id
+    userId
+    heartRate
+    heartRateTarget
+    steps
+    stepsTarget
+    activityMinutes
+    activityTarget
+    sleepHours
+    sleepTarget
+    date
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateHealthMetricsMutationVariables,
+  APITypes.UpdateHealthMetricsMutation
+>;
+export const deleteHealthMetrics = /* GraphQL */ `mutation DeleteHealthMetrics(
+  $input: DeleteHealthMetricsInput!
+  $condition: ModelHealthMetricsConditionInput
+) {
+  deleteHealthMetrics(input: $input, condition: $condition) {
+    id
+    userId
+    heartRate
+    heartRateTarget
+    steps
+    stepsTarget
+    activityMinutes
+    activityTarget
+    sleepHours
+    sleepTarget
+    date
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteHealthMetricsMutationVariables,
+  APITypes.DeleteHealthMetricsMutation
 >;
 export const createAuditEvent = /* GraphQL */ `mutation CreateAuditEvent(
   $input: CreateAuditEventInput!

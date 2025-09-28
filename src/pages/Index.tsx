@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { FloLogo } from "@/components/FloLogo";
 import { useAuth } from "@/contexts/AuthContext";
 import { userService } from "@/services/user.service";
+import { healthMetricsService } from "@/services/health-metrics.service";
 import { generateClient } from "aws-amplify/api";
 import { toast } from "sonner";
 
@@ -19,27 +20,41 @@ const Index = () => {
   const [userData, setUserData] = useState<any>(null);
   
   // Real data for medications from user profile
-  const [medications, setMedications] = useState([
-    {
-      id: "1",
-      name: "No medications recorded",
-      time: "N/A",
-      taken: false,
-      dosage: "N/A",
-    }
-  ]);
+  const [medications, setMedications] = useState([]);
 
   // Real appointments from database
-  const [appointments, setAppointments] = useState([
-    {
-      id: "1",
-      title: "No upcoming appointments",
-      doctor: "N/A",
-      location: "N/A",
-      date: "N/A",
-      time: "N/A",
+  const [appointments, setAppointments] = useState([]);
+
+  // Health metrics state
+  const [healthMetrics, setHealthMetrics] = useState({
+    heartRate: { value: 72, target: 80 },
+    steps: { value: 8500, target: 10000 },
+    activity: { value: 45, target: 60 },
+    sleep: { value: 7, target: 8 }
+  });
+  const [currentMetricsId, setCurrentMetricsId] = useState<string | null>(null);
+
+  // Load today's health metrics
+  const loadTodaysHealthMetrics = async () => {
+    if (user?.id) {
+      try {
+        const todaysMetrics = await healthMetricsService.getTodaysHealthMetrics(user.id);
+        if (todaysMetrics) {
+          setHealthMetrics({
+            heartRate: { value: todaysMetrics.heartRate, target: todaysMetrics.heartRateTarget },
+            steps: { value: todaysMetrics.steps, target: todaysMetrics.stepsTarget },
+            activity: { value: todaysMetrics.activityMinutes, target: todaysMetrics.activityTarget },
+            sleep: { value: todaysMetrics.sleepHours, target: todaysMetrics.sleepTarget }
+          });
+          setCurrentMetricsId(todaysMetrics.id);
+        }
+      } catch (error) {
+        console.error('Error loading today\'s health metrics:', error);
+        // Continue with default values if loading fails
+        console.log('Using default health metrics values');
+      }
     }
-  ]);
+  };
 
   // Fetch user data and appointments
   useEffect(() => {
@@ -52,6 +67,9 @@ const Index = () => {
           const userProfile = await userService.getUserByEmail(user.email);
           if (userProfile) {
             setUserData(userProfile);
+            
+            // Load today's health metrics
+            await loadTodaysHealthMetrics();
             
             // Parse medications from user data
             if (userProfile.currentMedications) {
@@ -144,6 +162,132 @@ const Index = () => {
     );
   };
 
+  // Save health metrics to database
+  const saveHealthMetrics = async (updatedMetrics: typeof healthMetrics) => {
+    if (!user?.id) return;
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (currentMetricsId) {
+        // Update existing metrics
+        await healthMetricsService.updateHealthMetrics({
+          id: currentMetricsId,
+          heartRate: updatedMetrics.heartRate.value,
+          heartRateTarget: updatedMetrics.heartRate.target,
+          steps: updatedMetrics.steps.value,
+          stepsTarget: updatedMetrics.steps.target,
+          activityMinutes: updatedMetrics.activity.value,
+          activityTarget: updatedMetrics.activity.target,
+          sleepHours: updatedMetrics.sleep.value,
+          sleepTarget: updatedMetrics.sleep.target,
+          date: today
+        });
+        console.log('Health metrics updated successfully');
+      } else {
+        // Create new metrics
+        const newMetrics = await healthMetricsService.createHealthMetrics({
+          userId: user.id,
+          heartRate: updatedMetrics.heartRate.value,
+          heartRateTarget: updatedMetrics.heartRate.target,
+          steps: updatedMetrics.steps.value,
+          stepsTarget: updatedMetrics.steps.target,
+          activityMinutes: updatedMetrics.activity.value,
+          activityTarget: updatedMetrics.activity.target,
+          sleepHours: updatedMetrics.sleep.value,
+          sleepTarget: updatedMetrics.sleep.target,
+          date: today
+        });
+        setCurrentMetricsId(newMetrics.id);
+        console.log('Health metrics created successfully');
+      }
+    } catch (error) {
+      console.error('Error saving health metrics:', error);
+      toast.error('Failed to save health metrics to database');
+    }
+  };
+
+  // Health metrics update handlers
+  const handleHeartRateChange = async (newValue: number) => {
+    const updatedMetrics = {
+      ...healthMetrics,
+      heartRate: { ...healthMetrics.heartRate, value: newValue }
+    };
+    setHealthMetrics(updatedMetrics);
+    await saveHealthMetrics(updatedMetrics);
+    toast.success(`Heart rate updated to ${newValue} bpm`);
+  };
+
+  const handleHeartRateTargetChange = async (newTarget: number) => {
+    const updatedMetrics = {
+      ...healthMetrics,
+      heartRate: { ...healthMetrics.heartRate, target: newTarget }
+    };
+    setHealthMetrics(updatedMetrics);
+    await saveHealthMetrics(updatedMetrics);
+    toast.success(`Heart rate target updated to ${newTarget} bpm`);
+  };
+
+  const handleStepsChange = async (newValue: number) => {
+    const updatedMetrics = {
+      ...healthMetrics,
+      steps: { ...healthMetrics.steps, value: newValue }
+    };
+    setHealthMetrics(updatedMetrics);
+    await saveHealthMetrics(updatedMetrics);
+    toast.success(`Steps updated to ${newValue.toLocaleString()}`);
+  };
+
+  const handleStepsTargetChange = async (newTarget: number) => {
+    const updatedMetrics = {
+      ...healthMetrics,
+      steps: { ...healthMetrics.steps, target: newTarget }
+    };
+    setHealthMetrics(updatedMetrics);
+    await saveHealthMetrics(updatedMetrics);
+    toast.success(`Steps target updated to ${newTarget.toLocaleString()}`);
+  };
+
+  const handleActivityChange = async (newValue: number) => {
+    const updatedMetrics = {
+      ...healthMetrics,
+      activity: { ...healthMetrics.activity, value: newValue }
+    };
+    setHealthMetrics(updatedMetrics);
+    await saveHealthMetrics(updatedMetrics);
+    toast.success(`Activity updated to ${newValue} minutes`);
+  };
+
+  const handleActivityTargetChange = async (newTarget: number) => {
+    const updatedMetrics = {
+      ...healthMetrics,
+      activity: { ...healthMetrics.activity, target: newTarget }
+    };
+    setHealthMetrics(updatedMetrics);
+    await saveHealthMetrics(updatedMetrics);
+    toast.success(`Activity target updated to ${newTarget} minutes`);
+  };
+
+  const handleSleepChange = async (newValue: number) => {
+    const updatedMetrics = {
+      ...healthMetrics,
+      sleep: { ...healthMetrics.sleep, value: newValue }
+    };
+    setHealthMetrics(updatedMetrics);
+    await saveHealthMetrics(updatedMetrics);
+    toast.success(`Sleep updated to ${newValue} hours`);
+  };
+
+  const handleSleepTargetChange = async (newTarget: number) => {
+    const updatedMetrics = {
+      ...healthMetrics,
+      sleep: { ...healthMetrics.sleep, target: newTarget }
+    };
+    setHealthMetrics(updatedMetrics);
+    await saveHealthMetrics(updatedMetrics);
+    toast.success(`Sleep target updated to ${newTarget} hours`);
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1">
@@ -191,35 +335,47 @@ const Index = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <HealthMetric
                 title="Heart Rate"
-                value={72}
-                target={80}
+                value={healthMetrics.heartRate.value}
+                target={healthMetrics.heartRate.target}
                 unit="bpm"
                 icon={<Heart className="h-5 w-5" />}
                 color="text-red-500"
+                onValueChange={handleHeartRateChange}
+                onTargetChange={handleHeartRateTargetChange}
+                isEditable={true}
               />
               <HealthMetric
                 title="Steps"
-                value={8500}
-                target={10000}
+                value={healthMetrics.steps.value}
+                target={healthMetrics.steps.target}
                 unit="steps"
                 icon={<Footprints className="h-5 w-5" />}
                 color="text-blue-500"
+                onValueChange={handleStepsChange}
+                onTargetChange={handleStepsTargetChange}
+                isEditable={true}
               />
               <HealthMetric
                 title="Activity"
-                value={45}
-                target={60}
+                value={healthMetrics.activity.value}
+                target={healthMetrics.activity.target}
                 unit="min"
                 icon={<Activity className="h-5 w-5" />}
                 color="text-green-500"
+                onValueChange={handleActivityChange}
+                onTargetChange={handleActivityTargetChange}
+                isEditable={true}
               />
               <HealthMetric
                 title="Sleep"
-                value={7}
-                target={8}
+                value={healthMetrics.sleep.value}
+                target={healthMetrics.sleep.target}
                 unit="hours"
                 icon={<Timer className="h-5 w-5" />}
                 color="text-purple-500"
+                onValueChange={handleSleepChange}
+                onTargetChange={handleSleepTargetChange}
+                isEditable={true}
               />
             </div>
 

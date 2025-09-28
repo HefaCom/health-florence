@@ -9,7 +9,12 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "codegen": "amplify codegen && node scripts/post-codegen.js"
+    "codegen": "amplify codegen && node scripts/post-codegen.js",
+    "fetch-balances": "node scripts/simple-xumm-fetcher.js",
+    "fetch-api-balance": "node scripts/simple-xumm-fetcher.js --api",
+    "fetch-all-balances": "node scripts/fetch-xumm-balances.js",
+    "test-wallets": "node scripts/test-wallets.js",
+    "test-xumm": "node scripts/test-xumm-connection.js"
   },
   "dependencies": {
     "@aws-amplify/api": "^6.3.11",

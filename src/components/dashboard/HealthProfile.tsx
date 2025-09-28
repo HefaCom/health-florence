@@ -91,10 +91,11 @@ export function HealthProfile({ className }: HealthProfileProps) {
           const userData = await userService.getUserByEmail(user.email);
           
           if (userData) {
+            console.log('Fetched user data:', userData);
             // Parse health data from user record
             const allergies = userData.allergies ? userData.allergies.split(',').map(a => a.trim()).filter(a => a) : [];
 
-            setHealthData({
+            const healthDataToSet = {
               height: userData.height || 0,
               weight: userData.weight || 0,
               gender: userData.gender || "",
@@ -106,7 +107,10 @@ export function HealthProfile({ className }: HealthProfileProps) {
                 relationship: "Emergency Contact",
                 phone: userData.emergencyContactPhone || ""
               }
-            });
+            };
+            
+            console.log('Setting health data:', healthDataToSet);
+            setHealthData(healthDataToSet);
           }
 
           // Fetch health conditions from the dedicated table
@@ -163,6 +167,9 @@ export function HealthProfile({ className }: HealthProfileProps) {
   };
 
   const calculateBMI = () => {
+    if (!healthData.height || !healthData.weight || healthData.height === 0 || healthData.weight === 0) {
+      return null;
+    }
     const heightInMeters = healthData.height / 100;
     const bmi = healthData.weight / (heightInMeters * heightInMeters);
     return bmi.toFixed(1);
@@ -325,7 +332,7 @@ export function HealthProfile({ className }: HealthProfileProps) {
   };
 
   const bmi = calculateBMI();
-  const bmiCategory = getBMICategory(parseFloat(bmi));
+  const bmiCategory = bmi ? getBMICategory(parseFloat(bmi)) : null;
 
   if (isLoading) {
     return (
@@ -380,16 +387,24 @@ export function HealthProfile({ className }: HealthProfileProps) {
         {!isPrivate && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{healthData.height}cm</div>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {healthData.height > 0 ? `${healthData.height}cm` : 'Not set'}
+              </div>
               <div className="text-xs text-muted-foreground">Height</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">{healthData.weight}kg</div>
+              <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                {healthData.weight > 0 ? `${healthData.weight}kg` : 'Not set'}
+              </div>
               <div className="text-xs text-muted-foreground">Weight</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{bmi}</div>
-              <div className={cn("text-xs", bmiCategory.color)}>{bmiCategory.category}</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {bmi || 'N/A'}
+              </div>
+              <div className={cn("text-xs", bmiCategory?.color || "text-muted-foreground")}>
+                {bmiCategory?.category || 'BMI not calculated'}
+              </div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600 dark:text-green-400">{healthConditions.length}</div>
@@ -401,6 +416,23 @@ export function HealthProfile({ className }: HealthProfileProps) {
 
       <ScrollArea className="h-[400px] p-4">
         <div className="space-y-4">
+          {/* Call to Action for Empty Profile */}
+          {(!healthData.height || !healthData.weight || !healthData.gender || !healthData.dateOfBirth) && (
+            <div className="p-4 rounded-lg border bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                  <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100">Complete Your Health Profile</h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    Add your height, weight, and other health information to get personalized recommendations from Florence AI.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Basic Information */}
           <div className="p-4 rounded-lg border bg-white dark:bg-card">
             <h4 className="font-medium mb-3 flex items-center">
@@ -527,25 +559,25 @@ export function HealthProfile({ className }: HealthProfileProps) {
                 <div className="text-sm text-muted-foreground">Height</div>
                 <div className="font-medium flex items-center">
                   <Ruler className="h-3 w-3 mr-1" />
-                  {isPrivate ? "***" : `${healthData.height} cm`}
+                  {isPrivate ? "***" : (healthData.height > 0 ? `${healthData.height} cm` : 'Not set')}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Weight</div>
                 <div className="font-medium flex items-center">
                   <Scale className="h-3 w-3 mr-1" />
-                  {isPrivate ? "***" : `${healthData.weight} kg`}
+                  {isPrivate ? "***" : (healthData.weight > 0 ? `${healthData.weight} kg` : 'Not set')}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Gender</div>
-                <div className="font-medium">{isPrivate ? "***" : healthData.gender}</div>
+                <div className="font-medium">{isPrivate ? "***" : (healthData.gender || 'Not set')}</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Date of Birth</div>
                 <div className="font-medium flex items-center">
                   <Calendar className="h-3 w-3 mr-1" />
-                  {isPrivate ? "***" : new Date(healthData.dateOfBirth).toLocaleDateString()}
+                  {isPrivate ? "***" : (healthData.dateOfBirth ? new Date(healthData.dateOfBirth).toLocaleDateString() : 'Not set')}
                 </div>
               </div>
             </div>
@@ -557,13 +589,13 @@ export function HealthProfile({ className }: HealthProfileProps) {
                     <div className="text-sm text-muted-foreground">Blood Type</div>
                     <div className="font-medium flex items-center">
                       <Heart className="h-3 w-3 mr-1" />
-                      {healthData.bloodType}
+                      {healthData.bloodType || 'Not set'}
                     </div>
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground">BMI</div>
-                    <div className={cn("font-medium", bmiCategory.color)}>
-                      {bmi} ({bmiCategory.category})
+                    <div className={cn("font-medium", bmiCategory?.color || "text-muted-foreground")}>
+                      {bmi ? `${bmi} (${bmiCategory?.category})` : 'Not calculated'}
                     </div>
                   </div>
                 </div>
@@ -941,12 +973,13 @@ export function HealthProfile({ className }: HealthProfileProps) {
           onClick={() => {
             // This would trigger Florence to update health profile
             // TODO: Implement Florence integration for health profile updates
+            toast.info("Florence integration for health profile updates coming soon!");
           }}
         >
           <Plus className="h-4 w-4 mr-2" />
           Ask Florence to Update Health Profile
         </Button>
-        </div>
+        </div> 
 
         {/* Medical Documents */}
         <div className="p-4 rounded-lg border bg-white dark:bg-card">

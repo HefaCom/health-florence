@@ -46,6 +46,7 @@ type User @model @auth(rules: [
   healthConditions: [HealthCondition] @hasMany(fields: ["id"])
   haicRewards: [HAICReward] @hasMany(fields: ["id"])
   haicTransactions: [HAICTransaction] @hasMany(fields: ["id"])
+  healthMetrics: [HealthMetrics] @hasMany(fields: ["id"])
 }
 
 type Expert @model @auth(rules: [
@@ -252,6 +253,26 @@ type HAICReward @model @auth(rules: [
   reason: String!
   category: String! # goal_completion, dietary_adherence, appointment_attendance, health_checkin
   transactionHash: String
+  user: User @belongsTo(fields: ["userId"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type HealthMetrics @model @auth(rules: [
+  { allow: public, provider: apiKey, operations: [create, read, update, delete] },
+  { allow: owner, operations: [create, read, update, delete] }
+]) {
+  id: ID!
+  userId: ID!
+  heartRate: Float!
+  heartRateTarget: Float!
+  steps: Int!
+  stepsTarget: Int!
+  activityMinutes: Float!
+  activityTarget: Float!
+  sleepHours: Float!
+  sleepTarget: Float!
+  date: AWSDate!
   user: User @belongsTo(fields: ["userId"])
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!

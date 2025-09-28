@@ -248,7 +248,7 @@ class UserService {
    */
   async getUserByEmail(email: string): Promise<User | null> {
     try {
-      // Use a simplified query to avoid authorization issues
+      // Use a comprehensive query to get all user data including health profile
       const listUsersSimple = /* GraphQL */ `
         query ListUsersSimple {
           listUsers {
@@ -258,6 +258,21 @@ class UserService {
               firstName
               lastName
               phoneNumber
+              dateOfBirth
+              address
+              city
+              state
+              zipCode
+              emergencyContactName
+              emergencyContactPhone
+              allergies
+              medicalConditions
+              currentMedications
+              height
+              weight
+              gender
+              bloodType
+              medicalDocuments
               role
               isActive
               loginCount

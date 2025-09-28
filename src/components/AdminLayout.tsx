@@ -277,7 +277,7 @@ export const AdminLayout = () => {
               </Tooltip>
             </TooltipProvider>
             
-            <TooltipProvider>
+            {/* <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative">
@@ -289,7 +289,7 @@ export const AdminLayout = () => {
                   <p>Notifications</p>
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
+            </TooltipProvider> */}
             
             <ThemeToggle />
             

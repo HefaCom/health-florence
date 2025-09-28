@@ -441,17 +441,59 @@ class GeminiService {
   }
 
   async generateDietaryRecommendations(healthProfile: any): Promise<any[]> {
-    const prompt = `${FLORENCE_RULES}
+    // Calculate BMI for more personalized recommendations
+    const bmi = healthProfile.weight && healthProfile.height 
+      ? (healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1)
+      : null;
+    
+    // Determine dietary focus based on health profile
+    let dietaryFocus = "balanced nutrition";
+    if (healthProfile.healthConditions?.length > 0) {
+      if (healthProfile.healthConditions.some((c: string) => c.toLowerCase().includes('diabetes'))) {
+        dietaryFocus = "blood sugar management";
+      } else if (healthProfile.healthConditions.some((c: string) => c.toLowerCase().includes('heart'))) {
+        dietaryFocus = "heart health";
+      } else if (healthProfile.healthConditions.some((c: string) => c.toLowerCase().includes('weight'))) {
+        dietaryFocus = "weight management";
+      }
+    } else if (bmi && parseFloat(bmi) > 25) {
+      dietaryFocus = "weight management";
+    } else if (bmi && parseFloat(bmi) < 18.5) {
+      dietaryFocus = "healthy weight gain";
+    }
 
-Generate 3-5 dietary recommendations based on this health profile:
-${JSON.stringify(healthProfile, null, 2)}
+    const prompt = `You are Florence, a personalized AI nutritionist. Generate 4-6 UNIQUE, HIGHLY PERSONALIZED dietary recommendations for this specific user.
 
-Provide recommendations in this JSON format:
+USER HEALTH PROFILE:
+- Age: ${healthProfile.age || 'Not specified'}
+- Gender: ${healthProfile.gender || 'Not specified'}
+- Height: ${healthProfile.height || 'Not specified'} cm
+- Weight: ${healthProfile.weight || 'Not specified'} kg
+- BMI: ${bmi || 'Not calculated'}
+- Blood Type: ${healthProfile.bloodType || 'Not specified'}
+- Allergies/Dietary Restrictions: ${healthProfile.dietaryRestrictions?.join(', ') || 'None specified'}
+- Health Conditions: ${healthProfile.healthConditions?.join(', ') || 'None specified'}
+- Current Medications: ${healthProfile.currentMedications || 'None specified'}
+- Dietary Focus: ${dietaryFocus}
+
+EXISTING DIETARY PLANS: ${healthProfile.existingDietaryPlans?.length || 0} plans already created
+
+PERSONALIZATION REQUIREMENTS:
+1. Create UNIQUE meal combinations that this specific user hasn't seen before
+2. Consider their allergies, health conditions, and medications
+3. Adjust portion sizes based on their BMI and weight goals
+4. Include foods that complement their blood type (if specified)
+5. Avoid repeating meals from their existing dietary plans
+6. Consider cultural preferences and common dietary patterns
+7. Make recommendations specific to their health conditions
+8. Vary meal types, cuisines, and preparation methods
+
+Generate recommendations in this JSON format:
 {
   "recommendations": [
     {
-      "id": "unique_id",
-      "name": "Meal name",
+      "id": "unique_id_${Date.now()}_${Math.random().toString(36).substr(2, 9)}",
+      "name": "Creative, specific meal name",
       "category": "breakfast|lunch|dinner|snack",
       "calories": number,
       "protein": number,
@@ -460,10 +502,12 @@ Provide recommendations in this JSON format:
       "fiber": number,
       "isRecommended": true,
       "time": "HH:MM AM/PM",
-      "reason": "Why this is recommended"
+      "reason": "Specific reason why this meal is perfect for this user's health profile, conditions, and goals"
     }
   ]
-}`;
+}
+
+IMPORTANT: Make each recommendation unique and highly personalized to this specific user's health profile. Avoid generic recommendations.`;
 
     try {
       const response = await ai.models.generateContent({
@@ -491,28 +535,83 @@ Provide recommendations in this JSON format:
   }
 
   async generateHealthGoals(healthProfile: any): Promise<any[]> {
-    const prompt = `${FLORENCE_RULES}
+    // Calculate BMI and determine health focus areas
+    const bmi = healthProfile.weight && healthProfile.height 
+      ? (healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1)
+      : null;
+    
+    let healthFocus = "general wellness";
+    if (bmi) {
+      const bmiNum = parseFloat(bmi);
+      if (bmiNum < 18.5) healthFocus = "healthy weight gain";
+      else if (bmiNum < 25) healthFocus = "maintain healthy weight";
+      else if (bmiNum < 30) healthFocus = "weight management";
+      else healthFocus = "weight loss and health improvement";
+    }
 
-Generate 3-5 health goals based on this health profile:
-${JSON.stringify(healthProfile, null, 2)}
+    // Determine priority health areas based on profile
+    const priorityAreas = [];
+    if (healthProfile.healthConditions?.length > 0) {
+      priorityAreas.push("medical management");
+    }
+    if (healthProfile.age > 50) {
+      priorityAreas.push("age-appropriate health maintenance");
+    }
+    if (healthProfile.gender === "female") {
+      priorityAreas.push("women's health");
+    }
+    if (healthProfile.currentMedications) {
+      priorityAreas.push("medication management");
+    }
 
-Provide goals in this JSON format:
+    const prompt = `You are Florence, a personalized AI health coach. Generate 4-6 HIGHLY PERSONALIZED health goals for this specific user.
+
+USER HEALTH PROFILE:
+- Age: ${healthProfile.age || 'Not specified'}
+- Gender: ${healthProfile.gender || 'Not specified'}
+- Height: ${healthProfile.height || 'Not specified'} cm
+- Weight: ${healthProfile.weight || 'Not specified'} kg
+- BMI: ${bmi || 'Not calculated'}
+- Blood Type: ${healthProfile.bloodType || 'Not specified'}
+- Health Conditions: ${healthProfile.healthConditions?.join(', ') || 'None specified'}
+- Current Medications: ${healthProfile.currentMedications || 'None specified'}
+- Activity Level: ${healthProfile.activityLevel || 'Not specified'}
+- Health Focus: ${healthFocus}
+- Priority Areas: ${priorityAreas.join(', ') || 'General wellness'}
+
+EXISTING GOALS: ${healthProfile.currentGoals?.length || 0} goals already set
+
+PERSONALIZATION REQUIREMENTS:
+1. Create UNIQUE goals that are specific to this user's health profile
+2. Consider their age, gender, BMI, and health conditions
+3. Adjust difficulty and targets based on their current health status
+4. Include goals that address their specific health conditions or risk factors
+5. Avoid repeating goals they already have
+6. Make goals relevant to their life stage and health priorities
+7. Consider their blood type and any medications they're taking
+8. Include both short-term (1-2 weeks) and medium-term (1-3 months) goals
+9. Vary goal categories (fitness, nutrition, mental, lifestyle, medical)
+10. Make each goal specific, measurable, and achievable for THIS user
+
+Generate goals in this JSON format:
 {
   "goals": [
     {
-      "id": "unique_id",
-      "title": "Goal title",
-      "description": "Detailed description",
+      "id": "unique_id_${Date.now()}_${Math.random().toString(36).substr(2, 9)}",
+      "title": "Specific, personalized goal title",
+      "description": "Detailed description explaining why this goal is important for this specific user's health profile, conditions, and goals",
       "category": "fitness|nutrition|mental|medical|lifestyle",
       "target": number,
-      "unit": "steps|minutes|kg|mmHg|etc",
+      "unit": "steps|minutes|kg|mmHg|glasses|servings|hours|sessions|etc",
       "deadline": "YYYY-MM-DD",
       "priority": "low|medium|high",
       "reward": number,
-      "reason": "Why this goal is important"
+      "reason": "Specific reason why this goal is perfect for this user's health profile, conditions, and current needs"
     }
   ]
-}`;
+}
+
+IMPORTANT: Make each goal highly personalized to this specific user's health profile. Avoid generic recommendations.`;
 
     try {
       const response = await ai.models.generateContent({
@@ -538,63 +637,121 @@ Provide goals in this JSON format:
   }
 
   private getDefaultDietaryRecommendations() {
-    return [
+    // More diverse default recommendations to avoid repetition
+    const defaultMeals = [
       {
-        id: "1",
-        name: "Oatmeal with Berries and Nuts",
-        category: "breakfast",
-        calories: 280,
-        protein: 12,
-        carbs: 45,
-        fat: 8,
+        id: "default_1",
+        name: "Mediterranean Veggie Wrap with Hummus",
+        category: "lunch",
+        calories: 320,
+        protein: 15,
+        carbs: 35,
+        fat: 12,
         fiber: 8,
         isRecommended: true,
-        time: "8:00 AM",
-        reason: "High fiber content helps with blood sugar control"
+        time: "12:00 PM",
+        reason: "Rich in fiber and plant-based protein for sustained energy"
       },
       {
-        id: "2",
-        name: "Grilled Salmon with Quinoa",
-        category: "lunch",
-        calories: 420,
-        protein: 35,
+        id: "default_2",
+        name: "Greek Yogurt Parfait with Mixed Berries",
+        category: "breakfast",
+        calories: 250,
+        protein: 18,
         carbs: 30,
-        fat: 18,
+        fat: 6,
         fiber: 6,
         isRecommended: true,
-        time: "12:30 PM",
-        reason: "Omega-3 fatty acids support heart health"
+        time: "8:00 AM",
+        reason: "Probiotics and antioxidants for digestive and immune health"
+      },
+      {
+        id: "default_3",
+        name: "Asian-Inspired Tofu Stir-Fry with Brown Rice",
+        category: "dinner",
+        calories: 380,
+        protein: 22,
+        carbs: 45,
+        fat: 14,
+        fiber: 7,
+        isRecommended: true,
+        time: "6:30 PM",
+        reason: "Complete plant-based protein with essential amino acids"
+      },
+      {
+        id: "default_4",
+        name: "Avocado Toast with Sprouted Bread",
+        category: "breakfast",
+        calories: 290,
+        protein: 12,
+        carbs: 28,
+        fat: 16,
+        fiber: 9,
+        isRecommended: true,
+        time: "7:30 AM",
+        reason: "Healthy monounsaturated fats for heart health and satiety"
       }
     ];
+    
+    // Return 2-3 random meals to add variety
+    return defaultMeals.sort(() => 0.5 - Math.random()).slice(0, 3);
   }
 
   private getDefaultHealthGoals() {
-    return [
+    // More diverse default goals to provide variety
+    const defaultGoals = [
       {
-        id: "1",
-        title: "Daily Steps Goal",
-        description: "Walk 10,000 steps daily for better cardiovascular health",
-        category: "fitness",
-        target: 10000,
-        unit: "steps",
-        deadline: "2024-12-31",
-        priority: "high",
-        reward: 50,
-        reason: "Improves cardiovascular health and overall fitness"
-      },
-      {
-        id: "2",
-        title: "Sleep Quality",
-        description: "Get 8 hours of quality sleep per night",
+        id: "default_1",
+        title: "Increase Daily Water Intake",
+        description: "Drink at least 8 glasses of water throughout the day to stay properly hydrated and support overall health",
         category: "lifestyle",
         target: 8,
-        unit: "hours",
-        deadline: "2024-12-31",
+        unit: "glasses",
+        deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 weeks from now
         priority: "medium",
-        reward: 30,
-        reason: "Essential for recovery and overall health"
+        reward: 25,
+        reason: "Proper hydration supports metabolism, energy levels, and overall health"
+      },
+      {
+        id: "default_2",
+        title: "Daily Mindfulness Practice",
+        description: "Practice 10 minutes of mindfulness meditation or deep breathing exercises daily to reduce stress and improve mental clarity",
+        category: "mental",
+        target: 10,
+        unit: "minutes",
+        deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 weeks from now
+        priority: "medium",
+        reward: 40,
+        reason: "Mindfulness reduces stress, improves focus, and supports emotional well-being"
+      },
+      {
+        id: "default_3",
+        title: "Strength Training Sessions",
+        description: "Complete 2-3 strength training sessions per week to build muscle, improve bone density, and boost metabolism",
+        category: "fitness",
+        target: 2,
+        unit: "sessions per week",
+        deadline: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 4 weeks from now
+        priority: "high",
+        reward: 75,
+        reason: "Strength training improves muscle mass, bone health, and metabolic function"
+      },
+      {
+        id: "default_4",
+        title: "Increase Vegetable Intake",
+        description: "Eat at least 5 servings of vegetables daily to boost nutrient intake and support immune function",
+        category: "nutrition",
+        target: 5,
+        unit: "servings",
+        deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 weeks from now
+        priority: "high",
+        reward: 50,
+        reason: "Vegetables provide essential vitamins, minerals, and antioxidants for optimal health"
       }
     ];
+    
+    // Return 2-3 random goals to add variety
+    return defaultGoals.sort(() => 0.5 - Math.random()).slice(0, 3);
   }
 }
 

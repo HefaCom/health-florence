@@ -145,23 +145,59 @@ export function HealthGoals({ className }: HealthGoalsProps) {
         ? new Date().getFullYear() - new Date(userProfile.dateOfBirth).getFullYear()
         : 30;
 
-      // Parse health conditions
+      // Parse health conditions and allergies
       const healthConditions = userProfile.medicalConditions 
         ? userProfile.medicalConditions.split(',').map((c: string) => c.trim()).filter((c: string) => c)
         : [];
+      
+      const allergies = userProfile.allergies 
+        ? userProfile.allergies.split(',').map((a: string) => a.trim()).filter((a: string) => a)
+        : [];
 
-      // Create personalized health profile
+      // Calculate BMI
+      const bmi = userProfile.weight && userProfile.height 
+        ? (userProfile.weight / Math.pow(userProfile.height / 100, 2)).toFixed(1)
+        : null;
+
+      // Determine health focus based on BMI and conditions
+      let healthFocus = "general wellness";
+      if (bmi) {
+        const bmiNum = parseFloat(bmi);
+        if (bmiNum < 18.5) healthFocus = "healthy weight gain";
+        else if (bmiNum < 25) healthFocus = "maintain healthy weight";
+        else if (bmiNum < 30) healthFocus = "weight management";
+        else healthFocus = "weight loss and health improvement";
+      }
+
+      // Create comprehensive personalized health profile
       const healthProfile = {
         height: userProfile.height || 175,
         weight: userProfile.weight || 72,
         age: age,
         gender: userProfile.gender || "unknown",
-        activityLevel: "moderate", // Could be enhanced with user input
+        bmi: bmi,
+        bloodType: userProfile.bloodType || "",
+        allergies: allergies,
         healthConditions: healthConditions,
         currentMedications: userProfile.currentMedications || "",
-        bloodType: userProfile.bloodType || "",
+        activityLevel: "moderate",
+        healthFocus: healthFocus,
         currentGoals: goals,
-        existingHealthConditions: healthConditions
+        existingHealthConditions: healthConditions,
+        userPreferences: {
+          goalCategories: goals.map(g => g.category),
+          completedGoals: goals.filter(g => g.isCompleted).length,
+          averageReward: goals.length > 0 ? Math.round(goals.reduce((sum, g) => sum + (g.reward || 0), 0) / goals.length) : 0,
+          preferredDeadline: "2-4 weeks", // Could be learned from user behavior
+          difficultyPreference: "moderate" // Could be learned from user behavior
+        },
+        healthMetrics: {
+          // Could include current health metrics if available
+          heartRate: 72,
+          steps: 8500,
+          sleep: 7,
+          activity: 45
+        }
       };
 
       const newGoals = await florenceService.generateHealthGoals(healthProfile, goals);
@@ -191,10 +227,51 @@ export function HealthGoals({ className }: HealthGoalsProps) {
         }
       }
 
+      // Award HAIC tokens for getting AI recommendations
+      try {
+        await haicTokenService.distributeReward(
+          user.id,
+          25, // 25 HAIC tokens for getting AI recommendations
+          "Received personalized health goal recommendations from Florence AI",
+          "ai_recommendation"
+        );
+        toast.success(`Florence has created ${createdGoals.length} personalized health goals for you! You earned 25 HAIC tokens! 🎉`);
+      } catch (error) {
+        console.error('Error awarding HAIC tokens:', error);
+        toast.success(`Florence has created ${createdGoals.length} personalized health goals for you!`);
+      }
+
+      // Update user preferences with goal generation data
+      try {
+        const currentPreferences = userProfile.preferences ? JSON.parse(userProfile.preferences) : {};
+        const updatedPreferences = {
+          ...currentPreferences,
+          healthGoals: {
+            lastRecommendationDate: new Date().toISOString(),
+            totalRecommendations: (currentPreferences.healthGoals?.totalRecommendations || 0) + 1,
+            preferredCategories: [...new Set([...goals.map(g => g.category), ...newGoals.map(g => g.category)])],
+            completedGoals: goals.filter(g => g.isCompleted).length,
+            averageReward: goals.length > 0 ? Math.round(goals.reduce((sum, g) => sum + (g.reward || 0), 0) / goals.length) : 0,
+            lastHealthProfile: {
+              bmi: bmi,
+              healthFocus: healthFocus,
+              healthConditions: healthConditions,
+              allergies: allergies
+            }
+          }
+        };
+
+        await userService.updateUser({
+          id: user.id,
+          preferences: JSON.stringify(updatedPreferences)
+        });
+      } catch (error) {
+        console.error('Error updating user preferences:', error);
+        // Don't show error to user as this is not critical
+      }
+
       // Update local state with new goals
       setGoals(prev => [...prev, ...createdGoals]);
-
-      toast.success(`Florence has created ${createdGoals.length} personalized health goals for you!`);
     } catch (error) {
       console.error('Error updating health goals:', error);
       toast.error("Failed to update health goals");

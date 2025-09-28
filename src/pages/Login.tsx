@@ -167,16 +167,16 @@ const Login = () => {
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-border"></div>
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
+                {/* <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                </div>
+                </div> */}
               </div>
 
               <div className="mt-6 flex flex-col space-y-3">
-                <Button variant="outline" className="rounded-full h-12">
+                {/* <Button variant="outline" className="rounded-full h-12">
                   <Mail className="mr-2 h-5 w-5" />
                   Login with Google
-                </Button>
+                </Button> */}
 
                 <div className="flex text-sm justify-center">
                   <span className="text-muted-foreground">Don't have an account?</span>

@@ -30,9 +30,9 @@ const AdminSettings = () => {
       <Tabs defaultValue="general">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          {/* <TabsTrigger value="notifications">Notifications</TabsTrigger> */}
           <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="system">System</TabsTrigger>
+          {/* <TabsTrigger value="system">System</TabsTrigger> */}
         </TabsList>
         
         <TabsContent value="general" className="space-y-4 mt-4">

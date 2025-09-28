@@ -62,6 +62,10 @@ export const getUser = /* GraphQL */ `query GetUser($id: ID!) {
       nextToken
       __typename
     }
+    healthMetrics {
+      nextToken
+      __typename
+    }
     owner
     __typename
   }
@@ -920,6 +924,96 @@ export const listHAICRewards = /* GraphQL */ `query ListHAICRewards(
 ` as GeneratedQuery<
   APITypes.ListHAICRewardsQueryVariables,
   APITypes.ListHAICRewardsQuery
+>;
+export const getHealthMetrics = /* GraphQL */ `query GetHealthMetrics($id: ID!) {
+  getHealthMetrics(id: $id) {
+    id
+    userId
+    heartRate
+    heartRateTarget
+    steps
+    stepsTarget
+    activityMinutes
+    activityTarget
+    sleepHours
+    sleepTarget
+    date
+    user {
+      id
+      email
+      firstName
+      lastName
+      phoneNumber
+      dateOfBirth
+      address
+      city
+      state
+      zipCode
+      emergencyContactName
+      emergencyContactPhone
+      allergies
+      medicalConditions
+      currentMedications
+      height
+      weight
+      gender
+      bloodType
+      role
+      isActive
+      lastLoginAt
+      loginCount
+      preferences
+      notificationSettings
+      privacySettings
+      subscriptionTier
+      subscriptionExpiresAt
+      profilePicture
+      medicalDocuments
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    createdAt
+    updatedAt
+    owner
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetHealthMetricsQueryVariables,
+  APITypes.GetHealthMetricsQuery
+>;
+export const listHealthMetrics = /* GraphQL */ `query ListHealthMetrics(
+  $filter: ModelHealthMetricsFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listHealthMetrics(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      heartRate
+      heartRateTarget
+      steps
+      stepsTarget
+      activityMinutes
+      activityTarget
+      sleepHours
+      sleepTarget
+      date
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListHealthMetricsQueryVariables,
+  APITypes.ListHealthMetricsQuery
 >;
 export const getAuditEvent = /* GraphQL */ `query GetAuditEvent($id: ID!) {
   getAuditEvent(id: $id) {
