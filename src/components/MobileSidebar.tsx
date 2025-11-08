@@ -13,7 +13,8 @@ import {
   LogOut,
   Apple,
   Target,
-  UserCheck
+  UserCheck,
+  Bot
 } from "lucide-react";
 
 interface MobileSidebarProps {
@@ -49,6 +50,11 @@ export const MobileSidebar = ({ open, onClose }: MobileSidebarProps) => {
       name: "Health Profile",
       path: "/health-profile",
       icon: <UserCheck className="h-5 w-5" />
+    },
+    {
+      name: "Florence AI",
+      path: "/florence",
+      icon: <Bot className="h-5 w-5" />
     },
     {
       name: "Appointments",

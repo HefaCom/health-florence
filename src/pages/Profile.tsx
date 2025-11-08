@@ -644,7 +644,7 @@ const Profile = () => {
           </Card>
 
           {/* Profile Picture Upload */}
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Profile Picture</CardTitle>
               <CardDescription>
@@ -657,7 +657,7 @@ const Profile = () => {
                 onPictureUpdate={handleProfilePictureUpdate}
               />
             </CardContent>
-          </Card>
+          </Card> */}
           
           <Card>
             <CardHeader>

@@ -965,33 +965,33 @@ export function HealthProfile({ className }: HealthProfileProps) {
               Save Changes
             </Button>
           )}
-          
-        <Button 
+           {/* // This would trigger Florence to update health profile
+           // TODO: Implement Florence integration for health profile updates */}
+        {/* <Button 
           variant="outline" 
           size="sm" 
             className="flex-1 rounded-full"
           onClick={() => {
-            // This would trigger Florence to update health profile
-            // TODO: Implement Florence integration for health profile updates
+           
             toast.info("Florence integration for health profile updates coming soon!");
           }}
         >
           <Plus className="h-4 w-4 mr-2" />
           Ask Florence to Update Health Profile
-        </Button>
+        </Button> */}
         </div> 
 
         {/* Medical Documents */}
         <div className="p-4 rounded-lg border bg-white dark:bg-card">
-          <div className="flex items-center justify-between mb-3">
+          {/* <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium">Medical Documents</h4>
             <Badge variant="secondary" className="text-xs">
               {medicalDocuments.length} document(s)
             </Badge>
-          </div>
+          </div> */}
           
           <div className="space-y-3">
-            {medicalDocuments.length === 0 ? (
+            {/* {medicalDocuments.length === 0 ? (
               <div className="text-center py-4 text-gray-500">
                 <p className="text-sm">No medical documents uploaded</p>
               </div>
@@ -1027,9 +1027,9 @@ export function HealthProfile({ className }: HealthProfileProps) {
                   </div>
                 </div>
               ))
-            )}
+            )} */}
             
-            <FileUpload
+            {/* <FileUpload
               onUploadComplete={handleMedicalDocumentUpload}
               options={{
                 category: 'medical-documents',
@@ -1045,7 +1045,7 @@ export function HealthProfile({ className }: HealthProfileProps) {
               multiple={true}
               maxFiles={5}
               className="mt-3"
-            />
+            /> */}
           </div>
         </div>
       </div>

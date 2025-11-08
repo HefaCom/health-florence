@@ -19,6 +19,7 @@ import Appointments from "./pages/Appointments";
 import FindExpert from "./pages/FindExpert";
 import Insurance from "./pages/Insurance";
 import Profile from "./pages/Profile";
+import FlorencePage from "./pages/Florence";
 
 // Expert portal pages
 import ExpertDashboard from "./pages/expert/ExpertDashboard";
@@ -94,6 +95,7 @@ const App = () => (
                   <Route path="appointments/new" element={<Appointments />} />
                   <Route path="insurance" element={<Insurance />} />
                   <Route path="profile" element={<Profile />} />
+                  <Route path="florence" element={<FlorencePage />} />
                 </Route>
                 
                 {/* Admin Routes */}

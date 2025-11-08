@@ -75,9 +75,12 @@ export function NavigationBar({
           <a href="/appointments" className="font-medium hover:text-primary transition-colors">
             Appointments
           </a>
-                          <a href="/find-expert" className="font-medium hover:text-primary transition-colors">
-                  Find Expert
-                </a>
+          <a href="/florence" className="font-medium hover:text-primary transition-colors">
+            Florence AI
+          </a>
+          <a href="/find-expert" className="font-medium hover:text-primary transition-colors">
+            Find Expert
+          </a>
           {/* <a href="/insurance" className="font-medium hover:text-primary transition-colors">
             Insurance
           </a> */}

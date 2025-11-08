@@ -16,7 +16,8 @@ import {
   Target,
   UserCheck,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Bot
 } from "lucide-react";
 
 export const DesktopSidebar = () => {
@@ -43,6 +44,11 @@ export const DesktopSidebar = () => {
       name: "Health Profile",
       path: "/health-profile",
       icon: <UserCheck className="h-5 w-5" />
+    },
+    {
+      name: "Florence AI",
+      path: "/florence",
+      icon: <Bot className="h-5 w-5" />
     },
     {
       name: "Appointments",

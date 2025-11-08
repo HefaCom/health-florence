@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Send, Mic, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,8 +6,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { FloLogoSmall } from "@/components/FloLogo";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { florenceService } from "@/services/florence.service";
+import { florenceService, HealthContext } from "@/services/florence.service";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { useAuth } from "@/contexts/AuthContext";
+import { userService } from "@/services/user.service";
+import { dietaryPlanService } from "@/services/dietary-plan.service";
+import { healthGoalService } from "@/services/health-goal.service";
 
 type Message = {
   id: string;
@@ -16,21 +20,83 @@ type Message = {
   timestamp: Date;
 };
 
+interface FlorenceAction {
+  type: 'update_dietary' | 'update_goals' | 'update_profile' | 'award_tokens';
+  data: any;
+}
+
 interface ChatInterfaceProps {
   onClose?: () => void;
 }
 
 export function ChatInterface({ onClose }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      text: "Hello! I'm Florence, your health assistant. How can I help you today?",
-      sender: "florence",
-      timestamp: new Date(),
-    },
-  ]);
-  const [inputValue, setInputValue] = useState("");
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [healthContext, setHealthContext] = useState<HealthContext | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    const initializeChat = async () => {
+      if (!user) {
+        setMessages([
+          {
+            id: "1",
+            text: "Hello! I'm Florence, your health assistant. Please log in to get personalized advice.",
+            sender: "florence",
+            timestamp: new Date(),
+          },
+        ]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Start with a personalized welcome message
+      const welcomeText = `Hello, ${user.firstName || user.email}! I'm Florence, your personal AI health assistant. How can I help you on your wellness journey today?`;
+      setMessages([
+        {
+          id: "1",
+          text: welcomeText,
+          sender: "florence",
+          timestamp: new Date(),
+        },
+      ]);
+      
+      // Fetch user data to build context
+      try {
+        const [profile, dietaryPlans, healthGoals] = await Promise.all([
+          userService.getUser(user.id),
+          dietaryPlanService.getDietaryPlansByUserId(user.id),
+          healthGoalService.getHealthGoalsByUserId(user.id),
+        ]);
+
+        const context: HealthContext = {
+          healthProfile: profile || {},
+          dietaryItems: dietaryPlans || [],
+          healthGoals: healthGoals || [],
+          userPreferences: profile?.preferences 
+            ? (typeof profile.preferences === 'string' 
+                ? JSON.parse(profile.preferences) 
+                : profile.preferences)
+            : {}
+        };
+        setHealthContext(context);
+      } catch (error) {
+        console.error("Failed to load user health context:", error);
+        toast({
+          title: "Error",
+          description: "Could not load your health data for AI personalization.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeChat();
+  }, [user, toast]);
+
 
   const handleSend = async () => {
     if (!inputValue.trim()) return;
@@ -58,13 +124,7 @@ export function ChatInterface({ onClose }: ChatInterfaceProps) {
 
     try {
       // Get AI response from Florence service
-      const florenceResponse = await florenceService.processUserRequest(userMessage, {
-        // Add context here if needed
-        dietaryItems: [],
-        healthGoals: [],
-        healthProfile: {},
-        userPreferences: {}
-      });
+      const florenceResponse = await florenceService.processUserRequest(userMessage, healthContext || {});
 
       // Remove loading message and add AI response
       setMessages((prev) => {
@@ -79,7 +139,7 @@ export function ChatInterface({ onClose }: ChatInterfaceProps) {
 
       // Handle any actions from Florence
       if (florenceResponse.action) {
-        handleFlorenceAction(florenceResponse.action);
+        handleFlorenceAction(florenceResponse.action as FlorenceAction);
       }
 
     } catch (error) {
@@ -98,7 +158,7 @@ export function ChatInterface({ onClose }: ChatInterfaceProps) {
     }
   };
 
-  const handleFlorenceAction = (action: any) => {
+  const handleFlorenceAction = (action: FlorenceAction) => {
     switch (action.type) {
       case 'update_dietary':
         console.log('Florence wants to update dietary plan:', action.data);

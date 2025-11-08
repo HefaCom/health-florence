@@ -1,6 +1,8 @@
 import { toast } from "sonner";
 import { geminiService, FlorenceResponse, HealthContext } from "./gemini.service";
 
+export type { HealthContext };
+
 // Types for Florence's responses and actions
 export interface DietaryRecommendation {
   id: string;

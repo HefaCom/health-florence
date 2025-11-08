@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Initialize Gemini AI client
+// Initialize Gemini AI client for v2.0
 const ai = new GoogleGenAI({
   apiKey: "AIzaSyCoenWxsPKbBeg6oK7ubKbxHLRrFxbqA5Q"
 });
@@ -284,7 +284,7 @@ class GeminiService {
         console.log(`Attempt ${attempt}/${maxRetries}: Sending prompt to Gemini:`, fullPrompt.substring(0, 200) + '...');
         
         const result = await ai.models.generateContent({
-          model: "gemini-1.5-flash",
+          model: "gemini-2.0-flash-exp",
           contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
         });
         
@@ -511,7 +511,7 @@ IMPORTANT: Make each recommendation unique and highly personalized to this speci
 
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash-exp",
         contents: [{ role: "user", parts: [{ text: prompt }] }]
       });
 
@@ -615,7 +615,7 @@ IMPORTANT: Make each goal highly personalized to this specific user's health pro
 
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash-exp",
         contents: [{ role: "user", parts: [{ text: prompt }] }]
       });
 
