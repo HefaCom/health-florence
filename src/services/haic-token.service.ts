@@ -1,6 +1,8 @@
 import { generateClient } from 'aws-amplify/api';
 import { xrplService } from './xrpl.service';
 import { auditService } from './audit.service';
+import { walletService } from './wallet.service';
+import { walletEvents } from './wallet-events';
 import { createHAICReward, createHAICTransaction } from '../graphql/mutations';
 import { listHAICRewards, listHAICTransactions } from '../graphql/queries';
 
@@ -100,23 +102,20 @@ class HAICTokenService {
       // Store reward in database
       await this.storeReward(reward);
 
-      // Submit to XRPL (commented out for now to test basic functionality)
-      // try {
-      //   const transactionHash = await this.submitRewardToXRPL(userId, amount.toString(), reason);
-      //   reward.transactionHash = transactionHash;
-      //   reward.status = 'confirmed';
+      try {
+        const transactionHash = await this.submitRewardToXRPL(userId, amount.toString(), reason);
+        reward.transactionHash = transactionHash;
+        reward.status = 'confirmed';
+      } catch (error) {
+        console.error('Failed to submit reward to XRPL:', error);
+        reward.status = 'failed';
+        await this.updateReward(reward);
+        walletEvents.emitBalanceUpdated(userId);
+        throw error;
+      }
 
-      //   // Update reward with transaction hash
-      //   await this.updateReward(reward);
-      // } catch (error) {
-      //   console.error('Failed to submit reward to XRPL:', error);
-      //   reward.status = 'failed';
-      //   await this.updateReward(reward);
-      // }
-      
-      // For now, mark as confirmed without XRPL
-      reward.status = 'confirmed';
-      reward.transactionHash = 'local_test_' + Date.now();
+      await this.updateReward(reward);
+      walletEvents.emitBalanceUpdated(userId);
 
       // Log audit event (commented out for now to avoid compilation issues)
       // await auditService.logEvent({
@@ -162,9 +161,11 @@ class HAICTokenService {
    * Get user's XRPL address
    */
   private async getUserXRPLAddress(userId: string): Promise<string> {
-    // In a real implementation, this would fetch from user profile
-    // For now, we'll use a placeholder
-    return `rUser${userId.slice(-8)}`;
+    const wallet = await walletService.getJoeyWallet(userId);
+    if (wallet?.address) {
+      return wallet.address;
+    }
+    throw new Error('No linked Joey wallet found for this user.');
   }
 
   /**
@@ -233,8 +234,30 @@ class HAICTokenService {
    * Update reward in database
    */
   private async updateReward(reward: HAICReward): Promise<void> {
-    // In a real implementation, you would update the reward record
-    console.log(`📝 Updated reward ${reward.id} with status ${reward.status}`);
+    try {
+      const updateHAICRewardSimple = /* GraphQL */ `
+        mutation UpdateHAICRewardSimple($input: UpdateHAICRewardInput!) {
+          updateHAICReward(input: $input) {
+            id
+            transactionHash
+            updatedAt
+          }
+        }
+      `;
+
+      await client.graphql({
+        query: updateHAICRewardSimple,
+        variables: {
+          input: {
+            id: reward.id,
+            transactionHash: reward.transactionHash ?? null
+          }
+        },
+        authMode: 'apiKey'
+      });
+    } catch (error) {
+      console.error('Error updating HAIC reward:', error);
+    }
   }
 
   /**
@@ -243,8 +266,21 @@ class HAICTokenService {
   async getUserBalance(userId: string): Promise<TokenBalance> {
     try {
       // Get XRPL balance
-      const userAddress = await this.getUserXRPLAddress(userId);
-      const xrplBalance = await xrplService.getAccountBalance(userAddress);
+      let userAddress: string | null = null;
+      try {
+        userAddress = await this.getUserXRPLAddress(userId);
+      } catch (walletError) {
+        console.warn('Wallet lookup failed for user balance:', walletError);
+      }
+
+      let xrplBalance = { xrp: '0', haic: '0' };
+      if (userAddress) {
+        try {
+          xrplBalance = await xrplService.getAccountBalance(userAddress);
+        } catch (balanceError) {
+          console.error('Failed to fetch XRPL balance:', balanceError);
+        }
+      }
 
       // Calculate HAIC balance from rewards
       const rewards = await this.getUserRewards(userId);
@@ -391,6 +427,10 @@ class HAICTokenService {
         transaction.status = 'failed';
         await this.updateTransaction(transaction);
       }
+      finally {
+        walletEvents.emitBalanceUpdated(fromUserId);
+        walletEvents.emitBalanceUpdated(toUserId);
+      }
 
       // Log audit event
       await auditService.logEvent({
@@ -478,8 +518,36 @@ class HAICTokenService {
    * Update transaction in database
    */
   private async updateTransaction(transaction: HAICTransaction): Promise<void> {
-    // In a real implementation, you would update the transaction record
-    console.log(`📝 Updated transaction ${transaction.id} with status ${transaction.status}`);
+    try {
+      const updateHAICTransactionSimple = /* GraphQL */ `
+        mutation UpdateHAICTransactionSimple($input: UpdateHAICTransactionInput!) {
+          updateHAICTransaction(input: $input) {
+            id
+            status
+            transactionHash
+            recipientAddress
+            senderAddress
+            updatedAt
+          }
+        }
+      `;
+
+      await client.graphql({
+        query: updateHAICTransactionSimple,
+        variables: {
+          input: {
+            id: transaction.id,
+            status: transaction.status,
+            transactionHash: transaction.transactionHash ?? null,
+            recipientAddress: transaction.recipientAddress ?? null,
+            senderAddress: transaction.senderAddress ?? null
+          }
+        },
+        authMode: 'apiKey'
+      });
+    } catch (error) {
+      console.error('Error updating HAIC transaction:', error);
+    }
   }
 
   /**

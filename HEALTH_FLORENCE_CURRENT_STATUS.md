@@ -174,41 +174,40 @@ src/
 
 ## 🎯 Today's Achievements
 
-### **Responsive Design Improvements**
-1. **ExpertPatients Component**:
-   - ✅ Converted table to responsive card layout for mobile
-   - ✅ Added dual layout system (desktop table + mobile cards)
-   - ✅ Implemented consistent dashboard header design
-   - ✅ Enhanced mobile user experience with touch-friendly interfaces
+### **Joey Wallet + XRPL Trial Integration**
+1. **WalletConnect Foundation**  
+   - ✅ Added `@walletconnect/sign-client`, modal UI, and XRPL SDK dependencies  
+   - ✅ Created `walletconnect.ts` helper with Joey-required namespaces and account parsing  
+   - ✅ Implemented reusable `ConnectJoey` component with connect/disconnect + QR modal flow  
+   - ✅ Embedded the Joey connect button + status pill inside the HAIC Wallet dashboard card  
 
-2. **ExpertAppointments Component**:
-   - ✅ Made filter buttons responsive with mobile-friendly text
-   - ✅ Redesigned appointment cards for mobile compatibility
-   - ✅ Implemented expandable details for better space utilization
-   - ✅ Added responsive action buttons and layouts
+2. **HAIC Wallet Experience Refresh**  
+   - ✅ Merged the legacy `TokenRewards` card into `HAICWallet`, keeping balances, actions, and earning guide in one panel  
+   - ✅ Surface Joey XRPL address + connection state alongside HAIC balances and quick actions  
+   - ✅ Normalized missing reward statuses so historic rewards no longer display as “Failed”  
 
-3. **Dashboard Consistency**:
-   - ✅ Unified header design across all expert pages
-   - ✅ Consistent gradient backgrounds and icon usage
-   - ✅ Professional loading and empty states
-   - ✅ Mobile-first responsive breakpoints
+3. **Wallet Persistence & Reward Sync**  
+   - ✅ Added `wallet.service.ts` to store Joey wallet metadata in user preferences  
+   - ✅ Connect/disconnect now persists or removes the wallet link server-side with toasts  
+   - ✅ `haicTokenService` now reads linked Joey wallets to fetch real XRPL balances when available  
 
-### **User Experience Enhancements**
-- ✅ **Compact Appointment Cards**: Space-efficient design for multiple appointments
-- ✅ **Expandable Details**: Show/hide detailed information as needed
-- ✅ **Touch-Friendly Interfaces**: Optimized for mobile devices
-- ✅ **Consistent Navigation**: Unified navigation patterns
-- ✅ **Professional Loading States**: Enhanced user feedback
+4. **Florence AI Reliability**  
+   - ✅ Switched Gemini calls to the free-tier `gemini-2.5-flash` model  
+   - ✅ Added env-driven API key loading (Vite/Next) and guard rails for missing keys  
+   - ✅ Ensured fallback handling only triggers when quota truly exhausted  
+
+5. **Docs & Status Updates**  
+   - ✅ Updated Implementation & Current Status docs to reflect Joey wallet progress and remaining XRPL work
 
 ---
 
 ## ⚠️ Current Issues & Challenges
 
 ### 1. **XRPL Integration Issues**
-- ❌ **Pending Transactions**: All XRPL transactions remain in "pending" status
-- ❌ **Hash Validation Errors**: Invalid transaction hash formats
-- ❌ **Network Connectivity**: XRPL testnet connection issues
-- ❌ **Transaction Completion**: Transactions never complete successfully
+- ❌ **Pending Transactions**: On-ledger audit submissions still queue without confirmation
+- ❌ **Hash Validation Errors**: Some hashes returned from XRPL remain invalid
+- ❌ **Wallet Verification/Webhooks**: Need backend endpoints + webhooks to confirm wallet ownership and sync balances
+- ❌ **Network Connectivity**: XRPL testnet connection + faucet issues still unresolved
 
 ### 2. **Database Integration Issues**
 - ⚠️ **Authorization Errors**: Some GraphQL queries fail with "Unauthorized" errors
@@ -217,12 +216,12 @@ src/
 
 ### 3. **User Experience Issues**
 - ⚠️ **Loading States**: Some pages lack proper loading indicators
-- ⚠️ **Error Messages**: Some error messages could be more user-friendly
-- ⚠️ **Data Refresh**: Some components don't auto-refresh after updates
+- ⚠️ **Error Messages**: Need clearer messaging for XRPL + wallet errors
+- ⚠️ **Data Refresh**: Wallet balances need post-connection refresh hook
 
 ### 4. **Mobile Responsiveness**
-- ✅ **Recently Fixed**: ExpertPatients and ExpertAppointments now fully responsive
-- ⚠️ **Other Pages**: Some pages may still need mobile optimization
+- ✅ **Recently Fixed**: ExpertPatients and ExpertAppointments mobile improvements
+- ⚠️ **Other Pages**: Remaining layouts need QA after wallet panel changes
 
 ---
 
@@ -234,12 +233,15 @@ src/
 - ✅ **HAIC Token System**: Token creation and management
 - ✅ **Transaction Submission**: Audit trail submission to XRPL
 - ✅ **Hash Validation**: Transaction hash format validation
+- ✅ **WalletConnect Client**: Joey wallet pairing with QR modal
+- ✅ **Dashboard UX**: Joey connect button + status indicator in HAIC Wallet
 
 ### **Critical Issues**
-1. **Transaction Status**: All transactions show as "pending" and never complete
-2. **Hash Format**: Invalid transaction hash formats being generated
-3. **Network Issues**: XRPL testnet connectivity problems
-4. **Error Handling**: Inadequate error handling for failed transactions
+1. **Transaction Status**: Pending transactions never confirm on ledger
+2. **Hash Format**: Need consistent validation + retries for invalid hashes
+3. **Network Issues**: XRPL testnet connectivity/funding instability
+4. **Wallet Verification**: Need server-side verification + callbacks for linked Joey wallets
+5. **Error Handling**: Need UX feedback + retry flows for WalletConnect failures
 
 ### **Debugging Tools Available**
 - ✅ **XRPL Debug Service**: `debugXRPLConnection()` function
@@ -250,8 +252,9 @@ src/
 ### **Required Fixes**
 - 🔧 **Fix Transaction Completion**: Resolve pending transaction issues
 - 🔧 **Improve Hash Generation**: Ensure valid XRPL transaction hashes
-- 🔧 **Network Stability**: Improve XRPL network connectivity
-- 🔧 **Error Recovery**: Implement better error recovery mechanisms
+- 🔧 **Network Stability**: Improve XRPL network connectivity + faucet funding
+- 🔧 **Wallet Verification & Webhooks**: Add backend endpoint + webhook for Joey wallet state
+- 🔧 **Error Recovery**: Implement better error recovery + UI feedback mechanisms
 
 ---
 
@@ -264,9 +267,9 @@ src/
    - Implement proper transaction completion handling
 
 2. **Joey Wallet Integration**
-   - Integrate Joey wallet for XRPL transactions
-   - Implement wallet connection flow
-   - Add wallet management features
+   - ✅ Persist connected wallet + metadata via backend preferences
+   - 🔄 Add webhook/callback handling for Joey events
+   - 🔄 Expose balance + transaction fetch via Joey/XRPL APIs
 
 ### **Priority 2: Database & API Improvements**
 1. **Fix Authorization Issues**
@@ -307,15 +310,16 @@ src/
 
 ### **🔴 Critical (Must Fix)**
 - [ ] **Fix XRPL Transaction Completion**: Resolve all pending transactions
-- [ ] **Integrate Joey Wallet**: Complete Joey wallet integration
 - [ ] **Fix Authorization Errors**: Resolve GraphQL "Unauthorized" errors
 - [ ] **Validate Transaction Hashes**: Ensure all XRPL hashes are valid
+- [ ] **Implement Joey Webhooks/Callbacks**: Handle relink + balance updates
 
 ### **🟡 High Priority (Should Fix)**
 - [ ] **Complete Mobile Responsiveness**: Ensure all pages are mobile-optimized
 - [ ] **Fix Data Synchronization**: Ensure user data consistency
-- [ ] **Implement Auto-Refresh**: Add data refresh mechanisms
-- [ ] **Improve Error Handling**: Better user-friendly error messages
+- [ ] **Implement Auto-Refresh**: Add wallet/balance refresh after connect
+- [ ] **Improve Error Handling**: Better user-friendly XRPL + AI error messages
+- [ ] **XRPL Connection Retries**: Harden client for flaky networks
 
 ### **🟢 Medium Priority (Nice to Have)**
 - [ ] **Complete Admin Features**: Finish admin dashboard functionality
@@ -346,7 +350,8 @@ src/
 - **Expert Features**: 85% complete
 - **Admin Features**: 80% complete
 - **AI Integration**: 90% complete
-- **XRPL Integration**: 70% complete (pending transaction issues)
+- **XRPL Integration**: 72% complete (pending transaction issues)
+- **Joey Wallet Integration**: 60% complete (connect + persistence live, webhooks pending)
 - **Mobile Responsiveness**: 90% complete
 
 ### **Technical Debt**
@@ -367,12 +372,12 @@ src/
 - ✅ **Authentication**: Secure user management
 
 ### **In Progress**
-- 🔄 **XRPL Integration**: Blockchain functionality (70% complete)
+- 🔄 **XRPL Integration**: Blockchain functionality (72% complete)
 - 🔄 **Mobile Optimization**: Responsive design (90% complete)
 - 🔄 **Data Consistency**: Database synchronization (85% complete)
+- 🔄 **Joey Wallet Integration**: WalletConnect + backend persistence (60% complete)
 
 ### **Pending**
-- ⏳ **Joey Wallet**: Wallet integration (0% complete)
 - ⏳ **Advanced Analytics**: System monitoring (60% complete)
 - ⏳ **Performance Optimization**: App performance (70% complete)
 

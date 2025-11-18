@@ -254,9 +254,9 @@ export function ChatInterface({ onClose }: ChatInterfaceProps) {
             onKeyDown={handleKeyDown}
             className="flex-1"
           />
-          <Button variant="outline" size="icon" onClick={handleVoice}>
+          {/* <Button variant="outline" size="icon" onClick={handleVoice}>
             <Mic className="h-4 w-4" />
-          </Button>
+          </Button> */}
           <Button onClick={handleSend}>
             <Send className="h-4 w-4" />
           </Button>

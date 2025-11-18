@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { haicTokenService, TokenBalance, HAICReward, HAICTransaction } from '@/services/haic-token.service';
+import { walletService, JoeyWalletLink } from '@/services/wallet.service';
+import { walletEvents } from '@/services/wallet-events';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +24,8 @@ import {
   Trophy,
   Target,
   Heart,
-  Activity
+  Activity,
+  Link as LinkIcon
 } from 'lucide-react';
 import { ConnectJoey } from '@/components/wallet/ConnectJoey';
 import type { SessionTypes } from '@walletconnect/types';
@@ -37,20 +40,17 @@ export default function HAICWallet() {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [joeyAddress, setJoeyAddress] = useState<string | null>(null);
   const [joeySession, setJoeySession] = useState<SessionTypes.Struct | null>(null);
+  const [persistedWallet, setPersistedWallet] = useState<JoeyWalletLink | null>(null);
+  const [isPersistingWallet, setIsPersistingWallet] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      loadWalletData();
-    }
-  }, [user]);
-
-  const loadWalletData = async () => {
+  const loadWalletData = useCallback(async () => {
+    if (!user?.id) return;
     try {
       setIsLoading(true);
       const [balanceData, rewardsData, transactionsData] = await Promise.all([
-        haicTokenService.getUserBalance(user!.id),
-        haicTokenService.getUserRewards(user!.id, 20),
-        haicTokenService.getUserTransactions(user!.id, 20)
+        haicTokenService.getUserBalance(user.id),
+        haicTokenService.getUserRewards(user.id, 20),
+        haicTokenService.getUserTransactions(user.id, 20)
       ]);
       
       setBalance(balanceData);
@@ -62,11 +62,99 @@ export default function HAICWallet() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const unsubscribe = walletEvents.onBalanceUpdated(({ userId }) => {
+      if (userId === user.id) {
+        loadWalletData();
+      }
+    });
+    return unsubscribe;
+  }, [user?.id, loadWalletData]);
+
+  useEffect(() => {
+    loadWalletData();
+  }, [loadWalletData]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchLinkedWallet = async () => {
+      if (!user?.id) {
+        if (isMounted) {
+          setPersistedWallet(null);
+        }
+        return;
+      }
+      try {
+        const linked = await walletService.getJoeyWallet(user.id);
+        if (isMounted) {
+          setPersistedWallet(linked);
+        }
+      } catch (error) {
+        console.error('Failed to load linked wallet:', error);
+      }
+    };
+
+    fetchLinkedWallet();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
 
   const handleRefresh = () => {
     loadWalletData();
   };
+
+  const saveWalletLink = useCallback(async (wallet: JoeyWalletLink | null) => {
+    if (!user?.id) return;
+    setIsPersistingWallet(true);
+    try {
+      if (wallet) {
+        const stored = await walletService.linkJoeyWallet(user.id, wallet);
+        setPersistedWallet(stored);
+        toast.success('Joey wallet linked to your account');
+        walletEvents.emitBalanceUpdated(user.id);
+      } else {
+        await walletService.unlinkJoeyWallet(user.id);
+        setPersistedWallet(null);
+        toast.success('Joey wallet disconnected');
+        walletEvents.emitBalanceUpdated(user.id);
+      }
+    } catch (error) {
+      console.error('Failed to persist wallet link:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update wallet link');
+    } finally {
+      setIsPersistingWallet(false);
+    }
+  }, [user?.id]);
+
+  const handleJoeyConnected = useCallback(async (account: { address: string; chain: string }, session: SessionTypes.Struct) => {
+    setJoeyAddress(account.address);
+    setJoeySession(session);
+    await saveWalletLink({
+      address: account.address,
+      chain: account.chain,
+      connectedAt: new Date().toISOString(),
+      sessionTopic: session.topic,
+      relayProtocol: session.relay?.protocol,
+      metadata: {
+        name: session.peer?.metadata?.name,
+        description: session.peer?.metadata?.description,
+        url: session.peer?.metadata?.url,
+        icon: session.peer?.metadata?.icons?.[0],
+      },
+    });
+  }, [saveWalletLink]);
+
+  const handleJoeyDisconnected = useCallback(async () => {
+    setJoeySession(null);
+    setJoeyAddress(null);
+    await saveWalletLink(null);
+  }, [saveWalletLink]);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -140,27 +228,38 @@ export default function HAICWallet() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">HAIC Wallet</h1>
           <p className="text-gray-600">Manage your Health AI Coin tokens and rewards</p>
         </div>
-        <div className="flex items-center gap-3">
-          {joeyAddress && (
-            <span className="text-xs font-mono text-gray-600 hidden sm:inline">
-              {joeyAddress.slice(0, 8)}...{joeyAddress.slice(-6)}
-            </span>
-          )}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+          <div>
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <LinkIcon className="h-3 w-3" />
+              <span>Linked Joey Wallet</span>
+            </div>
+            <div className="text-xs font-mono text-gray-700">
+              {persistedWallet?.address
+                ? `${persistedWallet.address.slice(0, 6)}…${persistedWallet.address.slice(-6)}`
+                : 'Not linked'}
+            </div>
+            {persistedWallet?.connectedAt && (
+              <div className="text-[11px] text-gray-400">
+                Linked {new Date(persistedWallet.connectedAt).toLocaleString()}
+              </div>
+            )}
+            {joeyAddress && (
+              <div className="text-[11px] text-emerald-600">
+                Active session {joeyAddress.slice(0, 6)}…{joeyAddress.slice(-6)}
+              </div>
+            )}
+          </div>
           <ConnectJoey
             networkPreference="xrpl:testnet"
-            onConnected={(acct, session) => {
-              setJoeyAddress(acct.address);
-              setJoeySession(session);
-            }}
-            onDisconnected={() => {
-              setJoeyAddress(null);
-              setJoeySession(null);
-            }}
+            onConnected={handleJoeyConnected}
+            onDisconnected={handleJoeyDisconnected}
+            className="hidden sm:inline-flex"
           />
           <Button onClick={handleRefresh} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -168,6 +267,22 @@ export default function HAICWallet() {
           </Button>
         </div>
       </div>
+
+      <div className="sm:hidden">
+        <ConnectJoey
+          networkPreference="xrpl:testnet"
+          onConnected={handleJoeyConnected}
+          onDisconnected={handleJoeyDisconnected}
+          className="w-full justify-center"
+        />
+      </div>
+
+      {isPersistingWallet && (
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <span className="h-2 w-2 rounded-full bg-blue-500 animate-ping"></span>
+          <span>Saving wallet link…</span>
+        </div>
+      )}
 
       {/* Consolidated HAIC Summary and Actions (from TokenRewards) */}
       <TokenRewards />
