@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 import { HealthMetric } from "@/components/dashboard/HealthMetric";
 import { MedicationReminder } from "@/components/dashboard/MedicationReminder";
-import { TokenRewards } from "@/components/dashboard/TokenRewards";
+import HAICWallet from "@/components/dashboard/HAICWallet";
 import { AppointmentCard } from "@/components/dashboard/AppointmentCard";
 
 import { Activity, Footprints, Heart, Timer, Apple, Target, UserCheck } from "lucide-react";
@@ -440,7 +440,7 @@ const Index = () => {
                 <ChatInterface />
               </div>
             </Card>
-            <TokenRewards />
+            <HAICWallet />
           </div>
         </div>
       </div>

@@ -1,8 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 
+const GEMINI_API_KEY =
+  (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_GEMINI_API_KEY) ||
+  (typeof process !== "undefined" && (process as any).env?.VITE_GEMINI_API_KEY) ||
+  (typeof process !== "undefined" && (process as any).env?.NEXT_PUBLIC_GEMINI_API_KEY) ||
+  "";
+
+const DEFAULT_MODEL = "gemini-2.5-flash";
+
 // Initialize Gemini AI client for v2.0
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyCoenWxsPKbBeg6oK7ubKbxHLRrFxbqA5Q"
+  apiKey: GEMINI_API_KEY,
 });
 
 // Florence AI Rules and Guidelines
@@ -283,8 +291,12 @@ class GeminiService {
 
         console.log(`Attempt ${attempt}/${maxRetries}: Sending prompt to Gemini:`, fullPrompt.substring(0, 200) + '...');
         
+        if (!GEMINI_API_KEY) {
+          throw new Error("Missing Gemini API key (VITE_GEMINI_API_KEY).");
+        }
+
         const result = await ai.models.generateContent({
-          model: "gemini-2.0-flash-exp",
+          model: DEFAULT_MODEL,
           contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
         });
         
@@ -510,8 +522,12 @@ Generate recommendations in this JSON format:
 IMPORTANT: Make each recommendation unique and highly personalized to this specific user's health profile. Avoid generic recommendations.`;
 
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash-exp",
+        if (!GEMINI_API_KEY) {
+          throw new Error("Missing Gemini API key (VITE_GEMINI_API_KEY).");
+        }
+
+        const response = await ai.models.generateContent({
+          model: DEFAULT_MODEL,
         contents: [{ role: "user", parts: [{ text: prompt }] }]
       });
 
@@ -614,8 +630,12 @@ Generate goals in this JSON format:
 IMPORTANT: Make each goal highly personalized to this specific user's health profile. Avoid generic recommendations.`;
 
     try {
+      if (!GEMINI_API_KEY) {
+        throw new Error("Missing Gemini API key (VITE_GEMINI_API_KEY).");
+      }
+
       const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash-exp",
+        model: DEFAULT_MODEL,
         contents: [{ role: "user", parts: [{ text: prompt }] }]
       });
 

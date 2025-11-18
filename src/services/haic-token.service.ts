@@ -288,7 +288,8 @@ class HAICTokenService {
         category: item.category,
         transactionHash: item.transactionHash,
         blockNumber: item.blockNumber,
-        status: item.status,
+        // Some legacy records may not have a status; default to confirmed for display
+        status: item.status ?? 'confirmed',
         gasUsed: item.gasUsed,
         gasPrice: item.gasPrice,
         confirmationCount: item.confirmationCount,

@@ -24,6 +24,9 @@ import {
   Heart,
   Activity
 } from 'lucide-react';
+import { ConnectJoey } from '@/components/wallet/ConnectJoey';
+import type { SessionTypes } from '@walletconnect/types';
+import { TokenRewards } from '@/components/dashboard/TokenRewards';
 
 export default function HAICWallet() {
   const { user } = useAuth();
@@ -32,6 +35,8 @@ export default function HAICWallet() {
   const [rewards, setRewards] = useState<HAICReward[]>([]);
   const [transactions, setTransactions] = useState<HAICTransaction[]>([]);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [joeyAddress, setJoeyAddress] = useState<string | null>(null);
+  const [joeySession, setJoeySession] = useState<SessionTypes.Struct | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -140,11 +145,32 @@ export default function HAICWallet() {
           <h1 className="text-3xl font-bold">HAIC Wallet</h1>
           <p className="text-gray-600">Manage your Health AI Coin tokens and rewards</p>
         </div>
-        <Button onClick={handleRefresh} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-3">
+          {joeyAddress && (
+            <span className="text-xs font-mono text-gray-600 hidden sm:inline">
+              {joeyAddress.slice(0, 8)}...{joeyAddress.slice(-6)}
+            </span>
+          )}
+          <ConnectJoey
+            networkPreference="xrpl:testnet"
+            onConnected={(acct, session) => {
+              setJoeyAddress(acct.address);
+              setJoeySession(session);
+            }}
+            onDisconnected={() => {
+              setJoeyAddress(null);
+              setJoeySession(null);
+            }}
+          />
+          <Button onClick={handleRefresh} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
+
+      {/* Consolidated HAIC Summary and Actions (from TokenRewards) */}
+      <TokenRewards />
 
       {/* Balance Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

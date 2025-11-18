@@ -55,6 +55,8 @@
     "@radix-ui/react-tooltip": "^1.1.4",
     "@tanstack/react-query": "^5.56.2",
     "@types/uuid": "^10.0.0",
+    "@walletconnect/modal": "^2.7.0",
+    "@walletconnect/sign-client": "^2.23.0",
     "aws-amplify": "^6.14.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -77,7 +79,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^13.0.0",
     "vaul": "^0.9.3",
-    "xrpl": "^4.2.5",
+    "xrpl": "^4.4.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
