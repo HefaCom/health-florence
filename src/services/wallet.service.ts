@@ -22,9 +22,17 @@ export interface JoeyWalletLink {
   lastBalanceSyncedAt?: string;
 }
 
+export interface CustodialWallet {
+  address: string;
+  seed: string;
+  createdAt: string;
+  lastUsedAt?: string;
+}
+
 type Preferences = Record<string, any> & {
   wallets?: {
     joey?: JoeyWalletLink;
+    custodial?: CustodialWallet;
     [key: string]: any;
   };
 };
@@ -99,6 +107,44 @@ class WalletService {
     });
 
     return null;
+  }
+
+  async getCustodialWallet(userId: string): Promise<CustodialWallet | null> {
+    const user = await userService.getUser(userId);
+    if (!user) return null;
+    const preferences = this.normalizePreferences(user.preferences);
+    return preferences.wallets?.custodial || null;
+  }
+
+  async saveCustodialWallet(userId: string, wallet: CustodialWallet, merge: boolean = false) {
+    const user = await userService.getUser(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const preferences = this.normalizePreferences(user.preferences);
+    const existing = preferences.wallets?.custodial;
+
+    const nextWallet: CustodialWallet = merge && existing
+      ? { ...existing, ...wallet }
+      : wallet;
+
+    const wallets = {
+      ...(preferences.wallets || {}),
+      custodial: nextWallet,
+    };
+
+    const nextPreferences: Preferences = {
+      ...preferences,
+      wallets,
+    };
+
+    await userService.updateUser({
+      id: userId,
+      preferences: nextPreferences,
+    });
+
+    return nextWallet;
   }
 }
 

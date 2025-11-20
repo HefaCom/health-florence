@@ -1,5 +1,6 @@
 import { Client, Wallet, xrpToDrops } from 'xrpl';
 import { toast } from 'sonner';
+import { walletService } from './wallet.service';
 
 // Define types for XRPL responses
 interface XRPLResponse {
@@ -53,7 +54,11 @@ class XRPLService {
   }
 
   // Create or load a wallet
-  async initializeWallet(seed?: string) {
+  async initializeWallet(options?: { seed?: string; userId?: string } | string) {
+    const normalized =
+      typeof options === 'string' ? { seed: options } : options || {};
+    const { seed, userId } = normalized;
+
     if (!this.client) {
       const connected = await this.connect();
       if (!connected) {
@@ -71,14 +76,41 @@ class XRPLService {
     }
 
     try {
+      let walletSeed = seed;
+      let storedWallet = null;
+
+      if (!walletSeed && userId) {
+        storedWallet = await walletService.getCustodialWallet(userId);
+        walletSeed = storedWallet?.seed;
+      }
+
       if (seed) {
         // Load existing wallet
         this.wallet = Wallet.fromSeed(seed);
       } else {
-        // Create new wallet with proper type handling
-        const { wallet } = await this.client!.fundWallet();
-        this.wallet = wallet;
+        if (walletSeed) {
+          this.wallet = Wallet.fromSeed(walletSeed);
+        } else {
+          // Create new wallet with proper type handling
+          const { wallet } = await this.client!.fundWallet();
+          this.wallet = wallet;
+          walletSeed = wallet.seed;
+        }
       }
+
+      if (userId && this.wallet && walletSeed) {
+        await walletService.saveCustodialWallet(
+          userId,
+          {
+            address: this.wallet.address,
+            seed: walletSeed,
+            createdAt: storedWallet?.createdAt || new Date().toISOString(),
+            lastUsedAt: new Date().toISOString(),
+          },
+          true
+        );
+      }
+
       return this.wallet;
     } catch (error) {
       console.error('Failed to initialize wallet:', error);

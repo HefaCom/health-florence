@@ -37,7 +37,7 @@ export const XRPLProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsConnected(true);
       
       console.log('Initializing wallet...');
-      const wallet = await xrplService.initializeWallet();
+      const wallet = await xrplService.initializeWallet({ userId: user?.id });
       if (!wallet) {
         throw new Error('Failed to initialize wallet');
       }
