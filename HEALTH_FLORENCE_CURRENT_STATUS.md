@@ -191,12 +191,17 @@ src/
    - ✅ Connect/disconnect now persists or removes the wallet link server-side with toasts  
    - ✅ `haicTokenService` now reads linked Joey wallets to fetch real XRPL balances when available  
 
-4. **Florence AI Reliability**  
-   - ✅ Switched Gemini calls to the free-tier `gemini-2.5-flash` model  
+4. **Backend Webhooks & Balance Sync**  
+   - ✅ Added `/api/joey/webhook` with HMAC verification to persist wallet events  
+   - ✅ Added `/api/wallet/sync-balance` to refresh XRPL balances and store `lastKnownBalances`  
+   - ✅ Documented `JOEY_WEBHOOK_SECRET`, `WALLET_SYNC_TOKEN`, `XRPL_RPC_URL` env vars for deployment  
+
+5. **Florence AI Reliability**  
+   - ✅ Switched Gemini calls to the free-tier `gemini-1.5-flash-8b` model  
    - ✅ Added env-driven API key loading (Vite/Next) and guard rails for missing keys  
    - ✅ Ensured fallback handling only triggers when quota truly exhausted  
 
-5. **Docs & Status Updates**  
+6. **Docs & Status Updates**  
    - ✅ Updated Implementation & Current Status docs to reflect Joey wallet progress and remaining XRPL work
 
 ---
@@ -206,7 +211,7 @@ src/
 ### 1. **XRPL Integration Issues**
 - ❌ **Pending Transactions**: On-ledger audit submissions still queue without confirmation
 - ❌ **Hash Validation Errors**: Some hashes returned from XRPL remain invalid
-- ❌ **Wallet Verification/Webhooks**: Need backend endpoints + webhooks to confirm wallet ownership and sync balances
+- ⚠️ **Wallet Verification/Webhooks**: Backend endpoints implemented; pending deployment + monitoring
 - ❌ **Network Connectivity**: XRPL testnet connection + faucet issues still unresolved
 
 ### 2. **Database Integration Issues**
@@ -240,7 +245,7 @@ src/
 1. **Transaction Status**: Pending transactions never confirm on ledger
 2. **Hash Format**: Need consistent validation + retries for invalid hashes
 3. **Network Issues**: XRPL testnet connectivity/funding instability
-4. **Wallet Verification**: Need server-side verification + callbacks for linked Joey wallets
+4. **Wallet Verification**: Deploy new webhook/sync endpoints and monitor events
 5. **Error Handling**: Need UX feedback + retry flows for WalletConnect failures
 
 ### **Debugging Tools Available**
@@ -253,7 +258,7 @@ src/
 - 🔧 **Fix Transaction Completion**: Resolve pending transaction issues
 - 🔧 **Improve Hash Generation**: Ensure valid XRPL transaction hashes
 - 🔧 **Network Stability**: Improve XRPL network connectivity + faucet funding
-- 🔧 **Wallet Verification & Webhooks**: Add backend endpoint + webhook for Joey wallet state
+- 🔧 **Wallet Verification & Webhooks**: Deploy and monitor the new webhook/sync services
 - 🔧 **Error Recovery**: Implement better error recovery + UI feedback mechanisms
 
 ---
@@ -312,7 +317,7 @@ src/
 - [ ] **Fix XRPL Transaction Completion**: Resolve all pending transactions
 - [ ] **Fix Authorization Errors**: Resolve GraphQL "Unauthorized" errors
 - [ ] **Validate Transaction Hashes**: Ensure all XRPL hashes are valid
-- [ ] **Implement Joey Webhooks/Callbacks**: Handle relink + balance updates
+- [ ] **Deploy Joey Webhooks/Callbacks**: Roll out new endpoints and add monitoring
 
 ### **🟡 High Priority (Should Fix)**
 - [ ] **Complete Mobile Responsiveness**: Ensure all pages are mobile-optimized
@@ -380,6 +385,12 @@ src/
 ### **Pending**
 - ⏳ **Advanced Analytics**: System monitoring (60% complete)
 - ⏳ **Performance Optimization**: App performance (70% complete)
+
+---
+
+## 🧪 Testing Notes
+- ✅ Joey webhook endpoint verified locally using signed `curl` payloads (HMAC via `JOEY_WEBHOOK_SECRET`).
+- ✅ Wallet balance sync endpoint exercised with `curl -X POST /api/wallet/sync-balance` using `WALLET_SYNC_TOKEN`, confirming XRPL balances persist to user preferences.
 
 ---
 
