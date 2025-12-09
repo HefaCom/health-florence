@@ -25,7 +25,7 @@ Florence is now powered by Google's Gemini AI, providing intelligent, context-aw
 ```typescript
 // Gemini API Setup
 const ai = new GoogleGenAI({
-  apiKey: "AIzaSyB2JEKcS5MHe1U0KX8Y3rmSjg8lPeojJvA"
+  apiKey: "GEMINI_API_KEY"
 });
 
 // Model Configuration
