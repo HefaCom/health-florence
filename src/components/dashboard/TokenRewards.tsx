@@ -25,11 +25,12 @@ interface TokenRewardsProps {
 
 export function TokenRewards({ className }: TokenRewardsProps) {
   const { user } = useAuth();
-  const { balance, isConnected, walletAddress, transferHAIC } = useXRPL();
+  const { balance, isConnected, walletAddress, transferHAIC, setupTrustLine, isJoeyWallet } = useXRPL();
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [transferAmount, setTransferAmount] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
   const [isTransferring, setIsTransferring] = useState(false);
+  const [isSettingUpTrust, setIsSettingUpTrust] = useState(false);
   const [totalEarned, setTotalEarned] = useState(0);
   const [recentRewards, setRecentRewards] = useState<any[]>([]);
 
@@ -85,6 +86,20 @@ export function TokenRewards({ className }: TokenRewardsProps) {
     }
   };
 
+  const handleSetupTrustLine = async () => {
+    setIsSettingUpTrust(true);
+    try {
+      const success = await setupTrustLine();
+      if (success) {
+        toast.success('Trust line setup initiated. Please wait for confirmation.');
+      }
+    } catch (error) {
+      toast.error('Failed to setup trust line');
+    } finally {
+      setIsSettingUpTrust(false);
+    }
+  };
+
   return (
     <Card className={cn("rounded-florence overflow-hidden card-glow", className)}>
       <div className="p-6 bg-gradient-to-br from-healthAI-navy to-healthAI-darkBlue">
@@ -92,7 +107,7 @@ export function TokenRewards({ className }: TokenRewardsProps) {
           <h3 className="font-semibold text-white">Health AI Coin</h3>
           <HealthAICoin className="w-12 h-12" />
         </div>
-        
+
         <div className="mb-2">
           <div className="text-sm text-blue-200">XRPL Balance</div>
           <div className="text-3xl font-bold text-white">
@@ -102,7 +117,7 @@ export function TokenRewards({ className }: TokenRewardsProps) {
             {formatBalance(balance.xrp)} XRP Available
           </div>
         </div>
-        
+
         <div className="mb-2">
           <div className="text-sm text-blue-200">Total Earned</div>
           <div className="text-2xl font-bold text-green-400">
@@ -112,7 +127,7 @@ export function TokenRewards({ className }: TokenRewardsProps) {
             From health activities
           </div>
         </div>
-        
+
         <div className="flex items-center text-xs text-blue-200">
           {isConnected ? (
             <>
@@ -128,7 +143,7 @@ export function TokenRewards({ className }: TokenRewardsProps) {
           )}
         </div>
       </div>
-      
+
       <div className="p-4 bg-card">
         <div className="grid grid-cols-2 gap-2 mb-4">
           <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
@@ -162,6 +177,26 @@ export function TokenRewards({ className }: TokenRewardsProps) {
                     placeholder="Enter recipient's XRPL address"
                   />
                 </div>
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
+                    XRP Wallet Status
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {isConnected && walletAddress ? (
+                      <>
+                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <div className="text-sm font-medium text-emerald-600">Connected</div>
+                        <span className="text-gray-400">|</span>
+                        <div className="text-xs font-mono text-gray-600">{walletAddress}</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="h-2 w-2 rounded-full bg-gray-400"></div>
+                        <div className="text-sm font-medium text-gray-500">No Wallet Connected</div>
+                      </>
+                    )}
+                  </div>
+                </div>
                 <div className="grid gap-2">
                   <Label htmlFor="amount">Amount</Label>
                   <Input
@@ -174,8 +209,8 @@ export function TokenRewards({ className }: TokenRewardsProps) {
                 </div>
               </div>
               <div className="flex justify-end">
-                <Button 
-                  onClick={handleTransfer} 
+                <Button
+                  onClick={handleTransfer}
                   disabled={isTransferring || !transferAmount || !recipientAddress}
                 >
                   {isTransferring ? (
@@ -190,8 +225,11 @@ export function TokenRewards({ className }: TokenRewardsProps) {
               </div>
             </DialogContent>
           </Dialog>
-          <Button 
-            size="sm" 
+
+
+
+          <Button
+            size="sm"
             className="rounded-full text-xs"
             onClick={() => {
               // This would show ways to earn HAIC tokens

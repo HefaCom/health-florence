@@ -106,12 +106,20 @@ class HAICTokenService {
         const transactionHash = await this.submitRewardToXRPL(userId, amount.toString(), reason);
         reward.transactionHash = transactionHash;
         reward.status = 'confirmed';
-      } catch (error) {
-        console.error('Failed to submit reward to XRPL:', error);
-        reward.status = 'failed';
-        await this.updateReward(reward);
-        walletEvents.emitBalanceUpdated(userId);
-        throw error;
+      } catch (error: any) {
+        // Handle specific error for unfunded accounts
+        if (error?.message?.includes('Destination account does not exist') ||
+          error?.toString().includes('Destination account does not exist')) {
+          console.warn('⚠️ Destination account not funded. Keeping reward as pending:', error.message);
+          reward.status = 'pending';
+          // Do NOT throw error, allow the function to return the pending reward
+        } else {
+          console.error('Failed to submit reward to XRPL:', error);
+          reward.status = 'failed';
+          await this.updateReward(reward);
+          walletEvents.emitBalanceUpdated(userId);
+          throw error;
+        }
       }
 
       await this.updateReward(reward);
@@ -142,17 +150,22 @@ class HAICTokenService {
     try {
       // Get user's XRPL address (in a real implementation, this would be stored in user profile)
       const userAddress = await this.getUserXRPLAddress(userId);
-      
+
       // Transfer HAIC tokens
       const result = await xrplService.transferHAICTokens(userAddress, amount);
-      
+
       if (result.success && result.hash) {
         return result.hash;
       } else {
         throw new Error(result.error || 'Failed to transfer HAIC tokens');
       }
-    } catch (error) {
-      console.error('Error submitting reward to XRPL:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('Destination account does not exist') ||
+        error?.toString().includes('Destination account does not exist')) {
+        console.warn('Reward Submission Info:', error.message || error);
+      } else {
+        console.error('Error submitting reward to XRPL:', error);
+      }
       throw error;
     }
   }
@@ -219,13 +232,13 @@ class HAICTokenService {
       throw new Error('No data returned from createHAICReward mutation');
     } catch (error) {
       console.error('Error storing reward:', error);
-      
+
       // Check if this is just authorization errors but reward was created
       if (error.data && error.data.createHAICReward && error.data.createHAICReward.id) {
         console.log('✅ HAIC reward created successfully despite authorization warnings');
         return; // Don't throw error if reward was created
       }
-      
+
       throw error;
     }
   }
@@ -407,9 +420,9 @@ class HAICTokenService {
       try {
         const fromAddress = await this.getUserXRPLAddress(fromUserId);
         const toAddress = await this.getUserXRPLAddress(toUserId);
-        
+
         const result = await xrplService.transferHAICTokens(toAddress, amount.toString());
-        
+
         if (result.success && result.hash) {
           transaction.transactionHash = result.hash;
           transaction.status = 'confirmed';
@@ -503,13 +516,13 @@ class HAICTokenService {
       console.log('✅ HAIC transaction stored successfully:', result);
     } catch (error) {
       console.error('Error storing transaction:', error);
-      
+
       // Check if this is just authorization errors but transaction was created
       if (error.data && error.data.createHAICTransaction && error.data.createHAICTransaction.id) {
         console.log('✅ HAIC transaction created successfully despite authorization warnings');
         return; // Don't throw error if transaction was created
       }
-      
+
       throw error;
     }
   }
@@ -575,7 +588,7 @@ class HAICTokenService {
 
       // Submit mint transaction to XRPL
       const result = await xrplService.issueHAICTokens(amount.toString());
-      
+
       if (result.success && result.hash) {
         // Log audit event
         await auditService.logEvent({

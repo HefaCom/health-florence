@@ -20,12 +20,22 @@ class XRPLService {
   private wallet: Wallet | null = null;
   private readonly MAX_RETRIES = 3;
   private readonly CONNECTION_TIMEOUT = 15000; // 15 seconds
-  
+
   // Initialize XRPL client
   async connect() {
+    // Check if already connected
+    if (this.client && this.client.isConnected()) {
+      return true;
+    }
+
     let retries = 0;
     while (retries < this.MAX_RETRIES) {
       try {
+        // Disconnect existing client if it exists but isn't connected
+        if (this.client) {
+          await this.client.disconnect().catch(() => { });
+        }
+
         // Connect to XRPL testnet with increased timeout
         this.client = new Client('wss://s.altnet.rippletest.net:51233', {
           timeout: this.CONNECTION_TIMEOUT,
@@ -51,6 +61,11 @@ class XRPLService {
       await this.client.disconnect();
       this.client = null;
     }
+  }
+
+  // Check connection status
+  isConnected(): boolean {
+    return !!this.client?.isConnected();
   }
 
   // Create or load a wallet
@@ -82,19 +97,27 @@ class XRPLService {
       if (!walletSeed && userId) {
         storedWallet = await walletService.getCustodialWallet(userId);
         walletSeed = storedWallet?.seed;
+
+        if (storedWallet) {
+          console.log(`[XRPL Service] Loading EXISTING custodial wallet for user ${userId}: ${storedWallet.address}`);
+        }
       }
 
       if (seed) {
         // Load existing wallet
         this.wallet = Wallet.fromSeed(seed);
+        console.log(`[XRPL Service] Loaded wallet from seed: ${this.wallet.address}`);
       } else {
         if (walletSeed) {
           this.wallet = Wallet.fromSeed(walletSeed);
+          console.log(`[XRPL Service] Loaded custodial wallet from stored seed: ${this.wallet.address}`);
         } else {
           // Create new wallet with proper type handling
+          console.log(`[XRPL Service] Creating NEW custodial wallet for user ${userId}...`);
           const { wallet } = await this.client!.fundWallet();
           this.wallet = wallet;
           walletSeed = wallet.seed;
+          console.log(`[XRPL Service] Created NEW wallet: ${this.wallet.address} with seed starting: ${walletSeed.substring(0, 10)}...`);
         }
       }
 
@@ -109,6 +132,11 @@ class XRPLService {
           },
           true
         );
+
+        console.log(`[XRPL Service] Saved custodial wallet for user ${userId}: ${this.wallet.address}`);
+
+        // Auto-setup trust line for custodial wallet
+        await this.verifyAndSetupTrustLine();
       }
 
       return this.wallet;
@@ -134,7 +162,7 @@ class XRPLService {
   // Submit audit trail to XRPL with retry mechanism
   async submitAuditTrail(merkleRoot: string, retryCount: number = 0) {
     const maxRetries = 3;
-    
+
     try {
       // Ensure connection and wallet
       if (!this.client || !this.wallet) {
@@ -147,9 +175,9 @@ class XRPLService {
         command: 'ledger',
         ledger_index: 'validated'
       });
-      
+
       const currentLedgerSequence = ledgerResponse.result.ledger_index;
-      
+
       // Prepare transaction with appropriate ledger sequence
       const prepared = await this.client!.autofill({
         TransactionType: 'Payment',
@@ -166,13 +194,13 @@ class XRPLService {
       });
 
       const signed = this.wallet!.sign(prepared);
-      
+
       // Submit but don't wait for validation
       const submitResult = await this.client!.submit(signed.tx_blob);
-      
+
       if (submitResult.result.engine_result === 'tesSUCCESS' ||
-          submitResult.result.engine_result === 'terQUEUED') {
-        
+        submitResult.result.engine_result === 'terQUEUED') {
+
         // Validate the transaction hash format
         const hash = submitResult.result.tx_json?.hash;
         if (hash && this.isValidXRPLHash(hash)) {
@@ -183,14 +211,14 @@ class XRPLService {
           };
         } else {
           console.warn('Invalid transaction hash format:', hash);
-          
+
           // Retry if we have attempts left
           if (retryCount < maxRetries) {
             console.log(`Retrying XRPL submission (attempt ${retryCount + 1}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
             return this.submitAuditTrail(merkleRoot, retryCount + 1);
           }
-          
+
           return {
             success: false,
             hash: undefined,
@@ -214,14 +242,14 @@ class XRPLService {
       };
     } catch (error) {
       console.error('Failed to submit audit trail:', error);
-      
+
       // Retry on connection errors
       if (retryCount < maxRetries && this.isRetryableError(error)) {
         console.log(`Retrying due to error (attempt ${retryCount + 1}/${maxRetries}):`, error);
         await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
         return this.submitAuditTrail(merkleRoot, retryCount + 1);
       }
-      
+
       return {
         success: false,
         hash: undefined,
@@ -297,19 +325,19 @@ class XRPLService {
     if (!hash) {
       return { isValid: false, error: 'Transaction hash is required' };
     }
-    
+
     if (typeof hash !== 'string') {
       return { isValid: false, error: 'Transaction hash must be a string' };
     }
-    
+
     if (hash.length !== 64) {
       return { isValid: false, error: `Transaction hash must be 64 characters long, got ${hash.length}` };
     }
-    
+
     if (!this.isValidXRPLHash(hash)) {
       return { isValid: false, error: 'Transaction hash must contain only hexadecimal characters (0-9, A-F)' };
     }
-    
+
     return { isValid: true };
   }
 
@@ -318,15 +346,15 @@ class XRPLService {
     if (error instanceof Error) {
       return `${error.name}: ${error.message}`;
     }
-    
+
     if (typeof error === 'string') {
       return error;
     }
-    
+
     if (error && typeof error === 'object') {
       return JSON.stringify(error, null, 2);
     }
-    
+
     return 'Unknown error';
   }
 
@@ -339,9 +367,9 @@ class XRPLService {
       'ECONNRESET',
       'ENOTFOUND'
     ];
-    
+
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return retryableErrors.some(retryableError => 
+    return retryableErrors.some(retryableError =>
       errorMessage.toLowerCase().includes(retryableError.toLowerCase())
     );
   }
@@ -387,7 +415,13 @@ class XRPLService {
         ledger_index: 'validated'
       });
       return true;
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.data?.error === 'actNotFound' ||
+        error?.message?.includes('Account not found')) {
+        return false;
+      }
+      // For other errors, we might want to log them but returning false is usually safe for existence checks
+      console.warn('Error checking account existence:', error);
       return false;
     }
   }
@@ -395,23 +429,27 @@ class XRPLService {
   // Set up trust line for HAIC token
   private async setupTrustLine(destination: string): Promise<boolean> {
     try {
+      if (!this.wallet) {
+        throw new Error('Wallet not initialized for signing');
+      }
+
       // Create trust set transaction
       const trustSetTx = {
         TransactionType: 'TrustSet' as const,
         Account: destination,
         LimitAmount: {
           currency: this.padCurrencyCode('HAIC'),
-          issuer: this.wallet!.address,
+          issuer: 'roFYYcmHunBu8Qp8dLEYcqxsS3EDvyuUY', // Hardcoded issuer
           value: '1000000000' // 1 billion max supply
         }
       };
 
       const prepared = await this.client!.autofill(trustSetTx);
-      console.log('Prepared trust set transaction:', JSON.stringify(prepared, null, 2));
+      const signed = this.wallet.sign(prepared);
+      const result = await this.client!.submitAndWait(signed.tx_blob);
 
-      // Note: The destination account needs to sign this transaction
-      // This is just the preparation step
-      return true;
+      console.log('TrustSet Result:', (result.result.meta as any)?.TransactionResult);
+      return (result.result.meta as any)?.TransactionResult === 'tesSUCCESS';
     } catch (error) {
       console.error('Failed to setup trust line:', error);
       return false;
@@ -424,27 +462,78 @@ class XRPLService {
       const response = await this.client!.request({
         command: 'account_lines',
         account: address,
-        peer: this.wallet!.address
+        peer: 'roFYYcmHunBu8Qp8dLEYcqxsS3EDvyuUY' // Issuer address
       });
-      
+
       const lines = response.result.lines || [];
-      return lines.some(line => 
-        line.currency === this.padCurrencyCode('HAIC') && 
-        line.account === this.wallet!.address
+      return lines.some(line =>
+        line.currency === this.padCurrencyCode('HAIC')
       );
-    } catch (error) {
+    } catch (error: any) {
+      // If account not found (unfunded), trust line effectively doesn't exist
+      if (error?.data?.error === 'actNotFound') return false;
       console.error('Failed to check trust line:', error);
       return false;
     }
   }
 
-  // Transfer HAIC tokens
-  async transferHAICTokens(destination: string, amount: string) {
-    if (!this.client || !this.wallet) {
-      throw new Error('XRPL client or wallet not initialized');
+  // New public method to verify and fix trust line for current wallet
+  async verifyAndSetupTrustLine(): Promise<boolean> {
+    if (!this.wallet) return false;
+
+    try {
+      const hasLine = await this.checkTrustLine(this.wallet.address);
+      if (hasLine) return true;
+
+      console.log('Trust line missing for custodial wallet. Setting up...');
+      return await this.setupTrustLine(this.wallet.address);
+    } catch (error) {
+      console.error('Failed to verify/setup trust line:', error);
+      return false;
+    }
+  }
+
+  // Submit a signed transaction blob
+  async submitSignedTransaction(txBlob: string): Promise<XRPLResponse> {
+    if (!this.client) {
+      await this.connect();
     }
 
     try {
+      console.log('Submitting signed transaction blob...');
+      const result = await this.client!.submitAndWait(txBlob);
+      return result as unknown as XRPLResponse;
+    } catch (error) {
+      console.error('Failed to submit signed transaction:', error);
+      throw error;
+    }
+  }
+
+  // Transfer HAIC tokens - NOW LOADS CORRECT USER'S WALLET
+  async transferHAICTokens(destination: string, amount: string, userId?: string) {
+    try {
+      if (!this.client?.isConnected()) {
+        await this.connect();
+      }
+
+      // Load the correct wallet for this user
+      let walletToUse = this.wallet;
+
+      if (userId) {
+        console.log(`[XRPL Service] Loading custodial wallet for user: ${userId}`);
+        const custodialWallet = await walletService.getCustodialWallet(userId);
+
+        if (!custodialWallet?.seed) {
+          throw new Error('No custodial wallet found for this user');
+        }
+
+        // Create wallet from the user's seed (don't store in this.wallet!)
+        walletToUse = Wallet.fromSeed(custodialWallet.seed);
+        console.log(`[XRPL Service] Using custodial wallet: ${walletToUse.address}`);
+      } else if (!this.wallet) {
+        throw new Error('No wallet initialized');
+      }
+
       // Check if destination account exists
       const exists = await this.accountExists(destination);
       if (!exists) {
@@ -454,32 +543,27 @@ class XRPLService {
       // Check if trust line exists
       const hasTrustLine = await this.checkTrustLine(destination);
       if (!hasTrustLine) {
-        throw new Error('Recipient needs to set up a trust line for HAIC tokens. Please ask them to trust your issuing address: ' + this.wallet.address);
+        throw new Error('Recipient needs to set up a trust line for HAIC tokens.');
       }
 
       // Create payment transaction
       const payment = {
         TransactionType: 'Payment' as const,
-        Account: this.wallet.address,
+        Account: walletToUse!.address,
         Destination: destination,
         Amount: {
           currency: this.padCurrencyCode('HAIC'),
           value: amount,
-          issuer: this.wallet.address
+          issuer: walletToUse!.address
         },
         Flags: 131072  // tfSetNoRipple flag
       };
 
       console.log('Preparing HAIC transfer with payment:', JSON.stringify(payment, null, 2));
 
-      const prepared = await this.client.autofill(payment);
-      console.log('Prepared transaction:', JSON.stringify(prepared, null, 2));
-
-      const signed = this.wallet.sign(prepared);
-      console.log('Signed transaction. Submitting to XRPL...');
-
-      const result = await this.client.submitAndWait(signed.tx_blob) as XRPLResponse;
-      console.log('XRPL response:', JSON.stringify(result, null, 2));
+      const prepared = await this.client!.autofill(payment);
+      const signed = walletToUse!.sign(prepared);
+      const result = await this.client!.submitAndWait(signed.tx_blob) as XRPLResponse;
 
       const txResult = result.result.meta?.TransactionResult;
       if (txResult === 'tesSUCCESS') {
@@ -498,11 +582,17 @@ class XRPLService {
         };
       }
     } catch (error) {
-      console.error('Failed to transfer HAIC tokens. Full error:', error);
-      if (error instanceof Error) {
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
+      if (error instanceof Error &&
+        (error.message.includes('Destination account does not exist') ||
+          error.message.includes('account needs to be funded'))) {
+        console.warn('HAIC Transfer Info:', error.message);
+      } else {
+        console.error('Failed to transfer HAIC tokens. Full error:', error);
+        if (error instanceof Error) {
+          console.error('Error name:', error.name);
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+        }
       }
       throw error;
     }
@@ -537,7 +627,16 @@ class XRPLService {
         xrp: response.result.account_data?.Balance || '0',
         haic: '0' // TODO: Implement token balance lookup
       };
-    } catch (error) {
+    } catch (error: any) {
+      // Handle case where account exists on ledger but is unfunded or not found
+      if (error?.data?.error === 'actNotFound' ||
+        error?.message?.includes('Account not found') ||
+        error?.toString().includes('Account not found')) {
+        return {
+          xrp: '0',
+          haic: '0'
+        };
+      }
       console.error('Failed to get account balance:', error);
       throw error;
     }
@@ -550,7 +649,7 @@ class XRPLService {
     console.log('Client connected:', this.client?.isConnected());
     console.log('Wallet exists:', !!this.wallet);
     console.log('Wallet address:', this.wallet?.address);
-    
+
     if (this.client && this.client.isConnected()) {
       try {
         const serverInfo = await this.client.request({

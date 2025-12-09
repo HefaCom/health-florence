@@ -22,16 +22,24 @@ export interface JoeyWalletLink {
   lastBalanceSyncedAt?: string;
 }
 
+export interface XamanWalletLink {
+  address: string;
+  token?: string; // JWT or access token if needed
+  uui?: string;   // User Unique Identifier
+  linkedAt: string;
+}
+
 export interface CustodialWallet {
   address: string;
   seed: string;
   createdAt: string;
-  lastUsedAt?: string;
+  lastUsedAt: string;
 }
 
 type Preferences = Record<string, any> & {
   wallets?: {
     joey?: JoeyWalletLink;
+    xaman?: XamanWalletLink; // Added Xaman wallet
     custodial?: CustodialWallet;
     [key: string]: any;
   };
@@ -94,6 +102,65 @@ class WalletService {
 
     const wallets = { ...(preferences.wallets || {}) };
     delete wallets.joey;
+
+    if (Object.keys(wallets).length === 0) {
+      delete preferences.wallets;
+    } else {
+      preferences.wallets = wallets;
+    }
+
+    await userService.updateUser({
+      id: userId,
+      preferences,
+    });
+
+    return null;
+  }
+
+  async linkXamanWallet(userId: string, wallet: Omit<XamanWalletLink, 'linkedAt'>) {
+    const user = await userService.getUser(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const preferences = this.normalizePreferences(user.preferences);
+    const wallets = { ...(preferences.wallets || {}) };
+    wallets.xaman = {
+      ...wallet,
+      linkedAt: new Date().toISOString()
+    };
+
+    const nextPreferences: Preferences = {
+      ...preferences,
+      wallets,
+    };
+
+    await userService.updateUser({
+      id: userId,
+      preferences: nextPreferences,
+    });
+
+    return nextPreferences.wallets?.xaman || null;
+  }
+
+  async getXamanWallet(userId: string): Promise<XamanWalletLink | null> {
+    const user = await userService.getUser(userId);
+    if (!user) return null;
+    const preferences = this.normalizePreferences(user.preferences);
+    return preferences.wallets?.xaman || null;
+  }
+
+  async unlinkXamanWallet(userId: string) {
+    const user = await userService.getUser(userId);
+    if (!user) return null;
+
+    const preferences = this.normalizePreferences(user.preferences);
+    if (!preferences.wallets?.xaman) {
+      return null;
+    }
+
+    const wallets = { ...(preferences.wallets || {}) };
+    delete wallets.xaman;
 
     if (Object.keys(wallets).length === 0) {
       delete preferences.wallets;

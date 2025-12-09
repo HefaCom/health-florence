@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { 
-  Coins, 
-  TrendingUp, 
-  History, 
-  Gift, 
-  Send, 
+import {
+  Coins,
+  TrendingUp,
+  History,
+  Gift,
+  Send,
   RefreshCw,
   ExternalLink,
   Calendar,
@@ -25,10 +25,12 @@ import {
   Target,
   Heart,
   Activity,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Trash2
 } from 'lucide-react';
 import { ConnectJoey } from '@/components/wallet/ConnectJoey';
 import type { SessionTypes } from '@walletconnect/types';
+import { ConnectXaman } from '@/components/wallet/ConnectXaman';
 import { TokenRewards } from '@/components/dashboard/TokenRewards';
 
 export default function HAICWallet() {
@@ -41,6 +43,7 @@ export default function HAICWallet() {
   const [joeyAddress, setJoeyAddress] = useState<string | null>(null);
   const [joeySession, setJoeySession] = useState<SessionTypes.Struct | null>(null);
   const [persistedWallet, setPersistedWallet] = useState<JoeyWalletLink | null>(null);
+  const [xamanWallet, setXamanWallet] = useState<any | null>(null);
   const [isPersistingWallet, setIsPersistingWallet] = useState(false);
 
   const loadWalletData = useCallback(async () => {
@@ -52,7 +55,7 @@ export default function HAICWallet() {
         haicTokenService.getUserRewards(user.id, 20),
         haicTokenService.getUserTransactions(user.id, 20)
       ]);
-      
+
       setBalance(balanceData);
       setRewards(rewardsData);
       setTransactions(transactionsData);
@@ -69,6 +72,9 @@ export default function HAICWallet() {
     const unsubscribe = walletEvents.onBalanceUpdated(({ userId }) => {
       if (userId === user.id) {
         loadWalletData();
+        // Reload wallets
+        walletService.getJoeyWallet(user.id).then(w => setPersistedWallet(w));
+        walletService.getXamanWallet(user.id).then(w => setXamanWallet(w));
       }
     });
     return unsubscribe;
@@ -81,24 +87,30 @@ export default function HAICWallet() {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchLinkedWallet = async () => {
+    const fetchLinkedWallets = async () => {
       if (!user?.id) {
         if (isMounted) {
           setPersistedWallet(null);
+          setXamanWallet(null);
         }
         return;
       }
       try {
-        const linked = await walletService.getJoeyWallet(user.id);
+        const [joey, xaman] = await Promise.all([
+          walletService.getJoeyWallet(user.id),
+          walletService.getXamanWallet(user.id)
+        ]);
+
         if (isMounted) {
-          setPersistedWallet(linked);
+          setPersistedWallet(joey);
+          setXamanWallet(xaman);
         }
       } catch (error) {
-        console.error('Failed to load linked wallet:', error);
+        console.error('Failed to load linked wallets:', error);
       }
     };
 
-    fetchLinkedWallet();
+    fetchLinkedWallets();
 
     return () => {
       isMounted = false;
@@ -228,61 +240,163 @@ export default function HAICWallet() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">HAIC Wallet</h1>
-          <p className="text-gray-600">Manage your Health AI Coin tokens and rewards</p>
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-1 text-xs text-gray-500">
-              <LinkIcon className="h-3 w-3" />
-              <span>Linked Joey Wallet</span>
-            </div>
-            <div className="text-xs font-mono text-gray-700">
-              {persistedWallet?.address
-                ? `${persistedWallet.address.slice(0, 6)}…${persistedWallet.address.slice(-6)}`
-                : 'Not linked'}
-            </div>
-            {persistedWallet?.connectedAt && (
-              <div className="text-[11px] text-gray-400">
-                Linked {new Date(persistedWallet.connectedAt).toLocaleString()}
-              </div>
-            )}
-            {joeyAddress && (
-              <div className="text-[11px] text-emerald-600">
-                Active session {joeyAddress.slice(0, 6)}…{joeyAddress.slice(-6)}
-              </div>
-            )}
+            <h1 className="text-3xl font-bold tracking-tight">HAIC Wallet</h1>
+            <p className="text-muted-foreground">Manage your Health AI Coin tokens and rewards</p>
           </div>
-          <ConnectJoey
-            networkPreference="xrpl:testnet"
-            onConnected={handleJoeyConnected}
-            onDisconnected={handleJoeyDisconnected}
-            className="hidden sm:inline-flex"
-          />
-          <Button onClick={handleRefresh} variant="outline" size="sm">
+          <Button onClick={handleRefresh} variant="outline" size="sm" className="w-full md:w-auto">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
         </div>
-      </div>
 
-      <div className="sm:hidden">
-        <ConnectJoey
-          networkPreference="xrpl:testnet"
-          onConnected={handleJoeyConnected}
-          onDisconnected={handleJoeyDisconnected}
-          className="w-full justify-center"
-        />
-      </div>
+        {/* Wallet Connection Status Alert */}
+        {!persistedWallet && !xamanWallet && (
+          <Card className="border-amber-200 bg-amber-50/50">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-amber-100 rounded-full shrink-0">
+                  <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-amber-900 mb-1">No Wallet Connected</h4>
+                  <p className="text-sm text-amber-700/80">
+                    Connect your Joey wallet below to start managing your HAIC tokens and earning rewards.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-      {isPersistingWallet && (
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span className="h-2 w-2 rounded-full bg-blue-500 animate-ping"></span>
-          <span>Saving wallet link…</span>
+        {/* Connected Wallets Section */}
+        <div className="grid grid-cols-1  gap-4">
+          {/* Joey Wallet Card */}
+          <Card className={`relative overflow-hidden transition-all ${persistedWallet ? 'border-blue-500/50 bg-blue-50/50' : 'hover:border-blue-500/30'}`}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-medium flex items-center gap-2">
+                  <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                    <LinkIcon className="h-4 w-4" />
+                  </div>
+                  Joey Wallet
+                </CardTitle>
+                {persistedWallet && (
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+                    Linked
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {persistedWallet ? (
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Address</p>
+                    <p className="font-mono text-sm font-medium truncate">
+                      {persistedWallet.address}
+                    </p>
+                  </div>
+                  {joeyAddress && (
+                    <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 p-2 rounded-md">
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Active Session
+                    </div>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => {
+                      if (window.confirm('Unlink this wallet?')) {
+                        saveWalletLink(null);
+                      }
+                    }}
+                  >
+                    Unlink Wallet
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">Connect your Joey wallet to manage assets.</p>
+                  <ConnectJoey
+                    networkPreference="xrpl:testnet"
+                    onConnected={handleJoeyConnected}
+                    onDisconnected={handleJoeyDisconnected}
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Xaman Wallet Card */}
+          {/* <Card className={`relative overflow-hidden transition-all ${xamanWallet ? 'border-black/10 bg-gray-50/50' : 'hover:border-black/20'}`}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-medium flex items-center gap-2">
+                  <div className="p-2 bg-black text-white rounded-full h-8 w-8 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                      <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+                    </svg>
+                  </div>
+                  Xaman Wallet
+                </CardTitle>
+                {xamanWallet && (
+                  <Badge variant="secondary" className="bg-black/5 text-black hover:bg-black/10 shrink-0 ml-2">
+                    Linked
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {xamanWallet ? (
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Wallet Address</p>
+                    <div className="flex items-center gap-2 bg-slate-50 p-2 rounded border font-mono text-sm break-all">
+                      <span className="truncate">{xamanWallet.address}</span>
+                      <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all"
+                    onClick={async () => {
+                      if (window.confirm('Unlink Xaman wallet?')) {
+                        if (user?.id) {
+                          await walletService.unlinkXamanWallet(user.id);
+                          setXamanWallet(null);
+                          toast.success('Xaman wallet unlinked');
+                        }
+                      }
+                    }}
+                  >
+                    Unlink Wallet
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 flex flex-col h-full justify-between">
+                  <p className="text-sm text-muted-foreground">Connect Xaman for secure mobile signing.</p>
+                  <ConnectXaman onConnected={handleRefresh} />
+                </div>
+              )}
+            </CardContent>
+          </Card> */}
         </div>
-      )}
+
+        {isPersistingWallet && (
+          <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground animate-pulse">
+            <span className="h-2 w-2 rounded-full bg-primary"></span>
+            <span>Saving wallet changes...</span>
+          </div>
+        )}
+      </div>
 
       {/* Consolidated HAIC Summary and Actions (from TokenRewards) */}
       <TokenRewards />
@@ -326,15 +440,15 @@ export default function HAICWallet() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button 
+            <Button
               onClick={() => setShowTransferModal(true)}
               className="h-20 flex flex-col items-center justify-center gap-2"
             >
               <Send className="h-6 w-6" />
               <span>Send HAIC</span>
             </Button>
-            
-            <Button 
+
+            <Button
               variant="outline"
               className="h-20 flex flex-col items-center justify-center gap-2"
               onClick={() => window.open('https://xrpscan.com', '_blank')}
@@ -342,8 +456,8 @@ export default function HAICWallet() {
               <ExternalLink className="h-6 w-6" />
               <span>View on XRPL</span>
             </Button>
-            
-            <Button 
+
+            <Button
               variant="outline"
               className="h-20 flex flex-col items-center justify-center gap-2"
               onClick={handleRefresh}
@@ -403,8 +517,8 @@ export default function HAICWallet() {
                             <div className="flex items-center gap-2">
                               {getStatusIcon(reward.status)}
                               <span className="text-sm text-gray-600">
-                                {reward.status === 'confirmed' ? 'Confirmed' : 
-                                 reward.status === 'pending' ? 'Pending' : 'Failed'}
+                                {reward.status === 'confirmed' ? 'Confirmed' :
+                                  reward.status === 'pending' ? 'Pending' : 'Failed'}
                               </span>
                               {reward.transactionHash && (
                                 <span className="text-xs text-gray-500 font-mono">
@@ -464,8 +578,8 @@ export default function HAICWallet() {
                           <div className="flex items-center gap-2">
                             {getStatusIcon(transaction.status)}
                             <span className="text-sm text-gray-600">
-                              {transaction.status === 'confirmed' ? 'Confirmed' : 
-                               transaction.status === 'pending' ? 'Pending' : 'Failed'}
+                              {transaction.status === 'confirmed' ? 'Confirmed' :
+                                transaction.status === 'pending' ? 'Pending' : 'Failed'}
                             </span>
                             {transaction.transactionHash && (
                               <span className="text-xs text-gray-500 font-mono">
@@ -475,12 +589,11 @@ export default function HAICWallet() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`text-lg font-bold ${
-                            transaction.type === 'earn' ? 'text-green-600' : 
+                          <p className={`text-lg font-bold ${transaction.type === 'earn' ? 'text-green-600' :
                             transaction.type === 'spend' ? 'text-red-600' : 'text-blue-600'
-                          }`}>
-                            {transaction.type === 'earn' ? '+' : 
-                             transaction.type === 'spend' ? '-' : '→'} {formatAmount(transaction.amount)} HAIC
+                            }`}>
+                            {transaction.type === 'earn' ? '+' :
+                              transaction.type === 'spend' ? '-' : '→'} {formatAmount(transaction.amount)} HAIC
                           </p>
                           <p className="text-sm text-gray-600">
                             Balance: {formatAmount(transaction.balance)} HAIC
@@ -519,7 +632,7 @@ export default function HAICWallet() {
                       <p className="text-sm font-medium text-green-600">+150 HAIC</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-full bg-blue-100 text-blue-800">
                       <Target className="h-4 w-4" />
@@ -530,7 +643,7 @@ export default function HAICWallet() {
                       <p className="text-sm font-medium text-green-600">+100 HAIC</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-full bg-purple-100 text-purple-800">
                       <Calendar className="h-4 w-4" />
@@ -542,7 +655,7 @@ export default function HAICWallet() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-full bg-red-100 text-red-800">
@@ -554,7 +667,7 @@ export default function HAICWallet() {
                       <p className="text-sm font-medium text-green-600">+60 HAIC</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-full bg-green-100 text-green-800">
                       <Heart className="h-4 w-4" />
@@ -565,7 +678,7 @@ export default function HAICWallet() {
                       <p className="text-sm font-medium text-green-600">+50 HAIC</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-full bg-orange-100 text-orange-800">
                       <Activity className="h-4 w-4" />
@@ -593,35 +706,35 @@ export default function HAICWallet() {
                 <XCircle className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Recipient Address</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="w-full p-2 border rounded-md"
                   placeholder="Enter XRPL address"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Amount</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   className="w-full p-2 border rounded-md"
                   placeholder="Enter amount"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Description (Optional)</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="w-full p-2 border rounded-md"
                   placeholder="Enter description"
                 />
               </div>
-              
+
               <div className="flex gap-2 pt-4">
                 <Button className="flex-1">Send HAIC</Button>
                 <Button variant="outline" onClick={() => setShowTransferModal(false)}>
