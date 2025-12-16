@@ -335,7 +335,7 @@ export default function HAICWallet() {
           </Card>
 
           {/* Xaman Wallet Card */}
-          {/* <Card className={`relative overflow-hidden transition-all ${xamanWallet ? 'border-black/10 bg-gray-50/50' : 'hover:border-black/20'}`}>
+          <Card className={`relative overflow-hidden transition-all ${xamanWallet ? 'border-black/10 bg-gray-50/50' : 'hover:border-black/20'}`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium flex items-center gap-2">
@@ -387,7 +387,7 @@ export default function HAICWallet() {
                 </div>
               )}
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
         {isPersistingWallet && (

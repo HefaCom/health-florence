@@ -84,9 +84,9 @@ const Login = () => {
     <div className="relative min-h-screen overflow-hidden flex flex-col">
       {/* Background Image */}
       <div className="absolute inset-0 -z-10">
-        <img 
-          src="/bg.jpg" 
-          alt="Landscape background" 
+        <img
+          src="/bg.jpg"
+          alt="Landscape background"
           className="w-full h-full object-cover"
         />
       </div>
@@ -99,7 +99,7 @@ const Login = () => {
               <FloLogo className="w-24 h-24" />
             </div>
 
-            <h1 className="text-3xl font-bold text-center mb-2">Health AI Portal</h1>
+            <h1 className="text-3xl font-bold text-center mb-2">Nurse Help Me</h1>
             <p className="text-center text-muted-foreground mb-6">
               Access your personalized healthcare dashboard
             </p>
@@ -141,9 +141,9 @@ const Login = () => {
                 />
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full rounded-full h-12" 
+              <Button
+                type="submit"
+                className="w-full rounded-full h-12"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -153,8 +153,8 @@ const Login = () => {
               </Button>
 
               <div className="text-center">
-                <Link 
-                  to="/forgot-password" 
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-muted-foreground hover:text-primary"
                 >
                   Forgot your password?

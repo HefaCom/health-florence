@@ -97,9 +97,9 @@ const Register = () => {
     <div className="relative min-h-screen overflow-hidden flex flex-col">
       {/* Background Image */}
       <div className="absolute inset-0 -z-10">
-        <img 
-          src="/bg.jpg" 
-          alt="Landscape background" 
+        <img
+          src="/bg.jpg"
+          alt="Landscape background"
           className="w-full h-full object-cover"
         />
       </div>
@@ -109,9 +109,9 @@ const Register = () => {
         <div className="w-full max-w-md bg-card/95 backdrop-blur-sm shadow-2xl rounded-3xl overflow-hidden">
           <div className="p-8">
             <div className="flex justify-between items-center mb-6">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => navigate("/login")}
                 className="rounded-full"
               >
@@ -181,9 +181,9 @@ const Register = () => {
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full rounded-full h-12" 
+                <Button
+                  type="submit"
+                  className="w-full rounded-full h-12"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -208,9 +208,9 @@ const Register = () => {
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full rounded-full h-12" 
+                <Button
+                  type="submit"
+                  className="w-full rounded-full h-12"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -237,18 +237,18 @@ const Register = () => {
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-border"></div>
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
+                {/* <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-card px-2 text-muted-foreground">Or register with</span>
-                </div>
+                </div> */}
               </div>
 
-              <Button 
+              {/* <Button 
                 variant="outline" 
                 className="mt-6 w-full rounded-full h-12"
               >
                 <Mail className="mr-2 h-5 w-5" />
                 Sign up with Google
-              </Button>
+              </Button> */}
 
               <div className="mt-6 text-sm">
                 <span className="text-muted-foreground">Already have an account?</span>

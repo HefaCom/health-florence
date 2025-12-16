@@ -18,7 +18,7 @@ const Index = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
-  
+
   // Real data for medications from user profile
   const [medications, setMedications] = useState([]);
 
@@ -62,15 +62,15 @@ const Index = () => {
       if (user?.email) {
         try {
           setIsLoading(true);
-          
+
           // Fetch user data
           const userProfile = await userService.getUserByEmail(user.email);
           if (userProfile) {
             setUserData(userProfile);
-            
+
             // Load today's health metrics
             await loadTodaysHealthMetrics();
-            
+
             // Parse medications from user data
             if (userProfile.currentMedications) {
               const medList = userProfile.currentMedications.split(',').map((med, index) => ({
@@ -168,7 +168,7 @@ const Index = () => {
 
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       if (currentMetricsId) {
         // Update existing metrics
         await healthMetricsService.updateHealthMetrics({
@@ -385,10 +385,10 @@ const Index = () => {
                 onMarkTaken={handleMarkTaken}
               />
               <AppointmentCard appointments={appointments} />
-              
+
               {/* Quick Access to New Features */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <Card className="p-4 rounded-florence card-glow hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/dietary-plan'}>
+                <Card className="p-4 rounded-florence card-glow cursor-pointer" onClick={() => window.location.href = '/dietary-plan'}>
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-green-100 rounded-lg">
                       <Apple className="h-6 w-6 text-green-600" />
@@ -399,8 +399,8 @@ const Index = () => {
                     </div>
                   </div>
                 </Card>
-                
-                <Card className="p-4 rounded-florence card-glow hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/health-goals'}>
+
+                <Card className="p-4 rounded-florence card-glow cursor-pointer" onClick={() => window.location.href = '/health-goals'}>
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-blue-100 rounded-lg">
                       <Target className="h-6 w-6 text-blue-600" />
@@ -411,8 +411,8 @@ const Index = () => {
                     </div>
                   </div>
                 </Card>
-                
-                <Card className="p-4 rounded-florence card-glow hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/health-profile'}>
+
+                <Card className="p-4 rounded-florence card-glow cursor-pointer" onClick={() => window.location.href = '/health-profile'}>
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-purple-100 rounded-lg">
                       <UserCheck className="h-6 w-6 text-purple-600" />

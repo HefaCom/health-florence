@@ -10,7 +10,7 @@ export function FloLogo({ className = "" }: FloLogoProps) {
     <div className={`relative ${className}`}>
       <div className="relative overflow-hidden rounded-3xl animate-pulse-glow">
         <img
-          src="/logo.jpg"
+          src="/logo1.jpg"
           alt="Nurse Help Me"
           className="object-contain w-full h-full"
         />
