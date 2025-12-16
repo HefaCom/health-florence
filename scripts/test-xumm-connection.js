@@ -23,9 +23,9 @@ const XUMM_CONFIG = {
  */
 async function testXUMMConnection() {
   console.log('🚀 Testing XUMM API Connection...\n');
-  
-  console.log(`🔑 API Key: ${XUMM_CONFIG.apiKey.substring(0, 8)}...`);
-  console.log(`🔐 API Secret: ${XUMM_CONFIG.apiSecret.substring(0, 8)}...`);
+
+  // console.log(`🔑 API Key: ${XUMM_CONFIG.apiKey.substring(0, 8)}...`);
+  // console.log(`🔐 API Secret: ${XUMM_CONFIG.apiSecret.substring(0, 8)}...`);
   console.log(`🌐 Base URL: ${XUMM_CONFIG.baseUrl}`);
   console.log('');
 
@@ -47,15 +47,15 @@ async function testXUMMConnection() {
     const req = https.request(options, (res) => {
       console.log(`📡 Response status: ${res.statusCode}`);
       console.log(`📡 Response headers:`, res.headers);
-      
+
       let data = '';
       res.on('data', (chunk) => {
         data += chunk;
       });
-      
+
       res.on('end', () => {
         console.log(`📊 Response body: ${data}`);
-        
+
         if (res.statusCode === 200) {
           console.log('✅ XUMM API connection successful!');
           resolve({ success: true, status: res.statusCode, data });
@@ -85,10 +85,10 @@ async function testXUMMConnection() {
  */
 async function testWithSampleWallet() {
   console.log('\n🔗 Testing with sample wallet address...');
-  
+
   // Use a well-known XRP address for testing
   const sampleAddress = 'rN7n7otQDd6FczFgLdSqtcsAUxDkw6fzRH';
-  
+
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'xumm.app',
@@ -106,12 +106,12 @@ async function testWithSampleWallet() {
 
     const req = https.request(options, (res) => {
       console.log(`📡 Response status: ${res.statusCode}`);
-      
+
       let data = '';
       res.on('data', (chunk) => {
         data += chunk;
       });
-      
+
       res.on('end', () => {
         try {
           const jsonData = JSON.parse(data);
@@ -148,14 +148,14 @@ async function main() {
   try {
     // Test basic connection
     const connectionResult = await testXUMMConnection();
-    
+
     if (connectionResult.success) {
       console.log('\n🎉 XUMM API is accessible and credentials are working!');
-      
+
       // Test with sample wallet
       try {
         const accountResult = await testWithSampleWallet();
-        
+
         if (accountResult.success) {
           console.log('\n✅ Full XUMM integration test passed!');
           console.log('🚀 You can now use the balance fetching scripts.');

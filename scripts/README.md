@@ -52,8 +52,8 @@ The XUMM API credentials are configured in each script:
 
 ```javascript
 const XUMM_CONFIG = {
-  apiKey: "81714331-6a90-496a-8af4-c0655922715a",
-  apiSecret: "e7977f2c-5205-42a5-a800-3c7186672674",
+  apiKey: "apiKey",
+  apiSecret: "apiSecret",
   baseUrl: "https://xumm.app/api/v1"
 };
 ```
