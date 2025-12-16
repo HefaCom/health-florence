@@ -131,6 +131,32 @@ export default function HAICWallet() {
           walletService.getXamanWallet(user.id)
         ]);
 
+        // Validate Xaman session
+        try {
+          const xummState = await xumm.state();
+          if (xummState?.me?.account && xaman?.address) {
+            if (xummState.me.account !== xaman.address) {
+              console.warn('Xaman wallet mismatch detected. Clearing session.');
+              await xumm.logout();
+              // Don't set xamanWallet - force reconnect
+              if (isMounted) {
+                setPersistedWallet(joey);
+                setXamanWallet(null);
+              }
+              toast.error('Wallet mismatch detected. Please reconnect Xaman.');
+              return;
+            }
+          } else if (xummState?.me?.account && !xaman) {
+            // Browser has session but user has no linked wallet in DB
+            // We could either link it automatically or force logout. For isolation, force logout 
+            // to allow clean "Connect" flow.
+            console.warn('Orphaned Xaman session detected. Clearing.');
+            await xumm.logout();
+          }
+        } catch (e) {
+          console.error('Error validating Xaman state:', e);
+        }
+
         if (isMounted) {
           setPersistedWallet(joey);
           setXamanWallet(xaman);

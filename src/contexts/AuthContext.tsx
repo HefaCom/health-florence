@@ -2,11 +2,11 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Amplify } from 'aws-amplify';
-import { 
-  signIn, 
-  signOut, 
-  signUp, 
-  confirmSignUp, 
+import {
+  signIn,
+  signOut,
+  signUp,
+  confirmSignUp,
   resendSignUpCode,
   getCurrentUser,
   resetPassword as initiateResetPassword,
@@ -15,6 +15,7 @@ import {
 } from 'aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import { userService, User as UserData } from '../services/user.service';
+import { xumm } from '@/lib/wallet/xaman';
 
 // Configure Amplify
 Amplify.configure(awsconfig);
@@ -64,14 +65,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAuthState = async () => {
     try {
       const currentUser = await getCurrentUser();
-      
+
       // Get user attributes
       const email = currentUser.signInDetails?.loginId || '';
-      
+
       if (email) {
         // Get user data from database
         const userData = await userService.getUserByEmail(email);
-        
+
         if (userData && userData.isActive) {
           const user: User = {
             email: userData.email,
@@ -82,9 +83,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isActive: userData.isActive,
             attributes: { email: userData.email }
           };
-          
+
           setUser(user);
-          
+
           // Update login information
           try {
             await userService.updateUserLogin(userData.id);
@@ -113,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    
+
     try {
       // First check if user is already authenticated
       try {
@@ -121,7 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (currentUser) {
           // User is already authenticated, get from database
           const userData = await userService.getUserByEmail(email);
-          
+
           if (userData && userData.isActive) {
             const user: User = {
               email: userData.email,
@@ -132,9 +133,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               isActive: userData.isActive,
               attributes: { email: userData.email }
             };
-            
+
             setUser(user);
-            
+
             // Update login information
             try {
               console.log('Updating login information for already authenticated user:', userData.id);
@@ -144,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               console.warn('Failed to update login info:', loginError);
               // Don't fail authentication if login update fails
             }
-            
+
             toast.success("Already signed in!");
             setIsLoading(false);
             return true;
@@ -157,11 +158,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const { isSignedIn } = await signIn({ username: email, password });
-      
+
       if (isSignedIn) {
         // Get user data from database
         const userData = await userService.getUserByEmail(email);
-        
+
         if (userData && userData.isActive) {
           const user: User = {
             email: userData.email,
@@ -172,9 +173,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isActive: userData.isActive,
             attributes: { email: userData.email }
           };
-          
+
           setUser(user);
-          
+
           // Update login information
           try {
             console.log('Updating login information for user:', userData.id);
@@ -184,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.warn('Failed to update login info:', loginError);
             // Don't fail authentication if login update fails
           }
-          
+
           toast.success("Login successful!");
           setIsLoading(false);
           return true;
@@ -196,14 +197,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const nameParts = email.split('@')[0].split('.');
             const firstName = nameParts[0] || 'User';
             const lastName = nameParts.slice(1).join(' ') || 'Account';
-            
+
             const userData = await userService.createUser({
               email,
               firstName,
               lastName,
               role: 'user'
             });
-            
+
             const user: User = {
               email: userData.email,
               role: userData.role as UserRole,
@@ -213,9 +214,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               isActive: userData.isActive,
               attributes: { email: userData.email }
             };
-            
+
             setUser(user);
-            
+
             // Update login information
             try {
               console.log('Updating login information for newly created user:', userData.id);
@@ -224,7 +225,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } catch (loginError) {
               console.warn('Failed to update login info:', loginError);
             }
-            
+
             toast.success("Account synced and login successful!");
             setIsLoading(false);
             return true;
@@ -237,7 +238,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       }
-      
+
       toast.error("Login failed");
       setIsLoading(false);
       return false;
@@ -296,7 +297,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         message: error.message,
         code: error.code
       });
-      
+
       // Handle specific Cognito errors
       if (error.name === 'UsernameExistsException') {
         // User already exists - check if they're confirmed
@@ -307,7 +308,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (error.name === 'InvalidParameterException') {
         return { success: false, error: "Invalid email format" };
       }
-      
+
       return { success: false, error: error.message || "Registration failed" };
     }
   };
@@ -318,50 +319,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Use provided names or extract from email as fallback
       let finalFirstName = firstName;
       let finalLastName = lastName;
-      
+
       if (!finalFirstName || !finalLastName) {
         const nameParts = email.split('@')[0].split('.');
         finalFirstName = finalFirstName || nameParts[0] || 'User';
         finalLastName = finalLastName || nameParts.slice(1).join(' ') || 'Account';
       }
-      
+
       // Check if user already exists in database
       const existingUser = await userService.getUserByEmail(email);
       if (existingUser) {
         console.log('User already exists in database:', existingUser);
         return true; // User already exists, consider it successful
       }
-      
+
       console.log('Creating user in database:', {
         email,
         firstName: finalFirstName,
         lastName: finalLastName
       });
-      
+
       const user = await userService.createUser({
         email,
         firstName: finalFirstName,
         lastName: finalLastName,
         role: 'user' // Default role
       });
-      
+
       console.log('User created successfully:', user);
       return true;
     } catch (dbError: any) {
       console.error("Failed to create user in database:", dbError);
-      
+
       // Check if user was actually created despite errors
       if (dbError.data && dbError.data.createUser && dbError.data.createUser.id) {
         console.log("User was created successfully despite some errors");
         return true;
       }
-      
+
       // Check if this is a duplicate user error
       if (dbError.message && dbError.message.includes('already exists')) {
         console.log("User already exists, treating as success");
         return true;
       }
-      
+
       throw dbError;
     }
   };
@@ -369,7 +370,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const confirmRegistration = async (email: string, code: string, firstName?: string, lastName?: string): Promise<boolean> => {
     try {
       console.log('Attempting to confirm registration for:', email);
-      
+
       const { isSignUpComplete } = await confirmSignUp({
         username: email,
         confirmationCode: code
@@ -385,14 +386,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return true;
         } catch (dbError: any) {
           console.error("Failed to create user in database after confirmation:", dbError);
-          
+
           // Check if user was actually created despite errors
           if (dbError.data && dbError.data.createUser && dbError.data.createUser.id) {
             console.log("User was created successfully despite some errors");
             toast.success("Email confirmed successfully! Account created.");
             return true;
           }
-          
+
           // Provide more specific error messages
           if (dbError.errors && dbError.errors.length > 0) {
             const errorMessage = dbError.errors[0].message;
@@ -402,7 +403,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else {
             toast.error("Email confirmed but account setup failed. Please contact support.");
           }
-          
+
           return false;
         }
       } else {
@@ -417,7 +418,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         code: error.code,
         stack: error.stack
       });
-      
+
       // Handle specific Cognito errors
       if (error.name === 'CodeMismatchException') {
         toast.error("Invalid verification code. Please check and try again.");
@@ -426,7 +427,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (error.name === 'NotAuthorizedException') {
         // User might already be confirmed - try to create user in database anyway
         console.log('User might already be confirmed, attempting to create user in database...');
-        
+
         try {
           await createUserInDatabase(email, firstName, lastName);
           toast.success("Account created successfully! You can now login.");
@@ -439,7 +440,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         toast.error(error.message || "Email confirmation failed");
       }
-      
+
       return false;
     }
   };
@@ -451,7 +452,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return true;
     } catch (error: any) {
       console.error("Resend verification code error:", error);
-      
+
       // Handle specific Cognito errors
       if (error.name === 'UserNotFoundException') {
         toast.error("User not found. Please register first.");
@@ -462,7 +463,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         toast.error(error.message || "Failed to resend verification code");
       }
-      
+
       return false;
     }
   };
@@ -497,6 +498,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      // Clear Xaman wallet session
+      try {
+        await xumm.logout();
+        console.log('Xaman wallet disconnected');
+      } catch (xummError) {
+        console.warn('Failed to disconnect Xaman wallet:', xummError);
+      }
+
       await signOut();
       setUser(null);
       // Don't navigate here - let the calling component handle navigation
