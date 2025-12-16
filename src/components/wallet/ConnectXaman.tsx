@@ -92,13 +92,32 @@ export function ConnectXaman({ onConnected }: ConnectXamanProps) {
         setError(null);
 
         try {
-            // Create a SignIn payload
-            const payload = await xumm.payload.create({
+
+            console.log('🚀 Starting Xaman connection flow...');
+
+            if (!xumm.payload) {
+                throw new Error('XUMM SDK not properly initialized');
+            }
+
+            // Race payload creation with a timeout
+            const createPayloadPromise = xumm.payload.create({
                 TransactionType: 'SignIn'
             });
 
-            if (!payload || !payload.uuid || !payload.next || !payload.refs) {
-                throw new Error('Failed to create login payload');
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Payload creation timed out after 10s')), 10000);
+            });
+
+            console.log('📡 Creating login payload...');
+            const payload = await Promise.race([createPayloadPromise, timeoutPromise]) as any;
+
+            if (!payload) {
+                throw new Error('No payload returned from XUMM');
+            }
+
+            if (!payload.uuid || !payload.next || !payload.refs) {
+                console.error('Invalid payload response:', payload);
+                throw new Error('Invalid payload received from XUMM');
             }
 
             console.log('✅ XUMM Payload created:', payload.uuid);
@@ -108,9 +127,11 @@ export function ConnectXaman({ onConnected }: ConnectXamanProps) {
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
             if (isMobile) {
+                console.log('📱 Mobile device detected, redirecting to:', payload.next.always);
                 // On mobile, try to open deep link
                 window.location.href = payload.next.always;
             } else {
+                console.log('💻 Desktop detected, showing QR code');
                 // On desktop, show QR code
                 setQrUrl(payload.refs.qr_png);
                 setShowDialog(true);
