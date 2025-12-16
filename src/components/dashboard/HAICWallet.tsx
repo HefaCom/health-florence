@@ -117,9 +117,14 @@ export default function HAICWallet() {
     };
   }, [user?.id]);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     loadWalletData();
-  };
+    // Explicitly reload wallets
+    if (user?.id) {
+      walletService.getJoeyWallet(user.id).then(w => setPersistedWallet(w));
+      walletService.getXamanWallet(user.id).then(w => setXamanWallet(w));
+    }
+  }, [loadWalletData, user?.id]);
 
   const saveWalletLink = useCallback(async (wallet: JoeyWalletLink | null) => {
     if (!user?.id) return;

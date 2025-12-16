@@ -118,12 +118,16 @@ class WalletService {
   }
 
   async linkXamanWallet(userId: string, wallet: Omit<XamanWalletLink, 'linkedAt'>) {
+    console.log(`[WalletService] Linking Xaman wallet for user: ${userId}`, wallet);
     const user = await userService.getUser(userId);
     if (!user) {
+      console.error(`[WalletService] User not found: ${userId}`);
       throw new Error('User not found');
     }
 
     const preferences = this.normalizePreferences(user.preferences);
+    console.log(`[WalletService] Current preferences for ${userId}:`, preferences);
+
     const wallets = { ...(preferences.wallets || {}) };
     wallets.xaman = {
       ...wallet,
@@ -135,19 +139,28 @@ class WalletService {
       wallets,
     };
 
+    console.log(`[WalletService] Updating user ${userId} with new preferences:`, nextPreferences);
+
     await userService.updateUser({
       id: userId,
       preferences: nextPreferences,
     });
 
+    console.log(`[WalletService] Successfully linked Xaman wallet for ${userId}`);
     return nextPreferences.wallets?.xaman || null;
   }
 
   async getXamanWallet(userId: string): Promise<XamanWalletLink | null> {
+    console.log(`[WalletService] Getting Xaman wallet for user: ${userId}`);
     const user = await userService.getUser(userId);
-    if (!user) return null;
+    if (!user) {
+      console.warn(`[WalletService] User not found during getXamanWallet: ${userId}`);
+      return null;
+    }
     const preferences = this.normalizePreferences(user.preferences);
-    return preferences.wallets?.xaman || null;
+    const wallet = preferences.wallets?.xaman || null;
+    console.log(`[WalletService] Found Xaman wallet for ${userId}:`, wallet ? 'Yes' : 'No', wallet);
+    return wallet;
   }
 
   async unlinkXamanWallet(userId: string) {
