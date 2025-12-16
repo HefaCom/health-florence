@@ -86,6 +86,35 @@ export default function HAICWallet() {
   }, [loadWalletData]);
 
   useEffect(() => {
+    // Check if returning from Xumm redirect
+    xumm.on("success", async () => {
+      try {
+        const state = await xumm.state();
+        if (state?.me && user?.id) {
+          console.log('✅ Xumm PKCE Login Successful', state.me);
+
+          await walletService.linkXamanWallet(user.id, {
+            address: state.me.account,
+            token: state.jwt || '',
+            uui: state.me.sub || ''
+          });
+
+          setXamanWallet({
+            address: state.me.account,
+            linkedAt: new Date().toISOString()
+          });
+
+          toast.success('Xaman wallet connected successfully');
+          loadWalletData();
+        }
+      } catch (e) {
+        console.error('Error handling Xumm callback:', e);
+        toast.error('Failed to complete Xaman connection');
+      }
+    });
+  }, [user?.id, loadWalletData]);
+
+  useEffect(() => {
     let isMounted = true;
 
     const fetchLinkedWallets = async () => {
@@ -398,6 +427,9 @@ export default function HAICWallet() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Handle Xaman PKCE Callback */}
+        {/* Logic handled by top-level useEffect */}
 
         {isPersistingWallet && (
           <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground animate-pulse">

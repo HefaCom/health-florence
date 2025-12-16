@@ -1,13 +1,10 @@
-import { Xumm } from 'xumm';
+import { XummPkce } from 'xumm-oauth2-pkce';
 
 /**
- * Initialize XUMM SDK for browser-side wallet connectivity
+ * Initialize XUMM SDK for browser-side wallet connectivity (PKCE Flow)
  * 
- * For browser/client-side usage, only the API key is required.
- * The XUMM SDK handles QR code generation and payload subscriptions.
- * 
- * Note: API secret is only needed for server-side operations.
- * In a production environment, consider using environment variables.
+ * We use the Authorization Code Flow (PKCE) which is secure for client-side applications.
+ * This redirects the user to xumm.app to sign in, avoiding API Secret exposure and CORS issues.
  */
 
 // Get API key from environment or use hardcoded value
@@ -18,10 +15,14 @@ if (!XUMM_API_KEY) {
     throw new Error('XUMM API key is not configured. Please set VITE_XUMM_API_KEY environment variable.');
 }
 
-// Initialize XUMM SDK
-export const xumm = new Xumm(XUMM_API_KEY);
+// Initialize XUMM PKCE SDK
+export const xumm = new XummPkce(XUMM_API_KEY, {
+    implicit: true, // Use implicit flow for simpler client-side setup if supported, or standard PKCE
+    redirectUrl: window.location.href // Redirect back to the current page
+});
 
 // Log initialization (only in development)
 if (import.meta.env.DEV) {
-    console.log('✅ XUMM SDK initialized for browser-side wallet connectivity');
+    console.log('✅ XUMM PKCE SDK initialized');
 }
+

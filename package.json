@@ -81,6 +81,7 @@
     "vaul": "^0.9.3",
     "xrpl": "^4.4.3",
     "xumm": "^1.8.0",
+    "xumm-oauth2-pkce": "^2.8.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
