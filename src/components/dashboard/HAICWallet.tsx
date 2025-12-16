@@ -32,6 +32,7 @@ import { ConnectJoey } from '@/components/wallet/ConnectJoey';
 import type { SessionTypes } from '@walletconnect/types';
 import { ConnectXaman } from '@/components/wallet/ConnectXaman';
 import { TokenRewards } from '@/components/dashboard/TokenRewards';
+import { xumm } from '@/lib/wallet/xaman';
 
 export default function HAICWallet() {
   const { user } = useAuth();
@@ -281,17 +282,17 @@ export default function HAICWallet() {
         {/* Connected Wallets Section */}
         <div className="grid grid-cols-1  gap-4">
           {/* Joey Wallet Card */}
-          <Card className={`relative overflow-hidden transition-all ${persistedWallet ? 'border-blue-500/50 bg-blue-50/50' : 'hover:border-blue-500/30'}`}>
+          <Card className={`relative overflow-hidden transition-all ${persistedWallet ? 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-500/30' : 'hover:border-blue-500/30 dark:hover:border-blue-500/30'}`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium flex items-center gap-2">
-                  <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-full text-blue-600 dark:text-blue-400">
                     <LinkIcon className="h-4 w-4" />
                   </div>
                   Joey Wallet
                 </CardTitle>
                 {persistedWallet && (
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/50 dark:text-blue-300">
                     Linked
                   </Badge>
                 )}
@@ -302,12 +303,12 @@ export default function HAICWallet() {
                 <div className="space-y-3">
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground">Address</p>
-                    <p className="font-mono text-sm font-medium truncate">
+                    <p className="font-mono text-sm font-medium truncate text-foreground">
                       {persistedWallet.address}
                     </p>
                   </div>
                   {joeyAddress && (
-                    <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 p-2 rounded-md">
+                    <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400 p-2 rounded-md">
                       <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Active Session
                     </div>
@@ -315,7 +316,7 @@ export default function HAICWallet() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                    className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
                     onClick={() => {
                       if (window.confirm('Unlink this wallet?')) {
                         saveWalletLink(null);
@@ -340,11 +341,11 @@ export default function HAICWallet() {
           </Card>
 
           {/* Xaman Wallet Card */}
-          <Card className={`relative overflow-hidden transition-all ${xamanWallet ? 'border-black/10 bg-gray-50/50' : 'hover:border-black/20'}`}>
+          <Card className={`relative overflow-hidden transition-all ${xamanWallet ? 'border-black/10 bg-gray-50/50 dark:bg-zinc-900/50 dark:border-zinc-800' : 'hover:border-black/20 dark:hover:border-zinc-700'}`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium flex items-center gap-2">
-                  <div className="p-2 bg-black text-white rounded-full h-8 w-8 flex items-center justify-center">
+                  <div className="p-2 bg-black dark:bg-white text-white dark:text-black rounded-full h-8 w-8 flex items-center justify-center">
                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
                       <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
                     </svg>
@@ -352,7 +353,7 @@ export default function HAICWallet() {
                   Xaman Wallet
                 </CardTitle>
                 {xamanWallet && (
-                  <Badge variant="secondary" className="bg-black/5 text-black hover:bg-black/10 shrink-0 ml-2">
+                  <Badge variant="secondary" className="bg-black/5 text-black hover:bg-black/10 dark:bg-white/10 dark:text-white shrink-0 ml-2">
                     Linked
                   </Badge>
                 )}
@@ -363,19 +364,22 @@ export default function HAICWallet() {
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Wallet Address</p>
-                    <div className="flex items-center gap-2 bg-slate-50 p-2 rounded border font-mono text-sm break-all">
-                      <span className="truncate">{xamanWallet.address}</span>
-                      <ExternalLink className="w-3 h-3 text-gray-400 shrink-0" />
+                    <div className="flex items-center gap-2 bg-slate-50 dark:bg-zinc-950 p-2 rounded border dark:border-zinc-800 font-mono text-sm break-all">
+                      <span className="truncate text-foreground">{xamanWallet.address}</span>
+                      <ExternalLink className="w-3 h-3 text-gray-400 dark:text-gray-500 shrink-0" />
                     </div>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-all"
+                    className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/20 transition-all"
                     onClick={async () => {
                       if (window.confirm('Unlink Xaman wallet?')) {
                         if (user?.id) {
+                          // Unlink in DB
                           await walletService.unlinkXamanWallet(user.id);
+                          // Explicitly logout from SDK to clear stored token
+                          await xumm.logout();
                           setXamanWallet(null);
                           toast.success('Xaman wallet unlinked');
                         }
