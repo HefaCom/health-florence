@@ -337,7 +337,7 @@ export default function HAICWallet() {
         {/* Connected Wallets Section */}
         <div className="grid grid-cols-1  gap-4">
           {/* Joey Wallet Card */}
-          <Card className={`relative overflow-hidden transition-all ${persistedWallet ? 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-500/30' : 'hover:border-blue-500/30 dark:hover:border-blue-500/30'}`}>
+          <Card className={`relative overflow-hidden transition-all card-glow rounded-florence ${persistedWallet ? 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-500/30' : 'hover:border-blue-500/30 dark:hover:border-blue-500/30'}`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium flex items-center gap-2">
@@ -396,7 +396,7 @@ export default function HAICWallet() {
           </Card>
 
           {/* Xaman Wallet Card */}
-          <Card className={`relative overflow-hidden transition-all ${xamanWallet ? 'border-black/10 bg-gray-50/50 dark:bg-zinc-900/50 dark:border-zinc-800' : 'hover:border-black/20 dark:hover:border-zinc-700'}`}>
+          <Card className={`relative overflow-hidden transition-all card-glow rounded-florence ${xamanWallet ? 'border-black/10 bg-gray-50/50 dark:bg-zinc-900/50 dark:border-zinc-800' : 'hover:border-black/20 dark:hover:border-zinc-700'}`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium flex items-center gap-2">
@@ -498,7 +498,7 @@ export default function HAICWallet() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="card-glow rounded-florence">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>
@@ -545,7 +545,7 @@ export default function HAICWallet() {
         </TabsList>
 
         <TabsContent value="rewards" className="space-y-4">
-          <Card>
+          <Card className="card-glow rounded-florence">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Gift className="h-5 w-5" />
@@ -610,7 +610,7 @@ export default function HAICWallet() {
         </TabsContent>
 
         <TabsContent value="transactions" className="space-y-4">
-          <Card>
+          <Card className="card-glow rounded-florence">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <History className="h-5 w-5" />
@@ -676,7 +676,7 @@ export default function HAICWallet() {
         </TabsContent>
 
         <TabsContent value="earning" className="space-y-4">
-          <Card>
+          <Card className="card-glow rounded-florence">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Trophy className="h-5 w-5" />

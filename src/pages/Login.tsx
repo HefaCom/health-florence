@@ -180,7 +180,7 @@ const Login = () => {
 
                 <div className="flex text-sm justify-center">
                   <span className="text-muted-foreground">Don't have an account?</span>
-                  <Link to="/register" className="ml-1 font-medium text-primary hover:underline">
+                  <Link to="#" className="ml-1 font-medium text-primary hover:underline ">
                     Sign up
                   </Link>
                 </div>

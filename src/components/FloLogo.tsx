@@ -38,7 +38,7 @@ export function HealthAICoin({ className = "" }: FloLogoProps) {
     <div className={`relative ${className}`}>
       <div className="relative overflow-hidden rounded-full animate-pulse-glow">
         <img
-          src="/lovable-uploads/8dfe6cd9-3600-4a46-948c-a11241f1143e.png"
+          src="/logo1.jpg"
           alt="Health AI Coin"
           className="object-contain w-full h-full"
         />
