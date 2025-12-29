@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Calendar, 
-  BarChart3, 
-  Settings, 
-  Menu, 
-  Bell, 
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  BarChart3,
+  Settings,
+  Menu,
+  Bell,
   LogOut,
   MessageCircle,
   History,
@@ -15,14 +15,15 @@ import {
   Bot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  Sheet, 
-  SheetContent 
+import {
+  Sheet,
+  SheetContent
 } from "@/components/ui/sheet";
 import { FloLogo } from "@/components/FloLogo";
+import { NotificationsDropdown } from "@/components/notifications/NotificationsDropdown";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
-import { 
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -43,7 +44,7 @@ export const AdminLayout = () => {
     if (user?.attributes?.name) {
       return user.attributes.name;
     }
-    
+
     // Extract name from email if available
     if (user?.email) {
       const emailName = user.email.split('@')[0];
@@ -53,10 +54,10 @@ export const AdminLayout = () => {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
     }
-    
+
     return "Admin";
   };
-  
+
   // Get greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -120,10 +121,10 @@ export const AdminLayout = () => {
       <aside className={`hidden md:flex flex-col w-64 ${sidebarBgClass} border-r ${sidebarBorderClass} transition-all duration-300`}>
         <div className={`p-4 flex items-center justify-between h-16 border-b ${sidebarBorderClass}`}>
           <div className="flex items-center">
-          <FloLogo className="w-10 h-10" />
-          <span className="font-bold text-xl hidden lg:block neon-text">
-            Health AI <span className="text-primary">.</span>
-          </span>
+            <FloLogo className="w-10 h-10" />
+            <span className="font-bold text-xl hidden lg:block neon-text">
+              Health AI <span className="text-primary">.</span>
+            </span>
           </div>
         </div>
 
@@ -146,11 +147,10 @@ export const AdminLayout = () => {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={({ isActive }) => 
-                  `flex items-center px-3 py-2.5 text-sm rounded-lg transition-colors ${
-                    isActive 
-                      ? sidebarActiveClass
-                      : `${sidebarTextClass} ${sidebarHoverBgClass} hover:text-foreground`
+                className={({ isActive }) =>
+                  `flex items-center px-3 py-2.5 text-sm rounded-lg transition-colors ${isActive
+                    ? sidebarActiveClass
+                    : `${sidebarTextClass} ${sidebarHoverBgClass} hover:text-foreground`
                   }`
                 }
                 end={item.path === "/admin"}
@@ -162,8 +162,8 @@ export const AdminLayout = () => {
           </nav>
 
           <div className={`p-4 mt-auto border-t ${sidebarBorderClass}`}>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className={`w-full justify-start ${sidebarTextClass} ${sidebarHoverBgClass} hover:text-foreground`}
               onClick={logout}
             >
@@ -190,11 +190,10 @@ export const AdminLayout = () => {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  className={({ isActive }) => 
-                    `flex items-center px-3 py-2.5 text-sm rounded-lg transition-colors ${
-                      isActive 
-                        ? sidebarActiveClass
-                        : `${sidebarTextClass} ${sidebarHoverBgClass} hover:text-foreground`
+                  className={({ isActive }) =>
+                    `flex items-center px-3 py-2.5 text-sm rounded-lg transition-colors ${isActive
+                      ? sidebarActiveClass
+                      : `${sidebarTextClass} ${sidebarHoverBgClass} hover:text-foreground`
                     }`
                   }
                   end={item.path === "/admin"}
@@ -220,8 +219,8 @@ export const AdminLayout = () => {
             </div>
 
             <div className={`p-4 mt-auto border-t ${sidebarBorderClass}`}>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className={`w-full justify-start ${sidebarTextClass} ${sidebarHoverBgClass} hover:text-foreground`}
                 onClick={logout}
               >
@@ -238,10 +237,10 @@ export const AdminLayout = () => {
         {/* Top Navigation Bar */}
         <header className={`h-16 border-b ${sidebarBorderClass} flex items-center justify-between px-4 ${sidebarBgClass}`}>
           <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="md:hidden mr-2" 
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden mr-2"
               onClick={() => setIsSidebarOpen(true)}
             >
               <Menu className="h-5 w-5" />
@@ -250,20 +249,20 @@ export const AdminLayout = () => {
               {navigationItems.find(item => item.path === location.pathname)?.name || "Admin Dashboard"}
             </h1>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             {/* Personalized Greeting */}
             <div className="hidden md:block mr-4 text-right">
               <p className="text-sm font-medium">{getGreeting()}, {getUserName()}</p>
               <p className="text-xs text-muted-foreground">{user?.role || "Administrator"}</p>
             </div>
-            
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="relative"
                     onClick={() => setIsChatOpen(!isChatOpen)}
                   >
@@ -276,29 +275,19 @@ export const AdminLayout = () => {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
-            {/* <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Notifications</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider> */}
-            
+
+            <div className="mr-2">
+              <NotificationsDropdown />
+            </div>
+
             <ThemeToggle />
-            
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={logout}
                   >
                     <LogOut className="h-5 w-5" />
@@ -311,13 +300,13 @@ export const AdminLayout = () => {
             </TooltipProvider>
           </div>
         </header>
-        
+
         {/* Main Content Area */}
         <main className="flex-1 overflow-auto p-4">
           <Outlet />
         </main>
       </div>
-      
+
       {/* Chat Interface */}
       {isChatOpen && (
         <div className="fixed bottom-4 right-4 z-50 w-80 h-96 bg-card rounded-lg shadow-lg border overflow-hidden">

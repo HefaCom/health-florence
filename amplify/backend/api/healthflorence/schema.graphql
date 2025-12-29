@@ -47,6 +47,26 @@ type User @model @auth(rules: [
   haicRewards: [HAICReward] @hasMany(fields: ["id"])
   haicTransactions: [HAICTransaction] @hasMany(fields: ["id"])
   healthMetrics: [HealthMetrics] @hasMany(fields: ["id"])
+  notifications: [Notification] @hasMany(indexName: "byUser", fields: ["id"])
+}
+
+type Notification @model @auth(rules: [
+  { allow: private },
+  { allow: public }
+]) {
+  id: ID!
+  userId: ID! @index(name: "byUser", sortKeyFields: ["createdAt"], queryField: "listNotificationsByUser")
+  type: String! # APPOINTMENT, WALLET, PROFILE, SYSTEM, DIETARY, GOAL, EXPERT
+  title: String!
+  message: String!
+  data: AWSJSON
+  isRead: Boolean! @default(value: "false")
+  actionUrl: String
+  
+  user: User @belongsTo(fields: ["userId"])
+  
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
 }
 
 type Expert @model @auth(rules: [

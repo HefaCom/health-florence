@@ -6,12 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { 
-  User, 
-  FileText, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
+import { NotificationService, NotificationType } from '@/services/NotificationService';
+import {
+  User,
+  FileText,
+  CheckCircle,
+  XCircle,
+  Clock,
   Eye,
   Download,
   Shield,
@@ -166,6 +167,18 @@ export default function AdminExpertReview() {
         }
       });
 
+      const expert = experts.find(e => e.id === expertId);
+      if (expert) {
+        await NotificationService.createNotification(
+          expert.userId,
+          NotificationType.PROFILE,
+          'Expert Profile Approved',
+          'Your expert profile has been approved! You can now access all expert features.',
+          { expertId },
+          '/expert/dashboard'
+        );
+      }
+
       toast.success('Expert approved successfully!');
       loadExperts(); // Refresh the list
     } catch (error) {
@@ -194,6 +207,18 @@ export default function AdminExpertReview() {
           }
         }
       });
+
+      const expert = experts.find(e => e.id === expertId);
+      if (expert) {
+        await NotificationService.createNotification(
+          expert.userId,
+          NotificationType.PROFILE,
+          'Expert Profile Rejected',
+          `Your expert profile application was rejected: ${reason}`,
+          { expertId, reason },
+          '/expert/profile-setup'
+        );
+      }
 
       toast.success('Expert rejected successfully!');
       loadExperts(); // Refresh the list
@@ -283,21 +308,20 @@ export default function AdminExpertReview() {
                   <TabsTrigger value="verified">Verified</TabsTrigger>
                   <TabsTrigger value="rejected">Rejected</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value={activeTab} className="mt-4">
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {filteredExperts.map((expert) => {
                       const status = getVerificationStatus(expert);
                       const expertName = `${expert.user.firstName || ''} ${expert.user.lastName || ''}`.trim() || expert.user.email;
-                      
+
                       return (
                         <div
                           key={expert.id}
-                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                            selectedExpert?.id === expert.id 
-                              ? 'border-blue-500 bg-blue-50' 
-                              : 'hover:bg-gray-50'
-                          }`}
+                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedExpert?.id === expert.id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'hover:bg-gray-50'
+                            }`}
                           onClick={() => setSelectedExpert(expert)}
                         >
                           <div className="flex items-center justify-between">
@@ -312,7 +336,7 @@ export default function AdminExpertReview() {
                         </div>
                       );
                     })}
-                    
+
                     {filteredExperts.length === 0 && (
                       <div className="text-center py-8">
                         <User className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -469,10 +493,10 @@ export default function AdminExpertReview() {
                   {(() => {
                     let documents = [];
                     try {
-                      documents = selectedExpert.documents 
-                        ? (typeof selectedExpert.documents === 'string' 
-                            ? JSON.parse(selectedExpert.documents) 
-                            : selectedExpert.documents)
+                      documents = selectedExpert.documents
+                        ? (typeof selectedExpert.documents === 'string'
+                          ? JSON.parse(selectedExpert.documents)
+                          : selectedExpert.documents)
                         : [];
                     } catch (error) {
                       console.error('Error parsing documents JSON:', error);
@@ -481,30 +505,30 @@ export default function AdminExpertReview() {
                     return documents && documents.length > 0 ? (
                       <div className="space-y-4">
                         {documents.map((doc) => (
-                        <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <FileText className="h-8 w-8 text-blue-600" />
-                            <div>
-                              <p className="font-medium">{doc.name}</p>
-                              <p className="text-sm text-gray-600">
-                                Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}
-                              </p>
+                          <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <FileText className="h-8 w-8 text-blue-600" />
+                              <div>
+                                <p className="font-medium">{doc.name}</p>
+                                <p className="text-sm text-gray-600">
+                                  Uploaded {new Date(doc.uploadedAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className={getStatusColor(doc.status)}>
+                                {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                              </Badge>
+                              <Button variant="ghost" size="sm">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Download className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className={getStatusColor(doc.status)}>
-                              {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
-                            </Badge>
-                            <Button variant="ghost" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
                     ) : (
                       <div className="text-center py-8">
                         <FileText className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -537,7 +561,7 @@ export default function AdminExpertReview() {
                         <p className="text-sm text-blue-800">Approve or reject this expert application</p>
                       </div>
                       <div className="flex gap-2">
-                        <Button 
+                        <Button
                           onClick={() => handleRejectExpert(selectedExpert.id, 'Please provide more information')}
                           variant="outline"
                           className="text-red-600 border-red-600 hover:bg-red-50"
@@ -545,7 +569,7 @@ export default function AdminExpertReview() {
                           <ThumbsDown className="h-4 w-4 mr-2" />
                           Reject
                         </Button>
-                        <Button 
+                        <Button
                           onClick={() => handleApproveExpert(selectedExpert.id)}
                           className="bg-green-600 hover:bg-green-700"
                         >

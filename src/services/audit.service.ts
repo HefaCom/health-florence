@@ -56,7 +56,7 @@ class AuditService {
   async logEvent(event: Omit<AuditEvent, 'id' | 'timestamp'>): Promise<void> {
     try {
       const auditEvent: AuditEvent = {
-          ...event,
+        ...event,
         id: crypto.randomUUID(),
         timestamp: new Date().toISOString()
       };
@@ -109,13 +109,13 @@ class AuditService {
       });
     } catch (error) {
       console.error('Error storing audit event:', error);
-      
+
       // Check if the event was actually created despite errors
       if (error.data && error.data.createAuditEvent && error.data.createAuditEvent.id) {
         console.log('Audit event created successfully despite authorization warnings');
         return; // Don't throw error if event was created
       }
-      
+
       // For now, just log the error and don't throw to avoid breaking the main flow
       console.warn('Audit event logging failed, but continuing with main operation');
     }
@@ -126,7 +126,7 @@ class AuditService {
    */
   private shouldProcessBatch(): boolean {
     return AuditService.pendingEvents.length >= AuditService.MAX_BATCH_SIZE ||
-           (AuditService.pendingEvents.length > 0 && this.isBatchIntervalReached());
+      (AuditService.pendingEvents.length > 0 && this.isBatchIntervalReached());
   }
 
   /**
@@ -134,11 +134,11 @@ class AuditService {
    */
   private isBatchIntervalReached(): boolean {
     if (AuditService.pendingEvents.length === 0) return false;
-    
+
     const oldestEvent = AuditService.pendingEvents[0];
     const now = new Date().getTime();
     const eventTime = new Date(oldestEvent.timestamp).getTime();
-    
+
     return (now - eventTime) >= AuditService.BATCH_INTERVAL;
   }
 
@@ -153,7 +153,7 @@ class AuditService {
 
       // Create Merkle tree root
       const merkleRoot = this.createMerkleRoot(AuditService.pendingEvents);
-      
+
       // Submit to XRPL
       const transactionHash = await this.submitToXRPL(merkleRoot);
 
@@ -179,7 +179,7 @@ class AuditService {
       console.log(`✅ Audit batch processed successfully. Hash: ${transactionHash}`);
     } catch (error) {
       console.error('Error processing audit batch:', error);
-      
+
       // Mark batch as failed
       const batch: AuditBatch = {
         id: crypto.randomUUID(),
@@ -192,7 +192,7 @@ class AuditService {
 
       await this.storeBatch(batch);
       AuditService.pendingEvents = [];
-      
+
       throw error;
     }
   }
@@ -202,12 +202,12 @@ class AuditService {
    */
   private createMerkleRoot(events: AuditEvent[]): string {
     // Sort events by timestamp for consistent ordering
-    const sortedEvents = events.sort((a, b) => 
+    const sortedEvents = events.sort((a, b) =>
       new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
     // Create leaf hashes
-    const leafHashes = sortedEvents.map(event => 
+    const leafHashes = sortedEvents.map(event =>
       this.hashEvent(event)
     );
 
@@ -241,7 +241,7 @@ class AuditService {
     if (hashes.length === 1) return hashes[0];
 
     const nextLevel: string[] = [];
-    
+
     for (let i = 0; i < hashes.length; i += 2) {
       const left = hashes[i];
       const right = hashes[i + 1] || left; // Duplicate last hash if odd number
@@ -274,16 +274,16 @@ class AuditService {
   private async submitToXRPL(merkleRoot: string): Promise<string> {
     try {
       console.log(`📤 Submitting audit batch to XRPL with merkle root: ${merkleRoot}`);
-      
+
       // Ensure XRPL is connected
       await xrplService.connect();
-      
+
       // Create audit transaction
       const transaction = {
         TransactionType: "Payment",
         Account: await xrplService.getWalletAddress(),
         Destination: await xrplService.getAuditAddress(),
-        Amount: "0", // Zero amount for audit trail
+        Amount: "1", // 1 drop (minimum non-zero amount)
         Memos: [{
           Memo: {
             MemoData: Buffer.from(merkleRoot, 'utf8').toString('hex')
@@ -294,7 +294,7 @@ class AuditService {
 
       // Submit transaction
       const result = await xrplService.submitTransaction(transaction);
-      
+
       console.log(`✅ XRPL submission successful. Hash: ${result.hash}`);
       return result.hash;
     } catch (error) {
@@ -384,11 +384,11 @@ class AuditService {
       };
     } catch (error) {
       console.error('Error fetching audit events:', error);
-      
+
       // Check if we got data despite errors (common with authorization issues)
       if (error.data && error.data.listAuditEvents && error.data.listAuditEvents.items) {
         console.log('Got audit events data despite some errors, processing...');
-        
+
         // Filter out null items and map the valid ones
         const events = error.data.listAuditEvents.items
           .filter((item: any) => item !== null && item.id) // Filter out null items
@@ -415,7 +415,7 @@ class AuditService {
           nextToken: error.data.listAuditEvents.nextToken
         };
       }
-      
+
       throw error;
     }
   }
@@ -443,11 +443,11 @@ class AuditService {
         }));
     } catch (error) {
       console.error('Error fetching audit batches:', error);
-      
+
       // Check if we got data despite errors
       if (error.data && error.data.listAuditBatches && error.data.listAuditBatches.items) {
         console.log('Got audit batches data despite some errors, processing...');
-        
+
         // Filter out null items and map the valid ones
         return error.data.listAuditBatches.items
           .filter((item: any) => item !== null && item.id) // Filter out null items
@@ -460,7 +460,7 @@ class AuditService {
             status: item.status || 'pending' // Default value for existing null records
           }));
       }
-      
+
       throw error;
     }
   }
@@ -473,7 +473,7 @@ class AuditService {
       // Get the audit event
       const events = await this.getAuditEvents({ limit: 1 });
       const event = events.events.find(e => e.id === auditId);
-      
+
       if (!event || !event.transactionHash || event.transactionHash === 'pending') {
         return false;
       }
@@ -529,5 +529,5 @@ class AuditService {
   }
 }
 
-export const auditService = new AuditService(); 
+export const auditService = new AuditService();
 

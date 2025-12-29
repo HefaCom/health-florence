@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { 
-  Bell, 
-  Search, 
+import {
+  Bell,
+  Search,
   Menu,
   User,
   Settings,
@@ -25,6 +25,7 @@ import {
   Activity
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { NotificationsDropdown } from "@/components/notifications/NotificationsDropdown";
 
 const ExpertLayoutContent = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -38,10 +39,10 @@ const ExpertLayoutContent = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -67,7 +68,7 @@ const ExpertLayoutContent = () => {
     <div className="min-h-screen flex bg-gray-50">
       {/* Mobile Sidebar Overlay */}
       {isMobile && sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => setSidebarOpen(false)}
         />
@@ -82,9 +83,8 @@ const ExpertLayoutContent = () => {
 
       {/* Mobile Sidebar */}
       {isMobile && (
-        <div className={`fixed left-0 top-0 h-full z-50 transition-transform duration-300 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}>
+        <div className={`fixed left-0 top-0 h-full z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}>
           <div className="w-80 h-full bg-white shadow-xl flex flex-col">
             {/* Mobile Header */}
             <div className="p-4 border-b border-gray-200">
@@ -107,7 +107,7 @@ const ExpertLayoutContent = () => {
                 </Button>
               </div>
             </div>
-            
+
             {/* Mobile Navigation */}
             <div className="flex-1 overflow-y-auto p-4">
               <nav className="space-y-2">
@@ -127,10 +127,9 @@ const ExpertLayoutContent = () => {
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) =>
-                      `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
-                        isActive
-                          ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                          : 'text-gray-700 hover:bg-gray-50'
+                      `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors duration-200 ${isActive
+                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                        : 'text-gray-700 hover:bg-gray-50'
                       }`
                     }
                     onClick={() => setSidebarOpen(false)}
@@ -141,7 +140,7 @@ const ExpertLayoutContent = () => {
                 ))}
               </nav>
             </div>
-            
+
             {/* Mobile Footer */}
             <div className="p-4 border-t border-gray-200">
               <div className="flex items-center space-x-3">
@@ -150,7 +149,7 @@ const ExpertLayoutContent = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">
-                    {user?.firstName && user?.lastName 
+                    {user?.firstName && user?.lastName
                       ? `${user.firstName} ${user.lastName}`
                       : user?.email || 'Expert User'
                     }
@@ -180,15 +179,14 @@ const ExpertLayoutContent = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`md:hidden p-2 rounded-lg border transition-all duration-200 ${
-                  sidebarOpen 
-                    ? 'bg-blue-50 border-blue-300 text-blue-700' 
-                    : 'hover:bg-gray-100 border-gray-200 text-gray-700'
-                }`}
+                className={`md:hidden p-2 rounded-lg border transition-all duration-200 ${sidebarOpen
+                  ? 'bg-blue-50 border-blue-300 text-blue-700'
+                  : 'hover:bg-gray-100 border-gray-200 text-gray-700'
+                  }`}
               >
                 <Menu className="h-6 w-6" />
               </Button>
-              
+
               <div className="hidden md:block">
                 <h1 className="text-xl font-semibold text-gray-900">
                   Expert Portal
@@ -197,7 +195,7 @@ const ExpertLayoutContent = () => {
                   Professional Healthcare Dashboard
                 </p>
               </div>
-              
+
               {/* Mobile Title */}
               <div className="md:hidden">
                 <h1 className="text-lg font-semibold text-gray-900">
@@ -219,18 +217,15 @@ const ExpertLayoutContent = () => {
               </div> */}
 
               {/* Notifications */}
-              {/* <Button variant="ghost" size="sm" className="relative">
-                <Bell className="h-5 w-5" />
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                  3
-                </Badge>
-              </Button> */}
+              <div className="mr-2">
+                <NotificationsDropdown />
+              </div>
 
               {/* User Menu */}
               <div className="flex items-center space-x-3">
                 <div className="hidden md:block text-right">
                   <p className="text-sm font-medium text-gray-900">
-                    {user?.firstName && user?.lastName 
+                    {user?.firstName && user?.lastName
                       ? `${user.firstName} ${user.lastName}`
                       : user?.email || 'Expert User'
                     }
@@ -239,7 +234,7 @@ const ExpertLayoutContent = () => {
                     {user?.role === 'expert' ? 'Healthcare Professional' : user?.role || 'User'}
                   </p>
                 </div>
-                
+
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                   <User className="h-4 w-4 text-blue-600" />
                 </div>

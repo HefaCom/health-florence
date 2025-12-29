@@ -138,11 +138,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             // Update login information
             try {
-              console.log('Updating login information for already authenticated user:', userData.id);
+              // console.log('Updating login information for already authenticated user:', userData.id);
               await userService.updateUserLogin(userData.id);
-              console.log('Login information updated successfully for already authenticated user');
+              // console.log('Login information updated successfully for already authenticated user');
             } catch (loginError) {
-              console.warn('Failed to update login info:', loginError);
+              // console.warn('Failed to update login info:', loginError);
               // Don't fail authentication if login update fails
             }
 

@@ -182,6 +182,7 @@ export type User = {
   haicRewards?: ModelHAICRewardConnection | null,
   haicTransactions?: ModelHAICTransactionConnection | null,
   healthMetrics?: ModelHealthMetricsConnection | null,
+  notifications?: ModelNotificationConnection | null,
   owner?: string | null,
 };
 
@@ -334,6 +335,27 @@ export type HealthMetrics = {
   owner?: string | null,
 };
 
+export type ModelNotificationConnection = {
+  __typename: "ModelNotificationConnection",
+  items:  Array<Notification | null >,
+  nextToken?: string | null,
+};
+
+export type Notification = {
+  __typename: "Notification",
+  id: string,
+  userId: string,
+  type: string,
+  title: string,
+  message: string,
+  data?: string | null,
+  isRead: boolean,
+  actionUrl?: string | null,
+  user?: User | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
 export type UpdateUserInput = {
   id: string,
   email?: string | null,
@@ -366,6 +388,67 @@ export type UpdateUserInput = {
 };
 
 export type DeleteUserInput = {
+  id: string,
+};
+
+export type CreateNotificationInput = {
+  id?: string | null,
+  userId: string,
+  type: string,
+  title: string,
+  message: string,
+  data?: string | null,
+  isRead: boolean,
+  actionUrl?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+};
+
+export type ModelNotificationConditionInput = {
+  userId?: ModelIDInput | null,
+  type?: ModelStringInput | null,
+  title?: ModelStringInput | null,
+  message?: ModelStringInput | null,
+  data?: ModelStringInput | null,
+  isRead?: ModelBooleanInput | null,
+  actionUrl?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelNotificationConditionInput | null > | null,
+  or?: Array< ModelNotificationConditionInput | null > | null,
+  not?: ModelNotificationConditionInput | null,
+};
+
+export type ModelIDInput = {
+  ne?: string | null,
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  contains?: string | null,
+  notContains?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  size?: ModelSizeInput | null,
+};
+
+export type UpdateNotificationInput = {
+  id: string,
+  userId?: string | null,
+  type?: string | null,
+  title?: string | null,
+  message?: string | null,
+  data?: string | null,
+  isRead?: boolean | null,
+  actionUrl?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+};
+
+export type DeleteNotificationInput = {
   id: string,
 };
 
@@ -426,22 +509,6 @@ export type ModelExpertConditionInput = {
   or?: Array< ModelExpertConditionInput | null > | null,
   not?: ModelExpertConditionInput | null,
   owner?: ModelStringInput | null,
-};
-
-export type ModelIDInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-  size?: ModelSizeInput | null,
 };
 
 export type Expert = {
@@ -1237,6 +1304,38 @@ export type ModelUserConnection = {
   nextToken?: string | null,
 };
 
+export type ModelNotificationFilterInput = {
+  id?: ModelIDInput | null,
+  userId?: ModelIDInput | null,
+  type?: ModelStringInput | null,
+  title?: ModelStringInput | null,
+  message?: ModelStringInput | null,
+  data?: ModelStringInput | null,
+  isRead?: ModelBooleanInput | null,
+  actionUrl?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelNotificationFilterInput | null > | null,
+  or?: Array< ModelNotificationFilterInput | null > | null,
+  not?: ModelNotificationFilterInput | null,
+};
+
+export type ModelStringKeyConditionInput = {
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+};
+
+export enum ModelSortDirection {
+  ASC = "ASC",
+  DESC = "DESC",
+}
+
+
 export type ModelExpertFilterInput = {
   id?: ModelIDInput | null,
   userId?: ModelIDInput | null,
@@ -1597,6 +1696,21 @@ export type ModelSubscriptionIntInput = {
   notIn?: Array< number | null > | null,
 };
 
+export type ModelSubscriptionNotificationFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  userId?: ModelSubscriptionIDInput | null,
+  type?: ModelSubscriptionStringInput | null,
+  title?: ModelSubscriptionStringInput | null,
+  message?: ModelSubscriptionStringInput | null,
+  data?: ModelSubscriptionStringInput | null,
+  isRead?: ModelSubscriptionBooleanInput | null,
+  actionUrl?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionNotificationFilterInput | null > | null,
+  or?: Array< ModelSubscriptionNotificationFilterInput | null > | null,
+};
+
 export type ModelSubscriptionExpertFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   userId?: ModelSubscriptionIDInput | null,
@@ -1900,6 +2014,10 @@ export type CreateUserMutation = {
       __typename: "ModelHealthMetricsConnection",
       nextToken?: string | null,
     } | null,
+    notifications?:  {
+      __typename: "ModelNotificationConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
   } | null,
 };
@@ -1966,6 +2084,10 @@ export type UpdateUserMutation = {
     } | null,
     healthMetrics?:  {
       __typename: "ModelHealthMetricsConnection",
+      nextToken?: string | null,
+    } | null,
+    notifications?:  {
+      __typename: "ModelNotificationConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -2036,7 +2158,182 @@ export type DeleteUserMutation = {
       __typename: "ModelHealthMetricsConnection",
       nextToken?: string | null,
     } | null,
+    notifications?:  {
+      __typename: "ModelNotificationConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
+  } | null,
+};
+
+export type CreateNotificationMutationVariables = {
+  input: CreateNotificationInput,
+  condition?: ModelNotificationConditionInput | null,
+};
+
+export type CreateNotificationMutation = {
+  createNotification?:  {
+    __typename: "Notification",
+    id: string,
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    data?: string | null,
+    isRead: boolean,
+    actionUrl?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      profilePicture?: string | null,
+      medicalDocuments?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateNotificationMutationVariables = {
+  input: UpdateNotificationInput,
+  condition?: ModelNotificationConditionInput | null,
+};
+
+export type UpdateNotificationMutation = {
+  updateNotification?:  {
+    __typename: "Notification",
+    id: string,
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    data?: string | null,
+    isRead: boolean,
+    actionUrl?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      profilePicture?: string | null,
+      medicalDocuments?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteNotificationMutationVariables = {
+  input: DeleteNotificationInput,
+  condition?: ModelNotificationConditionInput | null,
+};
+
+export type DeleteNotificationMutation = {
+  deleteNotification?:  {
+    __typename: "Notification",
+    id: string,
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    data?: string | null,
+    isRead: boolean,
+    actionUrl?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      profilePicture?: string | null,
+      medicalDocuments?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -4326,6 +4623,10 @@ export type GetUserQuery = {
       __typename: "ModelHealthMetricsConnection",
       nextToken?: string | null,
     } | null,
+    notifications?:  {
+      __typename: "ModelNotificationConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
   } | null,
 };
@@ -4374,6 +4675,117 @@ export type ListUsersQuery = {
       createdAt: string,
       updatedAt: string,
       owner?: string | null,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetNotificationQueryVariables = {
+  id: string,
+};
+
+export type GetNotificationQuery = {
+  getNotification?:  {
+    __typename: "Notification",
+    id: string,
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    data?: string | null,
+    isRead: boolean,
+    actionUrl?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      profilePicture?: string | null,
+      medicalDocuments?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListNotificationsQueryVariables = {
+  filter?: ModelNotificationFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListNotificationsQuery = {
+  listNotifications?:  {
+    __typename: "ModelNotificationConnection",
+    items:  Array< {
+      __typename: "Notification",
+      id: string,
+      userId: string,
+      type: string,
+      title: string,
+      message: string,
+      data?: string | null,
+      isRead: boolean,
+      actionUrl?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListNotificationsByUserQueryVariables = {
+  userId: string,
+  createdAt?: ModelStringKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelNotificationFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListNotificationsByUserQuery = {
+  listNotificationsByUser?:  {
+    __typename: "ModelNotificationConnection",
+    items:  Array< {
+      __typename: "Notification",
+      id: string,
+      userId: string,
+      type: string,
+      title: string,
+      message: string,
+      data?: string | null,
+      isRead: boolean,
+      actionUrl?: string | null,
+      createdAt: string,
+      updatedAt: string,
     } | null >,
     nextToken?: string | null,
   } | null,
@@ -5543,6 +5955,10 @@ export type OnCreateUserSubscription = {
       __typename: "ModelHealthMetricsConnection",
       nextToken?: string | null,
     } | null,
+    notifications?:  {
+      __typename: "ModelNotificationConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
   } | null,
 };
@@ -5609,6 +6025,10 @@ export type OnUpdateUserSubscription = {
     } | null,
     healthMetrics?:  {
       __typename: "ModelHealthMetricsConnection",
+      nextToken?: string | null,
+    } | null,
+    notifications?:  {
+      __typename: "ModelNotificationConnection",
       nextToken?: string | null,
     } | null,
     owner?: string | null,
@@ -5679,7 +6099,179 @@ export type OnDeleteUserSubscription = {
       __typename: "ModelHealthMetricsConnection",
       nextToken?: string | null,
     } | null,
+    notifications?:  {
+      __typename: "ModelNotificationConnection",
+      nextToken?: string | null,
+    } | null,
     owner?: string | null,
+  } | null,
+};
+
+export type OnCreateNotificationSubscriptionVariables = {
+  filter?: ModelSubscriptionNotificationFilterInput | null,
+};
+
+export type OnCreateNotificationSubscription = {
+  onCreateNotification?:  {
+    __typename: "Notification",
+    id: string,
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    data?: string | null,
+    isRead: boolean,
+    actionUrl?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      profilePicture?: string | null,
+      medicalDocuments?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateNotificationSubscriptionVariables = {
+  filter?: ModelSubscriptionNotificationFilterInput | null,
+};
+
+export type OnUpdateNotificationSubscription = {
+  onUpdateNotification?:  {
+    __typename: "Notification",
+    id: string,
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    data?: string | null,
+    isRead: boolean,
+    actionUrl?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      profilePicture?: string | null,
+      medicalDocuments?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteNotificationSubscriptionVariables = {
+  filter?: ModelSubscriptionNotificationFilterInput | null,
+};
+
+export type OnDeleteNotificationSubscription = {
+  onDeleteNotification?:  {
+    __typename: "Notification",
+    id: string,
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    data?: string | null,
+    isRead: boolean,
+    actionUrl?: string | null,
+    user?:  {
+      __typename: "User",
+      id: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      address?: string | null,
+      city?: string | null,
+      state?: string | null,
+      zipCode?: string | null,
+      emergencyContactName?: string | null,
+      emergencyContactPhone?: string | null,
+      allergies?: string | null,
+      medicalConditions?: string | null,
+      currentMedications?: string | null,
+      height?: number | null,
+      weight?: number | null,
+      gender?: string | null,
+      bloodType?: string | null,
+      role: string,
+      isActive: boolean,
+      lastLoginAt?: string | null,
+      loginCount: number,
+      preferences?: string | null,
+      notificationSettings?: string | null,
+      privacySettings?: string | null,
+      subscriptionTier?: string | null,
+      subscriptionExpiresAt?: string | null,
+      profilePicture?: string | null,
+      medicalDocuments?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
   } | null,
 };
 

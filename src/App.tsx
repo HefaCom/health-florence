@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { XRPLProvider } from "@/contexts/XRPLContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -70,84 +71,86 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <XRPLProvider>
-              <Routes>
-                {/* Auth Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                
-                {/* User Routes */}
-                <Route path="/" element={
-                  <ProtectedRoute allowedRoles={["user"]}>
-                    <DashboardLayout />
-                  </ProtectedRoute>
-                }>
-                  <Route index element={<Index />} />
-                  <Route path="dietary-plan" element={<DietaryPlan />} />
-                  <Route path="health-goals" element={<HealthGoals />} />
-                  <Route path="health-profile" element={<HealthProfile />} />
-                  <Route path="appointments" element={<Appointments />} />
-                  <Route path="find-doctor" element={<FindExpert />} />
-                  <Route path="find-expert" element={<FindExpert />} />
-                  <Route path="expert/:expertId" element={<FindExpert />} />
-                  <Route path="expert-profile/:expertId" element={<ExpertProfileView />} />
-                  <Route path="appointments/new" element={<Appointments />} />
-                  <Route path="insurance" element={<Insurance />} />
-                  <Route path="profile" element={<Profile />} />
-                  <Route path="florence" element={<FlorencePage />} />
-                </Route>
-                
-                {/* Admin Routes */}
-                <Route path="/admin" element={
-                  <ProtectedRoute allowedRoles={["admin"]}>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="experts" element={<AdminExperts />} />
-                  <Route path="expert-review" element={<AdminExpertReview />} />
-                  <Route path="appointments" element={<AdminAppointments />} />
-                  <Route path="appointments/:id" element={<AppointmentDetail />} />
-                  <Route path="analytics" element={<AdminAnalytics />} />
-                  <Route path="audit-trails" element={<AdminAuditTrails />} />
-                  <Route path="florence" element={<AdminFlorence />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                </Route>
+            <NotificationsProvider>
+              <XRPLProvider>
+                <Routes>
+                  {/* Auth Routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
 
-                {/* Expert Portal Routes */}
-                <Route path="/expert" element={<Navigate to="/login" replace />} />
-                <Route path="/expert/profile-setup" element={
-                  <ProtectedRoute allowedRoles={["expert"]}>
-                    <ExpertProfileSetup />
-                  </ProtectedRoute>
-                } />
-                <Route path="/expert/dashboard" element={
-                  <ProtectedRoute allowedRoles={["expert"]}>
-                    <ExpertLayout />
-                  </ProtectedRoute>
-                }>
-                  <Route index element={<ExpertDashboard />} />
-                  <Route path="profile" element={<ExpertProfile />} />
-                  <Route path="availability" element={<ExpertAvailability />} />
-                  <Route path="documents" element={<ExpertDocuments />} />
-                  <Route path="services" element={<ExpertServices />} />
-                  <Route path="florence" element={<ExpertFlorence />} />
-                  <Route path="patients" element={<ExpertPatients />} />
-                  <Route path="patient/:patientId" element={<PatientDetails />} />
-                  <Route path="appointments" element={<ExpertAppointments />} />
-                  <Route path="records" element={<ExpertRecords />} />
-                  <Route path="consultations" element={<ExpertConsultations />} />
-                  <Route path="analytics" element={<ExpertAnalytics />} />
-                  <Route path="messages" element={<ExpertMessages />} />
-                  <Route path="activity" element={<ExpertActivity />} />
-                </Route>
-                
-                {/* 404 Route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </XRPLProvider>
+                  {/* User Routes */}
+                  <Route path="/" element={
+                    <ProtectedRoute allowedRoles={["user"]}>
+                      <DashboardLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<Index />} />
+                    <Route path="dietary-plan" element={<DietaryPlan />} />
+                    <Route path="health-goals" element={<HealthGoals />} />
+                    <Route path="health-profile" element={<HealthProfile />} />
+                    <Route path="appointments" element={<Appointments />} />
+                    <Route path="find-doctor" element={<FindExpert />} />
+                    <Route path="find-expert" element={<FindExpert />} />
+                    <Route path="expert/:expertId" element={<FindExpert />} />
+                    <Route path="expert-profile/:expertId" element={<ExpertProfileView />} />
+                    <Route path="appointments/new" element={<Appointments />} />
+                    <Route path="insurance" element={<Insurance />} />
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="florence" element={<FlorencePage />} />
+                  </Route>
+
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="experts" element={<AdminExperts />} />
+                    <Route path="expert-review" element={<AdminExpertReview />} />
+                    <Route path="appointments" element={<AdminAppointments />} />
+                    <Route path="appointments/:id" element={<AppointmentDetail />} />
+                    <Route path="analytics" element={<AdminAnalytics />} />
+                    <Route path="audit-trails" element={<AdminAuditTrails />} />
+                    <Route path="florence" element={<AdminFlorence />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                  </Route>
+
+                  {/* Expert Portal Routes */}
+                  <Route path="/expert" element={<Navigate to="/login" replace />} />
+                  <Route path="/expert/profile-setup" element={
+                    <ProtectedRoute allowedRoles={["expert"]}>
+                      <ExpertProfileSetup />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/expert/dashboard" element={
+                    <ProtectedRoute allowedRoles={["expert"]}>
+                      <ExpertLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<ExpertDashboard />} />
+                    <Route path="profile" element={<ExpertProfile />} />
+                    <Route path="availability" element={<ExpertAvailability />} />
+                    <Route path="documents" element={<ExpertDocuments />} />
+                    <Route path="services" element={<ExpertServices />} />
+                    <Route path="florence" element={<ExpertFlorence />} />
+                    <Route path="patients" element={<ExpertPatients />} />
+                    <Route path="patient/:patientId" element={<PatientDetails />} />
+                    <Route path="appointments" element={<ExpertAppointments />} />
+                    <Route path="records" element={<ExpertRecords />} />
+                    <Route path="consultations" element={<ExpertConsultations />} />
+                    <Route path="analytics" element={<ExpertAnalytics />} />
+                    <Route path="messages" element={<ExpertMessages />} />
+                    <Route path="activity" element={<ExpertActivity />} />
+                  </Route>
+
+                  {/* 404 Route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </XRPLProvider>
+            </NotificationsProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

@@ -1,4 +1,5 @@
 import { userService } from './user.service';
+import { NotificationService, NotificationType } from './NotificationService';
 
 export interface JoeyWalletLink {
   address: string;
@@ -88,6 +89,14 @@ class WalletService {
       preferences: nextPreferences,
     });
 
+    await NotificationService.createNotification(
+      userId,
+      NotificationType.WALLET,
+      'Joey Wallet Linked',
+      'Your Joey Wallet has been successfully linked to your account.',
+      { walletAddress: wallet.address }
+    );
+
     return nextPreferences.wallets?.joey || null;
   }
 
@@ -145,6 +154,14 @@ class WalletService {
       id: userId,
       preferences: nextPreferences,
     });
+
+    await NotificationService.createNotification(
+      userId,
+      NotificationType.WALLET,
+      'Xaman Wallet Linked',
+      'Your Xaman Wallet has been successfully linked to your account.',
+      { walletAddress: wallet.address }
+    );
 
     console.log(`[WalletService] Successfully linked Xaman wallet for ${userId}`);
     return nextPreferences.wallets?.xaman || null;

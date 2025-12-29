@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { expertService, CreateExpertInput } from '@/services/expert.service';
+import { userService } from '@/services/user.service';
+import { NotificationService, NotificationType } from '@/services/NotificationService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,14 +13,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { 
-  User, 
-  Stethoscope, 
-  GraduationCap, 
-  Award, 
-  Globe, 
-  Building, 
-  Clock, 
+import {
+  User,
+  Stethoscope,
+  GraduationCap,
+  Award,
+  Globe,
+  Building,
+  Clock,
   DollarSign,
   FileText,
   Plus,
@@ -100,9 +102,9 @@ export default function ExpertProfileSetup() {
       try {
         // First, clean up any duplicate profiles
         await expertService.cleanupDuplicateProfiles(user.id);
-        
+
         const hasProfile = await expertService.hasExpertProfile(user.id);
-        
+
         if (hasProfile) {
           toast.info('You already have an expert profile');
           navigate('/expert/dashboard');
@@ -179,6 +181,25 @@ export default function ExpertProfileSetup() {
       console.log('Expert data to create:', expertData);
 
       await expertService.createExpert(expertData);
+
+      // Notify admins
+      try {
+        const admins = await userService.getUsersByRole('admin');
+        const notificationPromises = admins.map(admin =>
+          NotificationService.createNotification(
+            admin.id,
+            NotificationType.SYSTEM,
+            'New Expert Application',
+            `New expert application from ${user.firstName} ${user.lastName} (${formData.specialization})`,
+            { expertId: expertData.id, applicantId: user.id },
+            '/admin/expert-review'
+          )
+        );
+        await Promise.all(notificationPromises);
+      } catch (notifyError) {
+        console.warn('Failed to notify admins:', notifyError);
+      }
+
       toast.success('Expert profile created successfully!');
       navigate('/expert/dashboard');
     } catch (error: any) {
@@ -213,8 +234,8 @@ export default function ExpertProfileSetup() {
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="specialization">Primary Specialization *</Label>
-          <Select 
-            value={formData.specialization} 
+          <Select
+            value={formData.specialization}
             onValueChange={(value) => handleInputChange('specialization', value)}
           >
             <SelectTrigger>
@@ -545,17 +566,15 @@ export default function ExpertProfileSetup() {
           <div className="flex items-center justify-between">
             {[1, 2, 3, 4].map((step) => (
               <div key={step} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step <= currentStep 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                }`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step <= currentStep
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-600'
+                  }`}>
                   {step}
                 </div>
                 {step < 4 && (
-                  <div className={`w-16 h-1 mx-2 ${
-                    step < currentStep ? 'bg-blue-600' : 'bg-gray-200'
-                  }`} />
+                  <div className={`w-16 h-1 mx-2 ${step < currentStep ? 'bg-blue-600' : 'bg-gray-200'
+                    }`} />
                 )}
               </div>
             ))}
@@ -586,8 +605,8 @@ export default function ExpertProfileSetup() {
                 Next
               </Button>
             ) : (
-              <Button 
-                onClick={handleSubmit} 
+              <Button
+                onClick={handleSubmit}
                 disabled={isLoading}
                 className="flex items-center gap-2"
               >

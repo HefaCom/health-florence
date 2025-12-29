@@ -582,12 +582,13 @@ class HAICTokenService {
   /**
    * Mint new HAIC tokens (admin only)
    */
-  async mintTokens(amount: number): Promise<string> {
+  async mintTokens(amount: number, destinationAddress: string, issuerSeed: string): Promise<string> {
     try {
-      console.log(`🪙 Minting ${amount} new HAIC tokens`);
+      console.log(`🪙 Minting ${amount} new HAIC tokens to ${destinationAddress}`);
 
       // Submit mint transaction to XRPL
-      const result = await xrplService.issueHAICTokens(amount.toString());
+      // Signature: issueHAICTokens(issuerSeed, destinationAddress, amount)
+      const result = await xrplService.issueHAICTokens(issuerSeed, destinationAddress, amount.toString());
 
       if (result.success && result.hash) {
         // Log audit event
@@ -595,7 +596,7 @@ class HAICTokenService {
           userId: 'system',
           action: 'haic_tokens_minted',
           resourceId: result.hash,
-          details: { amount, transactionHash: result.hash },
+          details: { amount, destination: destinationAddress, transactionHash: result.hash },
           severity: 'high',
           category: 'system',
           outcome: 'success'
@@ -603,7 +604,7 @@ class HAICTokenService {
 
         return result.hash;
       } else {
-        throw new Error('Failed to mint HAIC tokens');
+        throw new Error(`Failed to mint HAIC tokens: ${result.error}`);
       }
     } catch (error) {
       console.error('Error minting tokens:', error);

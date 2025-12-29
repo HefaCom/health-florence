@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { FloLogo } from "@/components/FloLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Bell, MessageCircle, User, Search, Menu, X } from "lucide-react";
+import { MessageCircle, User, Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ChatInterface } from "@/components/ChatInterface";
+import { NotificationsDropdown } from "@/components/notifications/NotificationsDropdown";
 
 interface NavigationBarProps {
   showSidebarTrigger?: boolean;
@@ -17,8 +18,8 @@ interface NavigationBarProps {
   isSidebarOpen?: boolean;
 }
 
-export function NavigationBar({ 
-  showSidebarTrigger = false, 
+export function NavigationBar({
+  showSidebarTrigger = false,
   onSidebarToggle,
   isSidebarOpen = false
 }: NavigationBarProps) {
@@ -26,7 +27,7 @@ export function NavigationBar({
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   const handleNotification = () => {
     toast({
       title: "Notifications",
@@ -60,7 +61,7 @@ export function NavigationBar({
               )}
             </Button>
           )}
-          
+
           <FloLogo className="w-12 h-12 mr-3" />
           <span className="font-bold text-xl hidden md:inline-block neon-text">
             Health AI<span className="text-primary">.</span>
@@ -107,16 +108,10 @@ export function NavigationBar({
               <Search className="h-5 w-5" />
             </Button>
           )}
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNotification}
-            className="rounded-full"
-          >
-            <Bell className="h-5 w-5" />
-          </Button>
-          
+
+
+          <NotificationsDropdown />
+
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
@@ -129,12 +124,12 @@ export function NavigationBar({
               </div>
             </SheetContent>
           </Sheet>
-          
+
           <ThemeToggle />
-          
-          <Button 
-            variant="ghost" 
-            size="icon" 
+
+          <Button
+            variant="ghost"
+            size="icon"
             className="rounded-full"
             onClick={handleProfileClick}
           >

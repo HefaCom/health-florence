@@ -1,29 +1,29 @@
 
 import { useState, useEffect } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  Plus, 
-  MoreHorizontal, 
-  Edit, 
-  Trash, 
+import {
+  Search,
+  Plus,
+  MoreHorizontal,
+  Edit,
+  Trash,
   Filter,
   User as UserIcon,
   Shield,
@@ -90,7 +90,7 @@ const AdminUsers = () => {
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(user => 
+      filtered = filtered.filter(user =>
         user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -172,8 +172,8 @@ const AdminUsers = () => {
   };
 
   const getStatusIcon = (isActive: boolean) => {
-    return isActive ? 
-      <CheckCircle className="h-4 w-4 text-green-600" /> : 
+    return isActive ?
+      <CheckCircle className="h-4 w-4 text-green-600" /> :
       <XCircle className="h-4 w-4 text-red-600" />;
   };
 
@@ -210,12 +210,12 @@ const AdminUsers = () => {
           <h1 className="text-3xl font-bold">Users</h1>
           <p className="text-muted-foreground">Manage your application users</p>
         </div>
-        <Button className="rounded-full">
+        {/* <Button className="rounded-full">
           <Plus className="mr-2 h-4 w-4" />
           Add User
-        </Button>
+        </Button> */}
       </div>
-      
+
       <Card>
         <CardHeader className="pb-3">
           <CardTitle>User Management</CardTitle>
@@ -256,7 +256,7 @@ const AdminUsers = () => {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="rounded-md border overflow-hidden">
             <Table>
               <TableHeader>
@@ -278,8 +278,8 @@ const AdminUsers = () => {
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8">
                       <div className="text-muted-foreground">
-                        {searchTerm || roleFilter !== 'all' || statusFilter !== 'all' 
-                          ? 'No users match your filters' 
+                        {searchTerm || roleFilter !== 'all' || statusFilter !== 'all'
+                          ? 'No users match your filters'
                           : 'No users found'}
                       </div>
                     </TableCell>

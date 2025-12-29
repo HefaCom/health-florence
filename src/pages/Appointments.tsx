@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { 
+import {
   Calendar,
-  Clock, 
-  MapPin, 
+  Clock,
+  MapPin,
   User,
   Filter,
   Plus,
@@ -24,6 +24,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+
+import { NotificationService, NotificationType } from '@/services/NotificationService';
 
 const client = generateClient();
 
@@ -137,9 +139,9 @@ const Appointments = () => {
 
       const response = await client.graphql({
         query: listAppointmentsWithExpert,
-        variables: { 
+        variables: {
           filter: { userId: { eq: user?.id } },
-          limit: 500 
+          limit: 500
         }
       }) as any;
 
@@ -200,17 +202,17 @@ const Appointments = () => {
       fetchAppointments();
     }
   }, [user]);
-  
+
   const filteredAppointments = filter === "all"
     ? appointments
     : appointments.filter(app => {
-        const status = (app.status || '').toLowerCase();
-        const f = (filter || '').toLowerCase();
-        if (f === 'upcoming') {
-          return status === 'upcoming' || status === 'scheduled';
-        }
-        return status === f;
-      });
+      const status = (app.status || '').toLowerCase();
+      const f = (filter || '').toLowerCase();
+      if (f === 'upcoming') {
+        return status === 'upcoming' || status === 'scheduled';
+      }
+      return status === f;
+    });
 
   const handleScheduleAppointment = async (appointmentData: any) => {
     try {
@@ -221,7 +223,7 @@ const Appointments = () => {
 
       if ((response as any).data?.createAppointment) {
         toast.success("Appointment scheduled successfully");
-        
+
         // Log the appointment creation
         await logAction(
           'APPOINTMENT_CREATE',
@@ -256,7 +258,28 @@ const Appointments = () => {
 
       if ((response as any).data?.updateAppointment) {
         toast.success("Appointment cancelled successfully");
-        
+
+        try {
+          await NotificationService.createNotification(
+            user.id,
+            NotificationType.APPOINTMENT,
+            'Appointment Cancelled',
+            `Your appointment has been cancelled.`,
+            { appointmentId },
+            '/appointments'
+          );
+
+          // Notify Admins
+          await NotificationService.notifyAdmins(
+            NotificationType.APPOINTMENT,
+            'Appointment Cancelled',
+            `User ${user.firstName} ${user.lastName} cancelled their appointment`,
+            { appointmentId, userId: user.id },
+            '/admin/appointments' // or specific view
+          );
+
+        } catch (e) { console.warn('Cancel notification failed:', e); }
+
         // Log the appointment cancellation
         await logAction(
           'APPOINTMENT_CANCEL',
@@ -289,7 +312,28 @@ const Appointments = () => {
 
       if ((response as any).data?.updateAppointment) {
         toast.success("Appointment rescheduled successfully");
-        
+
+        try {
+          await NotificationService.createNotification(
+            user.id,
+            NotificationType.APPOINTMENT,
+            'Appointment Rescheduled',
+            `Your appointment has been rescheduled to ${new Date(newDate).toLocaleString()}`,
+            { appointmentId, newDate },
+            '/appointments'
+          );
+
+          // Notify Admins
+          await NotificationService.notifyAdmins(
+            NotificationType.APPOINTMENT,
+            'Appointment Rescheduled',
+            `User ${user.firstName} ${user.lastName} rescheduled their appointment to ${new Date(newDate).toLocaleString()}`,
+            { appointmentId, newDate, userId: user.id },
+            '/admin/appointments'
+          );
+
+        } catch (e) { console.warn('Reschedule notification failed:', e); }
+
         // Log the appointment reschedule
         await logAction(
           'APPOINTMENT_RESCHEDULE',
@@ -338,7 +382,33 @@ const Appointments = () => {
 
       if ((response as any).data?.createAppointment) {
         toast.success("Appointment booked successfully");
-        
+
+        // Notification
+        try {
+          await NotificationService.createNotification(
+            user.id,
+            NotificationType.APPOINTMENT,
+            'Appointment Booked',
+            `Your appointment is confirmed for ${new Date(appointmentData.date).toLocaleDateString()} at ${bookingData.time}`,
+            { appointmentId: (response as any).data.createAppointment.id },
+            '/appointments'
+          );
+
+          // Notify Admins
+          await NotificationService.notifyAdmins(
+            NotificationType.APPOINTMENT,
+            'New Appointment Booked',
+            `New appointment booked by ${user.firstName} ${user.lastName} for ${new Date(appointmentData.date).toLocaleDateString()} at ${bookingData.time}`,
+            {
+              appointmentId: (response as any).data.createAppointment.id,
+              userId: user.id,
+              expertId: bookingData.expertId
+            },
+            '/admin/appointments'
+          );
+
+        } catch (e) { console.warn('Notification failed:', e); }
+
         // Log the appointment creation
         await logAction(
           'APPOINTMENT_CREATE',
@@ -360,7 +430,7 @@ const Appointments = () => {
           notes: ''
         });
         setShowBookingDialog(false);
-        
+
         // Refresh appointments list
         fetchAppointments();
       }
@@ -391,38 +461,38 @@ const Appointments = () => {
           Schedule New
         </Button> */}
       </div>
-      
+
       <div className="flex items-center space-x-2">
-        <Button 
-          variant={filter === "all" ? "default" : "outline"} 
+        <Button
+          variant={filter === "all" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("all")}
         >
           All
         </Button>
-        <Button 
+        <Button
           variant={filter === "upcoming" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("upcoming")}
         >
           Upcoming
         </Button>
-        <Button 
-          variant={filter === "completed" ? "default" : "outline"} 
+        <Button
+          variant={filter === "completed" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("completed")}
         >
           Completed
         </Button>
-        <Button 
-          variant={filter === "cancelled" ? "default" : "outline"} 
+        <Button
+          variant={filter === "cancelled" ? "default" : "outline"}
           size="sm"
           onClick={() => setFilter("cancelled")}
         >
           Cancelled
         </Button>
       </div>
-      
+
       <div className="grid gap-4">
         {isLoading ? (
           <div className="text-center py-8 text-muted-foreground">
@@ -456,11 +526,11 @@ const Appointments = () => {
                   <div className="flex items-center">
                     <Clock className="h-4 w-4 mr-2" />
                     {appointment.time}
-                </div>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {(['UPCOMING','SCHEDULED','Scheduled','upcoming'].includes((appointment.status || '').toUpperCase())) && (
+                {(['UPCOMING', 'SCHEDULED', 'Scheduled', 'upcoming'].includes((appointment.status || '').toUpperCase())) && (
                   <>
                     <Button
                       variant="outline"
@@ -478,16 +548,15 @@ const Appointments = () => {
                     </Button>
                   </>
                 )}
-                <div className={`flex items-center px-2 py-1 rounded-full text-xs ${
-                  ((appointment.status || '').toUpperCase()) === 'COMPLETED'
-                    ? 'bg-green-100 text-green-700'
-                    : ((appointment.status || '').toUpperCase()) === 'CANCELLED'
+                <div className={`flex items-center px-2 py-1 rounded-full text-xs ${((appointment.status || '').toUpperCase()) === 'COMPLETED'
+                  ? 'bg-green-100 text-green-700'
+                  : ((appointment.status || '').toUpperCase()) === 'CANCELLED'
                     ? 'bg-red-100 text-red-700'
                     : 'bg-blue-100 text-blue-700'
-                }`}>
+                  }`}>
                   {((appointment.status || '').toUpperCase()) === 'COMPLETED' && <CheckCircle className="h-3 w-3 mr-1" />}
                   {((appointment.status || '').toUpperCase()) === 'CANCELLED' && <XCircle className="h-3 w-3 mr-1" />}
-                  {(['UPCOMING','SCHEDULED'].includes(((appointment.status || '').toUpperCase()))) && <AlertCircle className="h-3 w-3 mr-1" />}
+                  {(['UPCOMING', 'SCHEDULED'].includes(((appointment.status || '').toUpperCase()))) && <AlertCircle className="h-3 w-3 mr-1" />}
                   {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
                 </div>
               </div>
@@ -505,7 +574,7 @@ const Appointments = () => {
               {bookingData.expert ? `Schedule an appointment with ${bookingData.expert.user ? `${bookingData.expert.user.firstName} ${bookingData.expert.user.lastName}` : 'this expert'}` : 'Schedule a new appointment'}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
               <Label htmlFor="appointment-type">Appointment Type</Label>
@@ -522,7 +591,7 @@ const Appointments = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="appointment-date">Date</Label>
               <Input
@@ -533,7 +602,7 @@ const Appointments = () => {
                 min={new Date().toISOString().split('T')[0]}
               />
             </div>
-            
+
             <div>
               <Label htmlFor="appointment-time">Time</Label>
               <Select value={bookingData.time} onValueChange={(value) => setBookingData(prev => ({ ...prev, time: value }))}>
@@ -549,7 +618,7 @@ const Appointments = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label htmlFor="appointment-notes">Notes (Optional)</Label>
               <Textarea
@@ -560,17 +629,17 @@ const Appointments = () => {
                 rows={3}
               />
             </div>
-            
+
             <div className="flex gap-2">
-              <Button 
+              <Button
                 onClick={handleBookNewAppointment}
                 disabled={!bookingData.expertId || !bookingData.date || !bookingData.time}
                 className="flex-1"
               >
                 Book Appointment
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setShowBookingDialog(false)}
                 className="flex-1"
               >
@@ -620,7 +689,7 @@ const Appointments = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button 
+              <Button
                 onClick={async () => {
                   if (!rescheduleDialog.date || !rescheduleDialog.time) {
                     toast.error('Select a date and time');
@@ -637,8 +706,8 @@ const Appointments = () => {
               >
                 Save
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setRescheduleDialog({ open: false, appointmentId: '', date: '', time: '' })}
                 className="flex-1"
               >

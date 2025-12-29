@@ -1,5 +1,7 @@
 import { generateClient } from 'aws-amplify/api';
 
+import { NotificationService, NotificationType } from './NotificationService';
+
 const client = generateClient();
 
 export interface HealthGoal {
@@ -92,6 +94,20 @@ class HealthGoalService {
         variables: { input: inputWithId },
         authMode: 'apiKey'
       }) as any;
+
+      // Trigger notification
+      try {
+        await NotificationService.createNotification(
+          inputWithId.userId,
+          NotificationType.GOAL,
+          'New Health Goal Set',
+          `You've set a new goal: ${inputWithId.title}`,
+          { goalId: inputWithId.id },
+          '/health-goals'
+        );
+      } catch (e) {
+        console.warn('Failed to send health goal notification:', e);
+      }
 
       return result.data.createHealthGoal;
     } catch (error) {
@@ -209,12 +225,37 @@ class HealthGoalService {
   async updateProgress(id: string, current: number): Promise<HealthGoal> {
     const goal = await this.getHealthGoal(id);
     const isCompleted = current >= goal.target;
-    
-    return this.updateHealthGoal({ 
-      id, 
-      current, 
-      isCompleted 
+
+    const result = await this.updateHealthGoal({
+      id,
+      current,
+      isCompleted
     });
+
+    if (isCompleted && !goal.isCompleted) {
+      try {
+        // Notify User
+        await NotificationService.createNotification(
+          goal.userId,
+          NotificationType.GOAL,
+          'Goal Completed! 🎉',
+          `Congratulations! You've completed your goal: ${goal.title}`,
+          { goalId: id },
+          '/health/goals'
+        );
+
+        // Notify Admins
+        await NotificationService.notifyAdmins(
+          NotificationType.GOAL,
+          'User Completed Goal',
+          `User has completed their goal: ${goal.title}`,
+          { goalId: id, userId: goal.userId },
+          '/admin/users' // Or specific goal view
+        );
+      } catch (e) { console.warn(e); }
+    }
+
+    return result;
   }
 
   // Get a single health goal

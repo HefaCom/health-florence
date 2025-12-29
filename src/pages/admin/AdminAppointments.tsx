@@ -1,9 +1,9 @@
 
 import { useEffect, useState } from "react";
-import { 
-  Calendar, 
-  Clock, 
-  User, 
+import {
+  Calendar,
+  Clock,
+  User,
   ChevronRight,
   Check,
   X
@@ -69,7 +69,7 @@ interface AdminAppointment {
 
 const AppointmentCard = ({ appointment }: { appointment: AdminAppointment }) => {
   const navigate = useNavigate();
-  
+
   const statusColors = {
     SCHEDULED: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
     COMPLETED: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
@@ -83,32 +83,32 @@ const AppointmentCard = ({ appointment }: { appointment: AdminAppointment }) => 
           <div>
             <h3 className="font-medium text-lg">{appointment.patientName}</h3>
             <div className="text-muted-foreground text-sm">{appointment.patientEmail}</div>
-            
+
             <div className="flex items-center mt-2 text-sm">
               <Calendar className="h-4 w-4 mr-1 text-muted-foreground" />
               <span>{appointment.date}</span>
               <Clock className="h-4 w-4 ml-3 mr-1 text-muted-foreground" />
               <span>{appointment.time}</span>
             </div>
-            
+
             <div className="flex items-center mt-1 text-sm">
               <User className="h-4 w-4 mr-1 text-muted-foreground" />
               <span>{appointment.doctor} ({appointment.specialty})</span>
             </div>
-            
+
             <div className="mt-3">
-              <Badge 
+              <Badge
                 className={`${statusColors[appointment.status]} bg-opacity-20`}
               >
                 {appointment.status}
               </Badge>
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-2">
-            <Button 
-              size="sm" 
-              variant="outline" 
+            <Button
+              size="sm"
+              variant="outline"
               className="flex items-center"
               onClick={() => navigate(`/admin/appointments/${appointment.id}`)}
             >
@@ -162,17 +162,17 @@ const AdminAppointments = () => {
     fetchAppointments();
   }, []);
 
-  const filteredAppointments = activeTab === 'all' 
-    ? appointments 
+  const filteredAppointments = activeTab === 'all'
+    ? appointments
     : appointments.filter(a => a.status === activeTab);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Appointments</h1>
-        <Button>+ New Appointment</Button>
+        {/* <Button>+ New Appointment</Button> */}
       </div>
-      
+
       <Tabs defaultValue="all" onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
@@ -180,7 +180,7 @@ const AdminAppointments = () => {
           <TabsTrigger value="COMPLETED">Completed</TabsTrigger>
           <TabsTrigger value="CANCELLED">Cancelled</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value={activeTab} className="mt-6">
           {isLoading ? (
             <Card>

@@ -1,13 +1,14 @@
 import { generateClient } from 'aws-amplify/api';
-import { 
-  createUser, 
-  updateUser, 
-  deleteUser 
+import {
+  createUser,
+  updateUser,
+  deleteUser
 } from '../graphql/mutations';
-import { 
-  getUser as getUserQuery, 
-  listUsers as listUsersQuery 
+import {
+  getUser as getUserQuery,
+  listUsers as listUsersQuery
 } from '../graphql/queries';
+import { NotificationService, NotificationType } from './NotificationService';
 
 // Generate API client
 const client = generateClient();
@@ -117,7 +118,7 @@ class UserService {
       } catch (checkError) {
         console.log('Could not check for existing user, proceeding with creation:', checkError);
       }
-      
+
       if (existingUser) {
         console.log('User already exists, returning existing user:', existingUser.id);
         return existingUser;
@@ -125,7 +126,7 @@ class UserService {
 
       // Generate a unique UUID for the user ID
       const userId = crypto.randomUUID();
-      
+
       const userInput = {
         id: userId, // Use UUID for ID
         email: input.email,
@@ -180,10 +181,25 @@ class UserService {
 
       console.log('User creation result:', result);
       const createdUser = (result as any).data.createUser;
-      
+
       // Check if user was actually created successfully
       if (createdUser && createdUser.id) {
         console.log('User created successfully:', createdUser);
+
+        // Send welcome notification
+        try {
+          await NotificationService.createNotification(
+            createdUser.id,
+            NotificationType.SYSTEM,
+            'Welcome to Health Florence!',
+            'Your account has been successfully created. Please complete your profile to get started.',
+            undefined,
+            '/profile'
+          );
+        } catch (notifyError) {
+          console.warn('Failed to send welcome notification:', notifyError);
+        }
+
         return this.parseUserFromDB(createdUser);
       } else {
         console.error('User creation failed - no user data returned');
@@ -191,13 +207,13 @@ class UserService {
       }
     } catch (error) {
       console.error('Error creating user:', error);
-      
+
       // Check if this is just authorization errors but user was created
       if (error.data && error.data.createUser && error.data.createUser.id) {
         console.log('User created successfully despite authorization warnings:', error.data.createUser);
         return this.parseUserFromDB(error.data.createUser);
       }
-      
+
       throw error;
     }
   }
@@ -345,17 +361,17 @@ class UserService {
         userId: updatedUser.id,
         updatedAt: updatedUser.updatedAt
       });
-      
+
       return this.parseUserFromDB(updatedUser);
     } catch (error) {
       console.error('Error updating user:', error);
-      
+
       // Check if update was successful despite errors
       if (error.data && error.data.updateUser && error.data.updateUser.id) {
         console.log('User updated successfully despite some errors');
         return this.parseUserFromDB(error.data.updateUser);
       }
-      
+
       throw error;
     }
   }
@@ -397,26 +413,34 @@ class UserService {
         updatedAt: updatedUser.updatedAt
       });
 
+      await NotificationService.createNotification(
+        userId,
+        NotificationType.PROFILE,
+        'Role Updated',
+        `Your account role has been updated to ${updatedUser.role}.`,
+        { newRole: updatedUser.role }
+      );
+
       return this.parseUserFromDB(updatedUser);
     } catch (error: any) {
       console.error('Error updating user role:', error);
-      
+
       // Check if update was successful despite errors
       if (error.data && error.data.updateUser && error.data.updateUser.id) {
         console.log('User role updated successfully despite some errors');
         return this.parseUserFromDB(error.data.updateUser);
       }
-      
+
       // Provide more specific error messages
       if (error.errors && error.errors.length > 0) {
         const errorMessage = error.errors[0].message;
         throw new Error(`Failed to update user role: ${errorMessage}`);
       }
-      
+
       if (error.message) {
         throw new Error(`Failed to update user role: ${error.message}`);
       }
-      
+
       throw new Error('Failed to update user role: Unknown error occurred');
     }
   }
@@ -491,22 +515,22 @@ class UserService {
       });
 
       const updatedUser = (result as any).data.updateUser;
-      console.log('Login information updated successfully:', {
-        userId,
-        lastLoginAt: updatedUser.lastLoginAt,
-        loginCount: updatedUser.loginCount
-      });
-      
+      // console.log('Login information updated successfully:', {
+      //   userId,
+      //   lastLoginAt: updatedUser.lastLoginAt,
+      //   loginCount: updatedUser.loginCount
+      // });
+
       return this.parseUserFromDB(updatedUser);
     } catch (error) {
-      console.error('Error updating user login:', error);
-      
+      // console.error('Error updating user login:', error);
+
       // Check if update was successful despite errors
       if (error.data && error.data.updateUser && error.data.updateUser.id) {
-        console.log('Login information updated successfully despite some errors');
+        // console.log('Login information updated successfully despite some errors');
         return this.parseUserFromDB(error.data.updateUser);
       }
-      
+
       throw error;
     }
   }
@@ -541,7 +565,7 @@ class UserService {
 
       return (result as any).data.listUsers.items;
     } catch (error) {
-      console.error('Error getting users by role:', error);
+      // console.error('Error getting users by role:', error);
       throw error;
     }
   }

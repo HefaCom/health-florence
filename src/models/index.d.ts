@@ -571,3 +571,43 @@ export declare type HAICReward = LazyLoading extends LazyLoadingDisabled ? Eager
 export declare const HAICReward: (new (init: ModelInit<HAICReward>) => HAICReward) & {
   copyOf(source: HAICReward, mutator: (draft: MutableModel<HAICReward>) => MutableModel<HAICReward> | void): HAICReward;
 }
+
+type EagerNotification = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<Notification, 'id'>;
+  };
+  readonly id: string;
+  readonly userId: string;
+  readonly type: string;
+  readonly title: string;
+  readonly message: string;
+  readonly data?: string | null;
+  readonly isRead: boolean;
+  readonly actionUrl?: string | null;
+  readonly user?: User | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+type LazyNotification = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<Notification, 'id'>;
+  };
+  readonly id: string;
+  readonly userId: string;
+  readonly type: string;
+  readonly title: string;
+  readonly message: string;
+  readonly data?: string | null;
+  readonly isRead: boolean;
+  readonly actionUrl?: string | null;
+  readonly user: AsyncItem<User | undefined>;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export declare type Notification = LazyLoading extends LazyLoadingDisabled ? EagerNotification : LazyNotification
+
+export declare const Notification: (new (init: ModelInit<Notification>) => Notification) & {
+  copyOf(source: Notification, mutator: (draft: MutableModel<Notification>) => MutableModel<Notification> | void): Notification;
+}

@@ -1,6 +1,7 @@
 import { Client, Wallet, xrpToDrops } from 'xrpl';
 import { toast } from 'sonner';
 import { walletService } from './wallet.service';
+import { XRPL_CONFIG } from '../config/xrpl-config';
 
 // Define types for XRPL responses
 interface XRPLResponse {
@@ -18,47 +19,101 @@ interface XRPLResponse {
 class XRPLService {
   private client: Client | null = null;
   private wallet: Wallet | null = null;
-  private readonly MAX_RETRIES = 3;
-  private readonly CONNECTION_TIMEOUT = 15000; // 15 seconds
+  private readonly MAX_RETRIES = 5;
+  private readonly CONNECTION_TIMEOUT = 20000; // 20 seconds
+  private isConnecting = false;
+  private unintentionalDisconnect = false;
 
   // Initialize XRPL client
-  async connect() {
-    // Check if already connected
-    if (this.client && this.client.isConnected()) {
+  async connect(): Promise<boolean> {
+    if (this.client?.isConnected()) {
       return true;
     }
 
-    let retries = 0;
-    while (retries < this.MAX_RETRIES) {
-      try {
-        // Disconnect existing client if it exists but isn't connected
-        if (this.client) {
-          await this.client.disconnect().catch(() => { });
-        }
-
-        // Connect to XRPL testnet with increased timeout
-        this.client = new Client('wss://s.altnet.rippletest.net:51233', {
-          timeout: this.CONNECTION_TIMEOUT,
-          connectionTimeout: this.CONNECTION_TIMEOUT
-        });
-        await this.client.connect();
-        return true;
-      } catch (error) {
-        console.error(`Failed to connect to XRPL (attempt ${retries + 1}/${this.MAX_RETRIES}):`, error);
-        retries++;
-        if (retries < this.MAX_RETRIES) {
-          // Wait before retrying (exponential backoff)
-          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retries)));
-        }
-      }
+    if (this.isConnecting) {
+      // Wait for existing connection attempt
+      return new Promise((resolve) => {
+        const checkConnection = setInterval(() => {
+          if (this.client?.isConnected()) {
+            clearInterval(checkConnection);
+            resolve(true);
+          } else if (!this.isConnecting) {
+            clearInterval(checkConnection);
+            resolve(false);
+          }
+        }, 500);
+      });
     }
-    return false;
+
+    this.isConnecting = true;
+    this.unintentionalDisconnect = false;
+
+    try {
+      // Clean up existing client if needed
+      if (this.client) {
+        await this.client.disconnect().catch(() => { });
+        this.client.removeAllListeners();
+      }
+
+      this.client = new Client('wss://s.altnet.rippletest.net:51233', {
+        timeout: this.CONNECTION_TIMEOUT,
+        connectionTimeout: this.CONNECTION_TIMEOUT
+      });
+
+      // Setup event listeners for stability
+      this.setupEventListeners();
+
+      await this.client.connect();
+      console.log('✅ XRPL Connected');
+      this.isConnecting = false;
+      return true;
+
+    } catch (error) {
+      console.error('Failed to connect to XRPL:', error);
+      this.isConnecting = false;
+      return this.handleConnectionError();
+    }
+  }
+
+  private setupEventListeners() {
+    if (!this.client) return;
+
+    this.client.on('disconnected', async (code) => {
+      console.warn(`XRPL Disconnected (code: ${code})`);
+      if (!this.unintentionalDisconnect) {
+        console.log('Attempting auto-reconnect...');
+        await this.connect(); // Auto-reconnect
+      }
+    });
+
+    this.client.on('error', (errorCode, errorMessage) => {
+      console.error(`XRPL Client Error: ${errorCode} - ${errorMessage}`);
+    });
+
+    this.client.on('connected', () => {
+      console.log('XRPL Client Event: Connected');
+    });
+  }
+
+  private async handleConnectionError(retryCount = 0): Promise<boolean> {
+    if (retryCount >= this.MAX_RETRIES) {
+      console.error('Max XRPL connection retries reached');
+      return false;
+    }
+
+    const waitTime = 1000 * Math.pow(2, retryCount);
+    console.log(`Retrying XRPL connection in ${waitTime}ms (Attempt ${retryCount + 1}/${this.MAX_RETRIES})...`);
+
+    await new Promise(resolve => setTimeout(resolve, waitTime));
+    return this.connect();
   }
 
   // Disconnect from XRPL
   async disconnect() {
+    this.unintentionalDisconnect = true; // Prevent auto-reconnect
     if (this.client) {
       await this.client.disconnect();
+      this.client.removeAllListeners();
       this.client = null;
     }
   }
@@ -258,25 +313,71 @@ class XRPLService {
     }
   }
 
-  // Submit transaction to XRPL (generic method)
-  async submitTransaction(transaction: any): Promise<{ hash: string; success: boolean }> {
+  // Submit transaction to XRPL with robust error handling and retries
+  async submitTransaction(transaction: any): Promise<{ hash: string; success: boolean; result?: string; error?: string }> {
     if (!this.client || !this.wallet) {
-      throw new Error('XRPL client or wallet not initialized');
+      // Try to connect/init if missing
+      await this.initializeWallet();
+      if (!this.client || !this.wallet) {
+        throw new Error('XRPL client or wallet not initialized');
+      }
     }
 
-    try {
-      const prepared = await this.client.autofill(transaction);
-      const signed = this.wallet.sign(prepared);
-      const result = await this.client.submitAndWait(signed.tx_blob) as XRPLResponse;
+    const maxRetries = 3;
+    let retryCount = 0;
 
-      return {
-        hash: result.result.hash || '',
-        success: result.result.meta?.TransactionResult === 'tesSUCCESS'
-      };
-    } catch (error) {
-      console.error('Failed to submit transaction:', error);
-      throw error;
+    while (retryCount < maxRetries) {
+      try {
+        // Refresh account info on retries to get latest sequence
+        if (retryCount > 0) {
+          console.log('Refreshing account info for new sequence...');
+          // A simple account_info request forces client to see latest state
+          await this.client.request({
+            command: 'account_info',
+            account: this.wallet.address,
+            ledger_index: 'validated'
+          });
+        }
+
+        const prepared = await this.client.autofill(transaction);
+        const signed = this.wallet.sign(prepared);
+        const result = await this.client.submitAndWait(signed.tx_blob) as XRPLResponse;
+
+        const txResult = result.result.meta?.TransactionResult;
+
+        if (txResult === 'tesSUCCESS') {
+          return {
+            hash: result.result.hash || '',
+            success: true,
+            result: txResult
+          };
+        }
+
+        // Handle Sequence Errors
+        if (txResult === 'tefPAST_SEQ' || txResult === 'terPRE_SEQ') {
+          console.warn(`Transaction failed with ${txResult}. Retrying... (${retryCount + 1}/${maxRetries})`);
+          retryCount++;
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s
+          continue;
+        }
+
+        // Return failure for other errors
+        return {
+          hash: result.result.hash || '',
+          success: false,
+          result: txResult,
+          error: this.getTransactionErrorMessage(txResult)
+        };
+
+      } catch (error: any) {
+        console.error(`Failed to submit transaction (attempt ${retryCount + 1}):`, error);
+        retryCount++;
+        if (retryCount >= maxRetries) throw error;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
+
+    return { hash: '', success: false, error: 'Max retries exceeded' };
   }
 
   // Verify transaction on XRPL
@@ -374,32 +475,74 @@ class XRPLService {
     );
   }
 
-  // Issue HAIC tokens
-  async issueHAICTokens(amount: string) {
-    if (!this.client || !this.wallet) {
-      throw new Error('XRPL client or wallet not initialized');
+  // Configure an account as an issuer (Sets DefaultRipple flag)
+  async configureIssuerAccount(seed: string): Promise<boolean> {
+    try {
+      const wallet = Wallet.fromSeed(seed);
+      if (!this.client) await this.connect();
+
+      console.log(`Configuring account ${wallet.address} as Issuer...`);
+
+      // Set DefaultRipple flag (SetFlag: 8)
+      const settingsTx = {
+        TransactionType: 'AccountSet' as const,
+        Account: wallet.address,
+        SetFlag: 8
+      };
+
+      const result = await this.submitTransaction({
+        ...settingsTx,
+        // Ensure we're signing with the issuer wallet
+      });
+
+      if (result.success) {
+        console.log('✅ Issuer configured successfully (DefaultRipple set)');
+        return true;
+      } else {
+        console.error('Failed to configure issuer:', result.error);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error configuring issuer:', error);
+      return false;
     }
+  }
+
+  // Issue (Mint) HAIC tokens - Sends HAIC from Issuer to a Destination
+  // Note: Destination must have a TrustLine set to proper Issuer
+  async issueHAICTokens(issuerSeed: string, destinationAddress: string, amount: string) {
+    if (!this.client) await this.connect();
 
     try {
-      // First, set up the issuer account for the HAIC token
-      const trustSetTx = {
-        TransactionType: 'TrustSet' as const,
-        Account: this.wallet.address,
-        LimitAmount: {
+      const issuerWallet = Wallet.fromSeed(issuerSeed);
+
+      const payment = {
+        TransactionType: 'Payment' as const,
+        Account: issuerWallet.address,
+        Destination: destinationAddress,
+        Amount: {
           currency: this.padCurrencyCode('HAIC'),
-          issuer: this.wallet.address,
-          value: '1000000000' // 1 billion max supply
+          issuer: issuerWallet.address,
+          value: amount
         }
       };
 
-      const prepared = await this.client.autofill(trustSetTx);
-      const signed = this.wallet.sign(prepared);
-      const result = await this.client.submitAndWait(signed.tx_blob) as XRPLResponse;
+      // Sign with ISSUER wallet
+      const prepared = await this.client!.autofill(payment);
+      const signed = issuerWallet.sign(prepared);
+
+      const result = await this.client!.submitAndWait(signed.tx_blob) as XRPLResponse;
+
+      if (result.result.meta?.TransactionResult === 'tesSUCCESS') {
+        return { success: true, hash: result.result.hash || '' };
+      }
 
       return {
-        success: result.result.meta?.TransactionResult === 'tesSUCCESS',
-        hash: result.result.hash
+        success: false,
+        hash: result.result.hash || '',
+        error: result.result.meta?.TransactionResult
       };
+
     } catch (error) {
       console.error('Failed to issue HAIC tokens:', error);
       throw error;
@@ -438,9 +581,9 @@ class XRPLService {
         TransactionType: 'TrustSet' as const,
         Account: destination,
         LimitAmount: {
-          currency: this.padCurrencyCode('HAIC'),
-          issuer: 'roFYYcmHunBu8Qp8dLEYcqxsS3EDvyuUY', // Hardcoded issuer
-          value: '1000000000' // 1 billion max supply
+          currency: this.padCurrencyCode(XRPL_CONFIG.TOKEN_CURRENCY),
+          issuer: XRPL_CONFIG.ISSUER_ADDRESS,
+          value: XRPL_CONFIG.MAX_SUPPLY
         }
       };
 
@@ -462,7 +605,7 @@ class XRPLService {
       const response = await this.client!.request({
         command: 'account_lines',
         account: address,
-        peer: 'roFYYcmHunBu8Qp8dLEYcqxsS3EDvyuUY' // Issuer address
+        peer: XRPL_CONFIG.ISSUER_ADDRESS
       });
 
       const lines = response.result.lines || [];
