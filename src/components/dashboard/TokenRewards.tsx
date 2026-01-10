@@ -105,8 +105,10 @@ export function TokenRewards({ className }: TokenRewardsProps) {
       <div className="p-6 bg-gradient-to-br from-healthAI-navy to-healthAI-darkBlue">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-semibold text-white">Health AI Coin</h3>
-          <HealthAICoin className="w-12 h-12" />
+          <img src="/favicon4.ico" alt="" className="w-12 h-12 rounded-full" />
+          {/* <HealthAICoin className="w-12 h-12" /> */}
         </div>
+
 
         <div className="mb-2">
           <div className="text-sm text-blue-200">XRPL Balance</div>
@@ -246,9 +248,9 @@ export function TokenRewards({ className }: TokenRewardsProps) {
             <h4 className="text-sm font-medium text-muted-foreground">Recent Rewards</h4>
             <div className="space-y-1 text-xs max-h-32 overflow-y-auto">
               {recentRewards.slice(0, 3).map((reward, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded">
-                  <span className="truncate">{reward.reason}</span>
-                  <span className="font-medium text-green-600 dark:text-green-400">+{reward.amount} HAIC</span>
+                <div key={index} className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                  <span className="truncate w-full">{reward.reason}</span>
+                  <span className="font-medium text-green-600 dark:text-green-400 whitespace-nowrap">+{reward.amount} HAIC</span>
                 </div>
               ))}
             </div>
@@ -259,21 +261,21 @@ export function TokenRewards({ className }: TokenRewardsProps) {
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-muted-foreground">Earn HAIC Tokens</h4>
           <div className="space-y-2 text-xs">
-            <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded">
-              <span>Complete Health Goals</span>
-              <span className="font-medium text-green-600 dark:text-green-400">+25-100 HAIC</span>
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded">
+              <span className="w-full">Complete Health Goals</span>
+              <span className="font-medium text-green-600 dark:text-green-400 whitespace-nowrap">+25-100 HAIC</span>
             </div>
-            <div className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-              <span>Follow Dietary Plan</span>
-              <span className="font-medium text-blue-600 dark:text-blue-400">+10-50 HAIC</span>
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+              <span className="w-full">Follow Dietary Plan</span>
+              <span className="font-medium text-blue-600 dark:text-blue-400 whitespace-nowrap">+10-50 HAIC</span>
             </div>
-            <div className="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
-              <span>Attend Appointments</span>
-              <span className="font-medium text-purple-600 dark:text-purple-400">+30-75 HAIC</span>
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
+              <span className="w-full">Attend Appointments</span>
+              <span className="font-medium text-purple-600 dark:text-purple-400 whitespace-nowrap">+30-75 HAIC</span>
             </div>
-            <div className="flex items-center justify-between p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
-              <span>Daily Health Check-ins</span>
-              <span className="font-medium text-orange-600 dark:text-orange-400">+5-15 HAIC</span>
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between p-2 bg-orange-50 dark:bg-orange-900/20 rounded">
+              <span className="w-full">Daily Health Check-ins</span>
+              <span className="font-medium text-orange-600 dark:text-orange-400 whitespace-nowrap">+5-15 HAIC</span>
             </div>
           </div>
         </div>

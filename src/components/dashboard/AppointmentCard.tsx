@@ -31,7 +31,7 @@ export function AppointmentCard({
           Schedule
         </Button>
       </div>
-      
+
       <div className="space-y-3">
         {appointments.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
@@ -44,32 +44,32 @@ export function AppointmentCard({
               className="p-3 rounded-2xl border border-border bg-card/50"
             >
               <h4 className="font-medium mb-2">{appointment.title}</h4>
-              
+
               <div className="space-y-2 text-sm">
                 <div className="flex items-center text-muted-foreground">
                   <UserRound className="h-4 w-4 mr-2" />
                   {appointment.doctor}
                 </div>
-                
+
                 <div className="flex items-center text-muted-foreground">
                   <MapPin className="h-4 w-4 mr-2" />
                   {appointment.location}
                 </div>
-                
+
                 <div className="flex items-center text-muted-foreground">
                   <Clock className="h-4 w-4 mr-2" />
                   {appointment.date} • {appointment.time}
                 </div>
               </div>
-              
-              <div className="mt-3 grid grid-cols-2 gap-2">
+
+              {/* <div className="mt-3 grid grid-cols-2 gap-2">
                 <Button variant="outline" size="sm" className="rounded-full text-xs">
                   Reschedule
                 </Button>
                 <Button size="sm" className="rounded-full text-xs">
                   Details
                 </Button>
-              </div>
+              </div> */}
             </div>
           ))
         )}

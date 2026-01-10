@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
-import { Notification } from '../models';
+import { Notification } from '../API';
 import { NotificationService } from '../services/NotificationService';
 import { toast } from 'sonner';
 

@@ -506,7 +506,7 @@ const Appointments = () => {
           filteredAppointments.map((appointment) => (
             <div
               key={appointment.id}
-              className="border rounded-lg p-4 flex items-center justify-between"
+              className="border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <div className="space-y-1">
                 <h3 className="font-medium">{appointment.title}</h3>
@@ -529,12 +529,13 @@ const Appointments = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col gap-3 w-full sm:w-auto sm:flex-row sm:items-center">
                 {(['UPCOMING', 'SCHEDULED', 'Scheduled', 'upcoming'].includes((appointment.status || '').toUpperCase())) && (
-                  <>
+                  <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex">
                     <Button
                       variant="outline"
                       size="sm"
+                      className="w-full sm:w-auto"
                       onClick={() => setRescheduleDialog({ open: true, appointmentId: appointment.id, date: '', time: '' })}
                     >
                       Reschedule
@@ -542,13 +543,14 @@ const Appointments = () => {
                     <Button
                       variant="destructive"
                       size="sm"
+                      className="w-full sm:w-auto"
                       onClick={() => handleCancelAppointment(appointment.id)}
                     >
                       Cancel
                     </Button>
-                  </>
+                  </div>
                 )}
-                <div className={`flex items-center px-2 py-1 rounded-full text-xs ${((appointment.status || '').toUpperCase()) === 'COMPLETED'
+                <div className={`flex items-center justify-center px-2 py-1 rounded-full text-xs w-full sm:w-auto ${((appointment.status || '').toUpperCase()) === 'COMPLETED'
                   ? 'bg-green-100 text-green-700'
                   : ((appointment.status || '').toUpperCase()) === 'CANCELLED'
                     ? 'bg-red-100 text-red-700'

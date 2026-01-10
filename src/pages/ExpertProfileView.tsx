@@ -13,14 +13,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { 
+import {
   ArrowLeft,
-  MapPin, 
-  Phone, 
-  Mail, 
-  Globe, 
-  Star, 
-  Clock, 
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+  Star,
+  Clock,
   DollarSign,
   Plus,
   Check,
@@ -42,7 +42,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [expert, setExpert] = useState<Expert | null>(propExpert || location.state?.expert || null);
   const [isLoading, setIsLoading] = useState(!expert);
   const [isBooking, setIsBooking] = useState(false);
@@ -72,7 +72,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
 
   const loadExpert = async () => {
     if (!expertId) return;
-    
+
     try {
       setIsLoading(true);
       const expertData = await expertService.getExpert(expertId);
@@ -118,12 +118,12 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
       toast.success('Expert added to your specialists!');
     } catch (error: any) {
       console.error('Error adding expert:', error);
-      
+
       if (error.data?.createExpertPatient) {
         toast.success('Expert added to your specialists!');
         return;
       }
-      
+
       if (error.errors && error.errors.length > 0) {
         const errorMessage = error.errors[0].message;
         if (errorMessage.includes('Not Authorized')) {
@@ -163,11 +163,11 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
       };
 
       // Navigate to appointments page with pre-filled data
-      navigate('/appointments', { 
-        state: { 
+      navigate('/appointments', {
+        state: {
           newAppointment: appointmentData,
           expert: expert
-        } 
+        }
       });
     } catch (error) {
       console.error('Error booking appointment:', error);
@@ -212,32 +212,32 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate('/find-expert')}
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Experts
           </Button>
-          
+
           <div className="bg-white dark:bg-card rounded-lg shadow-sm p-6">
-            <div className="flex items-start gap-6">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={expert.profileImage} />
                 <AvatarFallback className="text-2xl">
                   {expert.user ? getInitials(expert.user.firstName, expert.user.lastName) : 'EX'}
                 </AvatarFallback>
               </Avatar>
-              
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
+
+              <div className="flex-1 w-full">
+                <div className="flex flex-col gap-4 w-full">
                   <div>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">
                       {expert.user ? `${expert.user.firstName} ${expert.user.lastName}` : `Dr. ${expert.specialization}`}
                     </h1>
                     <p className="text-xl text-gray-600 dark:text-muted-foreground mb-2">{expert.specialization}</p>
-                    
+
                     <div className="flex items-center gap-4 mb-4">
                       {expert.isVerified && (
                         <Badge variant="default" className="bg-green-600 dark:bg-green-700">
@@ -257,8 +257,8 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                       )}
                     </div>
                   </div>
-                  
-                  <div className="flex gap-2">
+
+                  <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                     <Button
                       variant="outline"
                       onClick={handleAddExpert}
@@ -271,7 +271,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                       )}
                       Add to My Experts
                     </Button>
-                    
+
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button>
@@ -286,7 +286,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                             Schedule a consultation with {expert.user ? `${expert.user.firstName} ${expert.user.lastName}` : 'this expert'}
                           </DialogDescription>
                         </DialogHeader>
-                        
+
                         <div className="space-y-4">
                           <div>
                             <label className="text-sm font-medium text-foreground">Appointment Type</label>
@@ -303,7 +303,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                               </SelectContent>
                             </Select>
                           </div>
-                          
+
                           <div>
                             <label className="text-sm font-medium text-foreground">Date</label>
                             <Calendar
@@ -314,7 +314,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                               disabled={(date) => date < new Date()}
                             />
                           </div>
-                          
+
                           <div>
                             <label className="text-sm font-medium text-foreground">Time</label>
                             <Select value={selectedTime} onValueChange={setSelectedTime}>
@@ -330,7 +330,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                               </SelectContent>
                             </Select>
                           </div>
-                          
+
                           <div>
                             <label className="text-sm font-medium text-foreground">Notes (Optional)</label>
                             <Textarea
@@ -340,8 +340,8 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                               rows={3}
                             />
                           </div>
-                          
-                          <Button 
+
+                          <Button
                             onClick={handleBookAppointment}
                             disabled={!selectedDate || !selectedTime || isBooking}
                             className="w-full"
@@ -417,7 +417,7 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                       </ul>
                     </div>
                   )}
-                  
+
                   {expert.certifications && expert.certifications.length > 0 && (
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 dark:text-foreground mb-2">Certifications</h4>
@@ -488,34 +488,34 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                     <span className="text-gray-700 dark:text-muted-foreground">{expert.practiceName}</span>
                   </div>
                 )}
-                
+
                 {expert.practiceAddress && (
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 text-gray-500 dark:text-muted-foreground mt-0.5" />
                     <span className="text-gray-700 dark:text-muted-foreground">{expert.practiceAddress}</span>
                   </div>
                 )}
-                
+
                 {expert.practicePhone && (
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
                     <span className="text-gray-700 dark:text-muted-foreground">{expert.practicePhone}</span>
                   </div>
                 )}
-                
+
                 {expert.practiceEmail && (
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
                     <span className="text-gray-700 dark:text-muted-foreground">{expert.practiceEmail}</span>
                   </div>
                 )}
-                
+
                 {expert.practiceWebsite && (
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-gray-500 dark:text-muted-foreground" />
-                    <a 
-                      href={expert.practiceWebsite} 
-                      target="_blank" 
+                    <a
+                      href={expert.practiceWebsite}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
@@ -532,27 +532,27 @@ export default function ExpertProfileView({ expert: propExpert }: ExpertProfileV
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
                   onClick={() => window.open(`tel:${expert.practicePhone}`, '_self')}
                 >
                   <PhoneCall className="h-4 w-4 mr-2" />
                   Call Practice
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
                   onClick={() => window.open(`mailto:${expert.practiceEmail}`, '_self')}
                 >
                   <Mail className="h-4 w-4 mr-2" />
                   Send Email
                 </Button>
-                
+
                 {expert.practiceWebsite && (
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full justify-start"
                     onClick={() => window.open(expert.practiceWebsite, '_blank')}
                   >

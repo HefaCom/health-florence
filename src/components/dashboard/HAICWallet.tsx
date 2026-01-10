@@ -566,22 +566,22 @@ export default function HAICWallet() {
                 <div className="space-y-4">
                   {rewards.map((reward) => (
                     <div key={reward.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-0">
+                        <div className="flex items-start gap-3 w-full">
                           <div className={`p-2 rounded-full ${getCategoryColor(reward.category)}`}>
                             {getCategoryIcon(reward.category)}
                           </div>
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-medium">{reward.reason}</h4>
-                              <Badge className={getCategoryColor(reward.category)}>
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <h4 className="font-medium mr-1">{reward.reason}</h4>
+                              <Badge className={`${getCategoryColor(reward.category)} whitespace-nowrap`}>
                                 {reward.category.replace('_', ' ')}
                               </Badge>
                             </div>
                             <p className="text-sm text-gray-600 mb-2">
                               {formatTimestamp(reward.createdAt || '')}
                             </p>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                               {getStatusIcon(reward.status)}
                               <span className="text-sm text-gray-600">
                                 {reward.status === 'confirmed' ? 'Confirmed' :
@@ -595,7 +595,7 @@ export default function HAICWallet() {
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right w-full sm:w-auto pl-12 sm:pl-0">
                           <p className="text-lg font-bold text-green-600">
                             +{formatAmount(reward.amount)} HAIC
                           </p>
@@ -631,18 +631,18 @@ export default function HAICWallet() {
                 <div className="space-y-4">
                   {transactions.map((transaction) => (
                     <div key={transaction.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium">{transaction.description}</h4>
-                            <Badge variant="outline">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-0">
+                        <div className="flex-1 w-full">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <h4 className="font-medium mr-1">{transaction.description}</h4>
+                            <Badge variant="outline" className="whitespace-nowrap">
                               {transaction.type.toUpperCase()}
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-2">
                             {formatTimestamp(transaction.createdAt || '')}
                           </p>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             {getStatusIcon(transaction.status)}
                             <span className="text-sm text-gray-600">
                               {transaction.status === 'confirmed' ? 'Confirmed' :
@@ -655,7 +655,7 @@ export default function HAICWallet() {
                             )}
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-left sm:text-right w-full sm:w-auto">
                           <p className={`text-lg font-bold ${transaction.type === 'earn' ? 'text-green-600' :
                             transaction.type === 'spend' ? 'text-red-600' : 'text-blue-600'
                             }`}>

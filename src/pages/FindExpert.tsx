@@ -11,16 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { 
-  Search, 
-  Filter, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Globe, 
-  Star, 
-  Users, 
-  Clock, 
+import {
+  Search,
+  Filter,
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+  Star,
+  Users,
+  Clock,
   DollarSign,
   Plus,
   Check,
@@ -55,11 +55,11 @@ export default function FindExpert() {
       setIsLoading(true);
       const allExperts = await expertService.getAllExperts();
       setExperts(allExperts);
-      
+
       // Generate specialties from actual data
       const uniqueSpecializations = [...new Set(allExperts.map(expert => expert.specialization))];
       setSpecializations(['All Specializations', ...uniqueSpecializations]);
-      
+
       if (allExperts.length === 0) {
         toast.info('No experts found in the database. Please check back later.');
       }
@@ -77,15 +77,15 @@ export default function FindExpert() {
     // Filter by search term
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(expert => 
+      filtered = filtered.filter(expert =>
         expert.specialization.toLowerCase().includes(searchLower) ||
         expert.practiceName?.toLowerCase().includes(searchLower) ||
         expert.practiceAddress?.toLowerCase().includes(searchLower) ||
         expert.bio?.toLowerCase().includes(searchLower) ||
-        expert.subSpecializations?.some(spec => 
+        expert.subSpecializations?.some(spec =>
           spec.toLowerCase().includes(searchLower)
         ) ||
-        expert.languages?.some(lang => 
+        expert.languages?.some(lang =>
           lang.toLowerCase().includes(searchLower)
         ) ||
         (expert.user && (
@@ -98,7 +98,7 @@ export default function FindExpert() {
 
     // Filter by specialization
     if (selectedSpecialization !== 'All Specializations') {
-      filtered = filtered.filter(expert => 
+      filtered = filtered.filter(expert =>
         expert.specialization === selectedSpecialization
       );
     }
@@ -138,13 +138,13 @@ export default function FindExpert() {
       toast.success('Expert added to your specialists!');
     } catch (error: any) {
       console.error('Error adding expert:', error);
-      
+
       // Check if the expert was actually added despite errors
       if (error.data?.createExpertPatient) {
         toast.success('Expert added to your specialists!');
         return;
       }
-      
+
       // Provide more specific error messages
       if (error.errors && error.errors.length > 0) {
         const errorMessage = error.errors[0].message;
@@ -167,10 +167,10 @@ export default function FindExpert() {
       toast.error('Expert not found');
       return;
     }
-    
+
     // Navigate to expert profile page with expert data
-    navigate(`/expert-profile/${expertId}`, { 
-      state: { expert } 
+    navigate(`/expert-profile/${expertId}`, {
+      state: { expert }
     });
   };
 
@@ -180,15 +180,15 @@ export default function FindExpert() {
       toast.error('Expert not found');
       return;
     }
-    
+
     // Navigate to appointments page with expert data for booking
-    navigate(`/appointments`, { 
-      state: { 
+    navigate(`/appointments`, {
+      state: {
         newAppointment: {
           expertId: expert.id,
           expert: expert
         }
-      } 
+      }
     });
   };
 
@@ -203,7 +203,7 @@ export default function FindExpert() {
     return (
       <Card key={expert.id} className="hover:shadow-lg transition-shadow">
         <CardHeader>
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
                 <AvatarImage src={expert.profileImage} />
@@ -290,22 +290,22 @@ export default function FindExpert() {
 
           <Separator />
 
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleViewProfile(expert.id)}
-              className="flex-1"
+              className="w-full sm:flex-1"
             >
               View Profile
             </Button>
-            
+
             {hasExpert ? (
               <Button
                 variant="outline"
                 size="sm"
                 disabled
-                className="flex-1"
+                className="w-full sm:flex-1"
               >
                 <Check className="h-4 w-4 mr-2" />
                 Added
@@ -316,7 +316,7 @@ export default function FindExpert() {
                 size="sm"
                 onClick={() => handleAddExpert(expert.id)}
                 disabled={isAdding}
-                className="flex-1"
+                className="w-full sm:flex-1"
               >
                 {isAdding ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -330,7 +330,7 @@ export default function FindExpert() {
             <Button
               size="sm"
               onClick={() => handleBookAppointment(expert.id)}
-              className="flex-1"
+              className="col-span-2 w-full sm:col-span-1 sm:flex-1"
             >
               Book Appointment
             </Button>
