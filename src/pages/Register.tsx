@@ -184,8 +184,8 @@ const Register = () => {
                 <Button
                   type="submit"
                   className="w-full rounded-full h-12"
-                  // disabled={isSubmitting}
-                  disabled={true}
+                  disabled={isSubmitting}
+                // disabled={true}
                 >
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
